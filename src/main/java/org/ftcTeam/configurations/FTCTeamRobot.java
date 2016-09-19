@@ -1,4 +1,4 @@
-package org.ftcTeam;
+package org.ftcTeam.configurations;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
