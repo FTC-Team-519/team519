@@ -19,7 +19,7 @@ import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
 public class GamePadDriveOpMode extends ActiveOpMode {
 
     private FTCTeamRobot robot;
-    private GamePadTankDrive gamePadTankDrive;
+    private GamePadTankDrive gamePadTankDrive1, gamePadTankDrive2;
 
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
@@ -31,7 +31,7 @@ public class GamePadDriveOpMode extends ActiveOpMode {
 
         //Note The Telemetry Utility is designed to let you organize all telemetry data before sending it to
         //the Driver station via the sendTelemetry command
-        getTelemetryUtil().addData("Init", getClass().getSimpleName() + " initialized.");
+        getTelemetryUtil().addData("Init", getClass().getSimpleName() + " initializedX.");
         getTelemetryUtil().sendTelemetry();
 
     }
@@ -41,8 +41,8 @@ public class GamePadDriveOpMode extends ActiveOpMode {
         super.onStart();
 
         //create the operation  to perform a tank drive using the gamepad joysticks.
-        gamePadTankDrive = new GamePadTankDrive(this, gamepad1, robot.motor1, robot.motor2);
-
+        gamePadTankDrive1 = new GamePadTankDrive(this, gamepad1, robot.motor1, robot.motor2);
+        gamePadTankDrive2 = new GamePadTankDrive(this, gamepad1, robot.motor3, robot.motor4);
     }
 
     /**
@@ -55,10 +55,18 @@ public class GamePadDriveOpMode extends ActiveOpMode {
     protected void activeLoop() throws InterruptedException {
 
         //update the motors with the gamepad joystick values
-        gamePadTankDrive.update();
+        gamePadTankDrive1.update();
+        gamePadTankDrive2.update();
+
+        //robot.motor1.setPower(.5);
+
+        getTelemetryUtil().addData("activeLoop", getClass().getSimpleName() + " allcowseatgrass.");
+        getTelemetryUtil().sendTelemetry();
+
+
 
         //send any telemetry that may have been added in the above operations
-        getTelemetryUtil().sendTelemetry();
+        //getTelemetryUtil().sendTelemetry();
 
 
 
