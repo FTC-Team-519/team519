@@ -1,1 +1,1 @@
-apply from: '../build.common.gradle'
+apply from: rootProject.file('build.common.gradle')
