@@ -3,7 +3,6 @@ package org.ftcTeam.configurations;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.ftcbootstrap.RobotConfiguration;
 import org.ftcbootstrap.components.utils.TelemetryUtil;
@@ -18,9 +17,6 @@ import org.ftcbootstrap.components.utils.TelemetryUtil;
  */
 public class FTCTeamRobot extends RobotConfiguration {
 
-    //sensors
-    public TouchSensor touch;
-
     //motors
     public DcMotor motor1;
     public DcMotor motor2;
@@ -31,9 +27,9 @@ public class FTCTeamRobot extends RobotConfiguration {
     /**
      * Factory method for this class
      *
-     * @param hardwareMap
-     * @param telemetryUtil
-     * @return
+     * @param hardwareMap the hardware map to read from.
+     * @param telemetryUtil the telemetryUtil to potentially write out to.
+     * @return a new FTCTeamRobot.
      */
     public static FTCTeamRobot newConfig(HardwareMap hardwareMap, TelemetryUtil telemetryUtil) {
 
@@ -46,8 +42,8 @@ public class FTCTeamRobot extends RobotConfiguration {
     /**
      * Assign your class instance variables to the saved device names in the hardware map
      *
-     * @param hardwareMap
-     * @param telemetryUtil
+     * @param hardwareMap the hardware map to read from.
+     * @param telemetryUtil the telemetryUtil to potentially write out to.
      */
     @Override
     protected void init(HardwareMap hardwareMap, TelemetryUtil telemetryUtil) {
@@ -58,11 +54,11 @@ public class FTCTeamRobot extends RobotConfiguration {
         //servo = (Servo) getHardwareOn("servo", hardwareMap.servo);
         motor1 = (DcMotor) getHardwareOn("motor1", hardwareMap.dcMotor);
         motor2 = (DcMotor) getHardwareOn("motor2", hardwareMap.dcMotor);
-        motor2.setDirection(DcMotor.Direction.REVERSE);
+        motor1.setDirection(DcMotor.Direction.REVERSE);
 
         motor3 = (DcMotor) getHardwareOn("motor3", hardwareMap.dcMotor);
         motor4 = (DcMotor) getHardwareOn("motor4", hardwareMap.dcMotor);
-        motor4.setDirection(DcMotor.Direction.REVERSE);
+        motor3.setDirection(DcMotor.Direction.REVERSE);
 
 
     }
