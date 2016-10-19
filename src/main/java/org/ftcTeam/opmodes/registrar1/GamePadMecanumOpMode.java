@@ -104,6 +104,7 @@ br = 2
 fl = 3
 bl = 4
  */
+        // Might want to have a more effective combination
         frontright.setPower(Range.clip(-pwr - x-z, -0.5, 0.5));
         frontleft.setPower(Range.clip(-pwr + x+z, -0.5, 0.5));
         backright.setPower(Range.clip(-pwr + x-z, -0.4, 0.4));
