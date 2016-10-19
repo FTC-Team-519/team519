@@ -119,6 +119,8 @@ bl = 4
         w = gamepad1.right_stick_y;
         //updates joystick values
 
+        //y *= (y < 0) ? -y : y;
+
         if(Math.abs(x)<deadzone) x = 0;
         if(Math.abs(y)<deadzone) y = 0;
         if(Math.abs(z)<deadzone) z = 0;
