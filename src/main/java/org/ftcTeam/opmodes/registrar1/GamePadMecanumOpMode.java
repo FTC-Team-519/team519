@@ -139,7 +139,7 @@ public float shape(double conInput){
     //return 1.0f;
         //above code is if you want to run into whatever is
         //directly in front of the robot at full speed!
-    float shape[] = {0.2f, 0.25f, 0.3f, 0.375f, 0.45f, 0.525f, 0.65f, 0.75f, 0.875f, 1.0f};
+    float shape[] = {0f, 0.2f, 0.25f, 0.3f, 0.375f, 0.45f, 0.525f, 0.65f, 0.75f, 0.875f, 1.0f};
     float conOutput = 0.0f;
     //determines the sign
     boolean neg = false;
