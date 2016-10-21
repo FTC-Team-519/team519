@@ -107,8 +107,8 @@ bl = 4
         // Might want to have a more effective combination
         frontright.setPower(Range.clip(-pwr - x-z, -0.5, 0.5));
         frontleft.setPower(Range.clip(-pwr + x+z, -0.5, 0.5));
-        backright.setPower(Range.clip(-pwr + x-z, -0.4, 0.4));
-        backleft.setPower(Range.clip(-pwr - x+z, -0.4, 0.4));
+        backright.setPower(Range.clip(-pwr + x-z, -0.5, 0.5));
+        backleft.setPower(Range.clip(-pwr - x+z, -0.5, 0.5));
 
     }
     public void getJoyVals()
@@ -121,12 +121,54 @@ bl = 4
 
         //y *= (y < 0) ? -y : y;
 
+        y = shape(gamepad1.left_stick_y);
+        x = shape(gamepad1.left_stick_x);
+        z = shape(gamepad1.right_stick_x);
+        w = shape(gamepad1.right_stick_y);
+
         if(Math.abs(x)<deadzone) x = 0;
         if(Math.abs(y)<deadzone) y = 0;
         if(Math.abs(z)<deadzone) z = 0;
         if(Math.abs(w)<0.9) w = 0;
         //checks deadzones
     }
-
-
+//attempts to make driving easier by making it less sensitive in the begining
+// while becoming increasingly senseitve, the farther the joystick is pushed
+    //originally written by Luke Adsit, 10/20/16
+public float shape(double conInput){
+    //return 1.0f;
+        //above code is if you want to run into whatever is
+        //directly in front of the robot at full speed!
+    float shape[] = {0.2f, 0.25f, 0.3f, 0.375f, 0.45f, 0.525f, 0.65f, 0.75f, 0.875f, 1.0f};
+    float conOutput = 0.0f;
+    //determines the sign
+    boolean neg = false;
+    if (conInput < 0) {neg = true;}
+            //finds the input and assigns a new value from the double array shape
+            for(double i = 0.0; i < 1.0; i += 0.1)
+    {
+        if ( conInput < i )
+        {
+            conOutput = shape[(int)((i - 0.1) * 10.0)];
+            if(neg){conOutput = -1 * conOutput;}//preserves the sign/direction of input
+            return conOutput;
+        }
+    }
+    return 0.0f;
+    //"fall-back"... doesn't move,
 }
+}
+/*start
+double shape[10] = {0.2, 0.25, 0.3, 0.375, 0.45, 0.525, 0.65, 0.75, 0.875, 1.0}
+ conInput = [int} conInput;
+double conOutput
+        conOutput = shape[conInput]
+        //finds the input and assigns a new value from the double array shape
+for (int i = 0; i < 1; i += 0.1;)
+        {
+            if ( conInput < i )
+            {
+                conOutput= shape[(i- 0.1) * 10];
+            }
+        }
+end*/
