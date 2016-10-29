@@ -2,6 +2,7 @@ package org.ftcTeam.opmodes;
 
 import org.ftcTeam.opmodes.registrar1.AirAndScareMecanumOpMode;
 import org.ftcTeam.opmodes.registrar1.AutonomousFirstTry;
+import org.ftcTeam.opmodes.registrar1.AutonomousVuforia;
 import org.ftcTeam.opmodes.registrar1.GamePadDriveOpMode;
 import org.ftcTeam.opmodes.registrar1.GamePadMecanumOpMode;
 import org.ftcbootstrap.BootstrapRegistrar;
@@ -21,7 +22,8 @@ public class Registrar1 extends BootstrapRegistrar {
             GamePadMecanumOpMode.class,
             AirAndScareMecanumOpMode.class,
             TelemetryTest.class,
-            AutonomousFirstTry.class
+            AutonomousFirstTry.class,
+            AutonomousVuforia.class
     };
 
     return classes;
