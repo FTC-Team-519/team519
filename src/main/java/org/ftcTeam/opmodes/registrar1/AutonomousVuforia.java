@@ -63,6 +63,9 @@ public class AutonomousVuforia extends ActiveOpMode {
     public static final float MM_PER_INCH = 25.4f;
     public static final float MM_BOT_WIDTH = 18 * MM_PER_INCH;            // ... or whatever is right for your robot
     public static final float MM_FTC_FIELD_WIDTH = (12*12 - 2) * MM_PER_INCH;   // the FTC field is ~11'10" center-to-center of the glass panels
+    public static final float MM_TARGET_CENTER_HEIGHT = (1.5f + (8.5f / 2.0f)) * MM_PER_INCH; // half height of 8.5x11 sheet plus 1.5" above floor
+    public static final float MM_NEAR_OFFSET = (1 * 12) * MM_PER_INCH;
+    public static final float MM_FAR_OFFSET = (3 * 12) * MM_PER_INCH;
 
     VuforiaLocalizer.Parameters parameters;
     VuforiaLocalizer vuforia;
@@ -85,56 +88,58 @@ public class AutonomousVuforia extends ActiveOpMode {
         VuforiaTrackable legos  = ftc2016Trackables.get(2);
         VuforiaTrackable gears  = ftc2016Trackables.get(3);
 
-        wheels.setName("wheels");
-        tools.setName("tools");
-        legos.setName("legos");
-        gears.setName("gears");
+        wheels.setName("wheels"); // blue-center
+        tools.setName("tools"); // red-far
+        legos.setName("legos"); // blue-far
+        gears.setName("gears"); // red-center
 
-        OpenGLMatrix wheelsTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix redNearTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the RED WALL. Our translation here
                 is a negative translation in X.*/
-                // FIXME: this should also translate +z to be correct height above floor
-                .translation(-MM_FTC_FIELD_WIDTH/2, 0, 0)
+                // This also translates +z to be correct height above floor
+                // This translates -y to move along wall toward Red team
+                .translation(-MM_FTC_FIELD_WIDTH/2, -MM_NEAR_OFFSET, MM_TARGET_CENTER_HEIGHT)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 90, 0));
-        wheels.setLocation(wheelsTargetLocationOnField);
+        gears.setLocation(redNearTargetLocationOnField);
 
-        OpenGLMatrix toolsTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix redFarTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the RED WALL. Our translation here
                 is a negative translation in X.*/
-                // FIXME: this should also translate +z to be correct height above floor
-                // FIXME: should translate +y to move along wall away from Red team
-                .translation(-MM_FTC_FIELD_WIDTH/2, 0, 0)
+                // This also translates +z to be correct height above floor
+                // This translates +y to move along wall away from Red team
+                .translation(-MM_FTC_FIELD_WIDTH/2, MM_FAR_OFFSET, MM_TARGET_CENTER_HEIGHT)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 90, 0));
-        tools.setLocation(wheelsTargetLocationOnField);
+        tools.setLocation(redFarTargetLocationOnField);
 
-        OpenGLMatrix legosTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix blueNearTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the Blue Audience wall.
                 Our translation here is a positive translation in Y.*/
-                // FIXME: this should also translate +z to be correct height above floor
-                .translation(0, MM_FTC_FIELD_WIDTH/2, 0)
+                // This also translates +z to be correct height above floor
+                // This translates +x to move along wall toward Blue team
+                .translation(MM_NEAR_OFFSET, MM_FTC_FIELD_WIDTH/2, MM_TARGET_CENTER_HEIGHT)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 0, 0));
-        legos.setLocation(legosTargetLocationOnField);
+        wheels.setLocation(blueNearTargetLocationOnField);
 
-        OpenGLMatrix gearsTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix blueFarTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the Blue Audience wall.
                 Our translation here is a positive translation in Y.*/
-                // FIXME: this should also translate +z to be correct height above floor
-                // FIXME: should translate -x to move along wall away from Blue team
-                .translation(0, MM_FTC_FIELD_WIDTH/2, 0)
+                // This also translates +z to be correct height above floor
+                // This translates -x to move along wall away from Blue team
+                .translation(-MM_FAR_OFFSET, MM_FTC_FIELD_WIDTH/2, MM_TARGET_CENTER_HEIGHT)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 0, 0));
-        gears.setLocation(gearsTargetLocationOnField);
+        legos.setLocation(blueFarTargetLocationOnField);
 
         // FIXME: +Y translation puts it on front of robot, and -Y to put on back
         // FIXME: Would need -90 rotation on X axis to put it facing inwards on back
