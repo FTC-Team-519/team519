@@ -2,6 +2,7 @@ package org.ftcTeam.opmodes.registrar1;
 
 
 import android.util.Base64;
+import android.widget.TableRow;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.vuforia.Vuforia;
@@ -67,9 +68,19 @@ public class AutonomousVuforia extends ActiveOpMode {
     public static final float MM_NEAR_OFFSET = (1 * 12) * MM_PER_INCH;
     public static final float MM_FAR_OFFSET = (3 * 12) * MM_PER_INCH;
 
-    VuforiaLocalizer.Parameters parameters;
-    VuforiaLocalizer vuforia;
-    VuforiaTrackables ftc2016Trackables;
+    public static final float MM_TARGET_X = (-4 * 12) * MM_PER_INCH;
+    public static final float MM_TARGET_Y = (-1 * 12) * MM_PER_INCH;
+
+    private VuforiaLocalizer.Parameters parameters;
+    private VuforiaLocalizer vuforia;
+    private VuforiaTrackables ftc2016Trackables;
+
+    private VuforiaTrackable wheels;
+    private VuforiaTrackable tools;
+    private VuforiaTrackable legos;
+    private VuforiaTrackable gears;
+
+    private OpenGLMatrix lastKnownLocation = null;
 
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
@@ -83,15 +94,15 @@ public class AutonomousVuforia extends ActiveOpMode {
 
         ftc2016Trackables = this.vuforia.loadTrackablesFromAsset("FTC_2016-17");
 
-        VuforiaTrackable wheels = ftc2016Trackables.get(0);
-        VuforiaTrackable tools  = ftc2016Trackables.get(1);
-        VuforiaTrackable legos  = ftc2016Trackables.get(2);
-        VuforiaTrackable gears  = ftc2016Trackables.get(3);
+        wheels = ftc2016Trackables.get(0);
+        tools  = ftc2016Trackables.get(1);
+        legos  = ftc2016Trackables.get(2);
+        gears  = ftc2016Trackables.get(3);
 
-        wheels.setName("wheels"); // blue-center
+        wheels.setName("wheels"); // blue-near
         tools.setName("tools"); // red-far
         legos.setName("legos"); // blue-far
-        gears.setName("gears"); // red-center
+        gears.setName("gears"); // red-near
 
         OpenGLMatrix redNearTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the RED WALL. Our translation here
@@ -145,10 +156,10 @@ public class AutonomousVuforia extends ActiveOpMode {
         // FIXME: Would need -90 rotation on X axis to put it facing inwards on back
         // FIXME: Still need +z translation to put at proper height
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(0, MM_BOT_WIDTH/2, 0)
+                .translation(0, MM_BOT_WIDTH/2, MM_BOT_WIDTH/2)
                 .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 90, 0, 0));
+                        AxesReference.EXTRINSIC, AxesOrder.YZY,
+                        AngleUnit.DEGREES, -90, 90, 0));
 
         ((VuforiaTrackableDefaultListener)wheels.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         ((VuforiaTrackableDefaultListener)tools.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
@@ -180,7 +191,26 @@ public class AutonomousVuforia extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
+        getTelemetryUtil().addData("Target", "Looking for target.");
+        getTelemetryUtil().addData("Seen: ", ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible() ? "Visible" : "Not Visible");
 
+        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+        if (robotLocationTransform != null) {
+            lastKnownLocation = robotLocationTransform;
+        }
+
+        if (lastKnownLocation != null) {
+            getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+        }
+        else {
+            getTelemetryUtil().addData("Location:", "unknown");
+        }
+
+        float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
+        float pErrorX = MM_TARGET_X - xyzTranslation[0];
+        float pErrorY = MM_TARGET_Y - xyzTranslation[1];
+
+        getTelemetryUtil().sendTelemetry();
     }
 
 }
