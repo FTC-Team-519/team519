@@ -284,7 +284,7 @@ public class AutonomousVuforia extends ActiveOpMode {
             double[] altered = rotateVector(xVector, yVector, orientation.thirdAngle);
 
             float zVector = 0.0f;
-            if (pErrorDegZ < 2f) {
+            if (pErrorDegZ < -2f) {
                 zVector = -0.5f;
             } else if (pErrorDegZ > 2f) {
                 zVector = 0.5f;
