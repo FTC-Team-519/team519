@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.ftcbootstrap.ActiveOpMode;
+import org.ftcbootstrap.components.TimerComponent;
 import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
 
 
@@ -18,14 +19,14 @@ import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
 
 @TeleOp
 public class TestShooterSpeed extends ActiveOpMode {
-    private DcMotor motor1;
-    private DcMotor motor2;
-    private DcMotor motor3;
-    private DcMotor motor4;
+    private DcMotor shooter;
     float x;
     float y;
     float z;
     private static final float DEAD_ZONE = 0.2f;
+    TimerComponent timerComponent;
+
+    int previousTickCount = 0;
 
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
@@ -38,10 +39,7 @@ public class TestShooterSpeed extends ActiveOpMode {
         getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit.");
         getTelemetryUtil().sendTelemetry();
 
-        motor4 = hardwareMap.dcMotor.get("motor4");
-        motor2 = hardwareMap.dcMotor.get("motor2");
-        motor3 = hardwareMap.dcMotor.get("motor3");
-        motor1 = hardwareMap.dcMotor.get("motor1");
+        shooter = hardwareMap.dcMotor.get("shooter");
     }
 
     @Override
@@ -50,6 +48,10 @@ public class TestShooterSpeed extends ActiveOpMode {
 
         getTelemetryUtil().addData("Start", getClass().getSimpleName() + " onStart.");
         getTelemetryUtil().sendTelemetry();
+
+        shooter.getController().setMotorMode(1, DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.getController().setMotorZeroPowerBehavior(1, DcMotor.ZeroPowerBehavior.FLOAT);
+        timerComponent = getTimer();
     }
 
     /**
@@ -65,17 +67,29 @@ public class TestShooterSpeed extends ActiveOpMode {
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
         double pwr = -y;
 
-        motor2.setPower(pwr);
-        motor1.setPower(pwr);
-        motor4.setPower(pwr);
-        motor3.setPower(pwr);
+        if (gamepad1.x) {
+            shooter.setPower(0.10d);
+        }
+        else if (gamepad1.y) {
+            shooter.setPower(0.20d);
+        }
+        else if (gamepad1.b) {
+            shooter.setPower(0.40d);
+        }
+        else if (gamepad1.a) {
+            shooter.setPower(0.6d);
+        }
+        else {
+            shooter.setPower(0.0d);
+        }
 
-        int click1 = motor1.getController().getMotorCurrentPosition(1);
-        int click2 = motor2.getController().getMotorCurrentPosition(1);
-        int click3 = motor3.getController().getMotorCurrentPosition(1);
-        int click4 = motor4.getController().getMotorCurrentPosition(1);
+        if (timerComponent.targetReached(1.0f)) {
+            int currentTicks = shooter.getController().getMotorCurrentPosition(1);
+            float ticksPerSecond = currentTicks - previousTickCount;
+            previousTickCount = currentTicks;
+            getTelemetryUtil().addData("RPM", "ticksPerMinute: " + ticksPerSecond);
+        }
 
-        getTelemetryUtil().addData("Encoder", "Something " + click1 + " " + click2 + " " + click3 + " " + click4);
         getTelemetryUtil().sendTelemetry();
     }
 
