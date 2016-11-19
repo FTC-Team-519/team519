@@ -2,6 +2,7 @@ package org.ftcTeam.configurations;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IrSeekerSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.ftcbootstrap.RobotConfiguration;
@@ -19,6 +20,10 @@ public class MotorAndServoRobot extends RobotConfiguration {
 
     //motors
     public DcMotor motor1;
+    public DcMotor motor2;
+    public DcMotor motor3;
+    public DcMotor motor4;
+    public IrSeekerSensor IRSeeker;
     public Servo servo1;
 
     /**
@@ -34,8 +39,10 @@ public class MotorAndServoRobot extends RobotConfiguration {
 
         servo1 = (Servo) getHardwareOn("servo1", hardwareMap.servo);
         motor1 = (DcMotor) getHardwareOn("motor1", hardwareMap.dcMotor);
-
-
+        motor2 = (DcMotor) getHardwareOn("motor2", hardwareMap.dcMotor);
+        motor3 = (DcMotor) getHardwareOn("motor3", hardwareMap.dcMotor);
+        motor4 = (DcMotor) getHardwareOn("motor4", hardwareMap.dcMotor);
+        IRSeeker = (IrSeekerSensor) getHardwareOn("irseeker", hardwareMap.irSeekerSensor);
     }
 
 

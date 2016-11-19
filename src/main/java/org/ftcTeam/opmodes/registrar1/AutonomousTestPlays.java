@@ -68,17 +68,16 @@ public class AutonomousTestPlays extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
-        /*
+
         getTelemetryUtil().addData("activeLoop", "stuff");
         //curve to first beacon
         switch(step) {
             case 0:
-                moveForward(-0.3);
-                curveLeft(.1);
+                curveLeft(-0.3, 0.1); //curves the robot driving backwards toward the first beacon
                 ++step;
                 break;
             case 1:
-                if(gearsTarget.isVisible())
+                if(gearsTarget.isVisible())//checks if it can see the first target/beacon
                 {
 
                     ++step;
@@ -95,29 +94,85 @@ public class AutonomousTestPlays extends ActiveOpMode {
                 break;
             case 3:
                 moveForward(.2);
-                if(.3 seconds have passed())
-        }
-        moveForward(.3);
-        curveLeft(.1);
-        //find appropriate image
-        //move in front of image
-        moveForward(.1);
-        //wait about .2 seconds
-        moveForward(-.1);
-        //wait about .3 seconds
-        moveForward(0.0);
-        //check if
+                if(.3secondsHavePassed()) {
+                moveForward(-0.2);
+                if(.3secondsHavePassed()) {
+                    moveForward(0.0);
+                    if(colorOfBeacon.isDesiredColor()) {
+                        step++;
+                        break;
+                        else {
+                            if(5.0secondsHavePassed()){
+                                moveForward(.2);
+                                if(.3secondsHavePassed()) {
+                                    moveForward(-0.2);
+                                    if(.3secondsHavePassed()) {
+                                        moveForward(0.0);
+                                        step++;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }   }   }
+            case 4:
+                strafeRight(.8);//drives toward second beacon
+                break;
+            case 5:
+                if(legosTarget.isVisible())//checks if it can see the second target/beacon
+                {
 
-// code goes here to test
+                    ++step;
 
-        shoot(0.7);
-        moveForward(0.2);
-        //timer.setToZero; //find correct method
-        //after about one to two seconds, stop; to hit the cap ball
-        if(timer.targetReached(1.0)){
-            moveForward(0.0);}
-        }
-*/
+                }
+                break;
+            case 6:
+                if(atDesiredPosition()) {
+                    ++step;
+                }
+                else {
+                    keepTryingToGetAtDesiredLocation();
+                }
+                break;
+
+            case 7:
+                moveForward(.2);
+                if(.3secondsHavePassed()) {
+                    moveForward(-0.2);
+                    if(.3secondsHavePassed()) {
+                        moveForward(0.0);
+                        if(colorOfBeacon.isDesiredColor()) {
+                            step++;
+                            break;
+                            else {
+                                if(5.0secondsHavePassed()){
+                                    moveForward(.2);
+                                    if(.3secondsHavePassed()) {
+                                        moveForward(-0.2);
+                                        if(.3secondsHavePassed()) {
+                                            moveForward(0.0);
+                                            step++;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                }   }   }
+            case 8: {
+                rotateClockWise(0.6);//rotates until pointing at center vortex
+                if(.4secondsHavePassed())
+                {
+                    moveForward(0.4);//moves toward center vortex
+                    if(1.0secondsHavePassed())
+                    {
+                        moveForward(0.0); //stops, hopefully on center vortex
+                    }
+                }
+
+            }
+            }
+
+
 //        switch(step) {
 //            case 0:
 //                if (someConditionalTrue) {
@@ -170,22 +225,26 @@ public class AutonomousTestPlays extends ActiveOpMode {
     }
 
     //curves to the right
-    private void curveRight(double diff){
+    private void curveRight(double pow, double diff){
         /*
         frontRight -= diff;
         backRight -= diff;
         */
+        frontLeft.setPower(pow);
+        backLeft.setPower(pow);
         frontRight.setPower(frontRight.getPower() - diff);
         backRight.setPower(backRight.getPower() - diff);
     }
 
-    private void curveLeft(double diff){
+    private void curveLeft(double pow, double diff){
         /*
         frontLeft -= diff;
         backLeft -= diff;
         */
-        frontLeft.setPower(frontLeft.getPower() - diff);
-        backLeft.setPower(backLeft.getPower() - diff);
+        frontRight.setPower(pow);
+        backRight.setPower(pow);
+        frontLeft.setPower(pow - diff);
+        backLeft.setPower(pow - diff);
     }
 
     //this doesn't work at all but whatever
