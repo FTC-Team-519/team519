@@ -3,6 +3,7 @@ package org.ftcTeam.opmodes.registrar1;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.TimerComponent;
@@ -49,6 +50,7 @@ public class TestShooterSpeed extends ActiveOpMode {
         getTelemetryUtil().addData("Start", getClass().getSimpleName() + " onStart.");
         getTelemetryUtil().sendTelemetry();
 
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.getController().setMotorMode(1, DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.getController().setMotorZeroPowerBehavior(1, DcMotor.ZeroPowerBehavior.FLOAT);
         timerComponent = getTimer();
@@ -66,22 +68,29 @@ public class TestShooterSpeed extends ActiveOpMode {
 
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
         double pwr = -y;
+        double currPower = 0.0d;
 
         if (gamepad1.x) {
-            shooter.setPower(0.10d);
+            currPower = 0.1d;
         }
         else if (gamepad1.y) {
-            shooter.setPower(0.20d);
+            currPower = 0.2d;
         }
         else if (gamepad1.b) {
-            shooter.setPower(0.40d);
+            currPower = 0.4d;
         }
         else if (gamepad1.a) {
-            shooter.setPower(0.6d);
+            currPower = 0.6d;
         }
-        else {
-            shooter.setPower(0.0d);
+        else if (gamepad1.left_bumper) {
+            currPower = 0.8d;
         }
+        else if (gamepad1.right_bumper) {
+            currPower = 1.0d;
+        }
+
+        // Negative, as the wheel needs to go in reverse direction (could reverse motor actually)
+        shooter.setPower(currPower);
 
         if (timerComponent.targetReached(1.0f)) {
             int currentTicks = shooter.getController().getMotorCurrentPosition(1);
