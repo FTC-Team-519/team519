@@ -4,6 +4,7 @@ package org.ftcTeam.opmodes.registrar1;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.TimerComponent;
@@ -28,6 +29,8 @@ public class TestShooterSpeed extends ActiveOpMode {
     TimerComponent timerComponent;
 
     int previousTickCount = 0;
+    float voltageTarget = 0.0f;
+    VoltageSensor voltageSensor;
 
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
@@ -40,6 +43,7 @@ public class TestShooterSpeed extends ActiveOpMode {
         getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit.");
         getTelemetryUtil().sendTelemetry();
 
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
         shooter = hardwareMap.dcMotor.get("shooter");
     }
 
@@ -51,7 +55,7 @@ public class TestShooterSpeed extends ActiveOpMode {
         getTelemetryUtil().sendTelemetry();
 
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooter.getController().setMotorMode(1, DcMotor.RunMode.RUN_USING_ENCODER);
+        //shooter.getController().setMotorMode(1, DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.getController().setMotorZeroPowerBehavior(1, DcMotor.ZeroPowerBehavior.FLOAT);
         timerComponent = getTimer();
     }
@@ -70,23 +74,32 @@ public class TestShooterSpeed extends ActiveOpMode {
         double pwr = -y;
         double currPower = 0.0d;
 
-        if (gamepad1.x) {
-            currPower = 0.1d;
-        }
-        else if (gamepad1.y) {
-            currPower = 0.2d;
-        }
-        else if (gamepad1.b) {
-            currPower = 0.4d;
-        }
-        else if (gamepad1.a) {
-            currPower = 0.6d;
+        if (gamepad1.right_bumper) {
+            if (voltageTarget <= 1.0f) {
+                voltageTarget += 0.01f;
+            }
+            currPower = voltageTarget;
         }
         else if (gamepad1.left_bumper) {
-            currPower = 0.8d;
+            if (voltageTarget >= 0.0f) {
+                voltageTarget -= 0.01f;
+            }
+            currPower = voltageTarget;
         }
-        else if (gamepad1.right_bumper) {
-            currPower = 1.0d;
+        if (gamepad1.x) {
+            currPower = 0.4d;
+        }
+        else if (gamepad1.y) {
+            currPower = 0.5d;
+        }
+        else if (gamepad1.b) {
+            currPower = 0.6d;
+        }
+        else if (gamepad1.a) {
+            currPower = 0.7d;
+        }
+        else if (gamepad1.dpad_down || gamepad1.dpad_up || gamepad1.dpad_left || gamepad1.dpad_right) {
+            currPower = voltageTarget;
         }
 
         // Negative, as the wheel needs to go in reverse direction (could reverse motor actually)
@@ -99,6 +112,8 @@ public class TestShooterSpeed extends ActiveOpMode {
             getTelemetryUtil().addData("RPM", "ticksPerMinute: " + ticksPerSecond);
         }
 
+        getTelemetryUtil().addData("Battery: ", "voltage: " + voltageSensor.getVoltage());
+        getTelemetryUtil().addData("Speed:", "percent: " + currPower);
         getTelemetryUtil().sendTelemetry();
     }
 

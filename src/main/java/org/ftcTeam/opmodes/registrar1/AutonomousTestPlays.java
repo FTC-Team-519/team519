@@ -70,6 +70,8 @@ public class AutonomousTestPlays extends ActiveOpMode {
     protected void activeLoop() throws InterruptedException {
 
         getTelemetryUtil().addData("activeLoop", "stuff");
+        /** Comment out so that whole project builds
+
         //curve to first beacon
         switch(step) {
             case 0:
@@ -172,6 +174,7 @@ public class AutonomousTestPlays extends ActiveOpMode {
             }
             }
 
+         **/
 
 //        switch(step) {
 //            case 0:
