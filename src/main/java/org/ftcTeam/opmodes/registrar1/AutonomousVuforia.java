@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.ftcbootstrap.ActiveOpMode;
 
 import com.qualcomm.ftcrobotcontroller.R;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import java.io.UnsupportedEncodingException;
 
@@ -88,6 +89,42 @@ public class AutonomousVuforia extends ActiveOpMode {
         return retValue;
     }
 
+    /**
+     * Returns power values normalized across motors so that they are all within the
+     * expected [-1.0 .. 1.0] range, which is often not true after combining values for mecanum.
+     *
+     * @param motorPowers the motor values to normalize to a max point.
+     */
+    private static void normalizeCombinedPowers(double[] motorPowers) {
+        double maxAbsPower = 0.0d;
+
+        for (double motorPower : motorPowers) {
+            double tmpAbsPower = Math.abs(motorPower);
+            if (tmpAbsPower > maxAbsPower) {
+                maxAbsPower = tmpAbsPower;
+            }
+        }
+
+        if (maxAbsPower > 1.0d) {
+            for (int i = 0; i < motorPowers.length; ++i) {
+                motorPowers[i] = motorPowers[i] / maxAbsPower;
+            }
+        }
+    }
+
+    /**
+     * Returns a power that is reduced proportionally to the maximum speed, which would be
+     * no reduction if max speed is 1.0 (or basically 100%).
+     *
+     * @param input power to potentially be reduced.
+     * @return a power that is reduced proportionally to the maximum speed, which would be
+     * no reduction if max speed is 1.0 (or basically 100%).
+     */
+    private static double reducePower(double input) {
+        // return input;   // If no reduction desired
+        return input * MAX_SPEED;
+    }
+
     public static final float MM_PER_INCH = 25.4f;
     public static final float MM_BOT_WIDTH = 18 * MM_PER_INCH;            // ... or whatever is right for your robot
     public static final float MM_FTC_FIELD_WIDTH = (12*12 - 2) * MM_PER_INCH;   // the FTC field is ~11'10" center-to-center of the glass panels
@@ -115,7 +152,7 @@ public class AutonomousVuforia extends ActiveOpMode {
     public static final float DESIRED_MM_BLUE_Y      = MM_BLUE_BEACON_WALL_Y - DESIRED_MM_DISTANCE_FROM_WALL;
     public static final float DESIRED_MM_BLUE_NEAR_X = MM_BLUE_NEAR_TARGET_X;
     public static final float DESIRED_MM_BLUE_FAR_X  = MM_BLUE_FAR_TARGET_X;
-    public static final float DESIRED_DEGRESS_BLUE_Z = -90f; // compare against orientation
+    public static final float DESIRED_DEGREES_BLUE_Z = -90f; // compare against orientation
 
     private VuforiaLocalizer.Parameters parameters;
     private VuforiaLocalizer vuforia;
@@ -128,11 +165,34 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     private OpenGLMatrix lastKnownLocation = null;
 
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
+
+    private double[] motorPowers = new double[4];
+    private static final int FRONT_LEFT  = 0;
+    private static final int FRONT_RIGHT = 1;
+    private static final int BACK_LEFT   = 2;
+    private static final int BACK_RIGHT  = 3;
+
+    private static final double MAX_SPEED = 0.3d;
+
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
      */
     @Override
     protected void onInit() {
+        // FIXME: This is where we need to get the mapping correct!!!!
+        // NOTE: For "forward bumper":  [FL: motor4, FR: motor2, BL: motor3, BR: motor1]
+        // NOTE: For "backward bumper": [FL: motor1, FR: motor3, BL: motor2, BR: motor4]
+        frontLeft = hardwareMap.dcMotor.get("motor1");
+        frontRight = hardwareMap.dcMotor.get("motor3");
+        backLeft = hardwareMap.dcMotor.get("motor2");
+        backRight = hardwareMap.dcMotor.get("motor4");
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
         parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
         parameters.vuforiaLicenseKey = KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
@@ -229,6 +289,12 @@ public class AutonomousVuforia extends ActiveOpMode {
     protected void onStart() throws InterruptedException {
         super.onStart();
 
+        // NOTE: Ensure motors not going anywhere at start
+        frontLeft.setPower(0.0);
+        frontRight.setPower(0.0);
+        backLeft.setPower(0.0);
+        backRight.setPower(0.0);
+
         // NOTE: Start monitoring for images on the field
         ftc2016Trackables.activate();
 
@@ -264,35 +330,63 @@ public class AutonomousVuforia extends ActiveOpMode {
 
             float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
 
+            getTelemetryUtil().addData("Desired: ", "x:" + DESIRED_MM_RED_X + ", y:" + DESIRED_MM_RED_NEAR_Y + ", z:" + DESIRED_DEGREES_RED_Z);
+            getTelemetryUtil().addData("Error: ", "x: " + pErrorX + ", y:" + pErrorY + ", z:" + pErrorDegZ);
+
             // pErrorX for RED side, is an attempt to move forward, but only if facing forward/backward
             // pErrorY for RED side, is an attempt to move sideways, but only if facing forward/backward
             // pErrorDegZ for RED side, is an attempt to rotate to correct orientation
-            float xVector = 0.0f;
+            double xVector = 0.0f;
             if (pErrorX < -20f) {
                 xVector = -1.0f;  // FIXME: Should be some proportional value
             } else if (pErrorX > 20f) {
                 xVector = 1.0f;
             }
 
-            float yVector = 0.0f;
+            xVector = 0.0f;
+
+            double yVector = 0.0f;
             if (pErrorY < -20f) {
                 yVector = -1.0f;
             } else if (pErrorY > 20f) {
                 yVector = 1.0f;
             }
 
-            double[] altered = rotateVector(xVector, yVector, orientation.thirdAngle);
+            //yVector = 0.0f;
 
-            float zVector = 0.0f;
+            //double[] altered = rotateVector(xVector, yVector, orientation.thirdAngle);
+            double[] altered = rotateVector(xVector, yVector, 90.0);
+            xVector = altered[0];
+            yVector = altered[1];
+            //yVector = 0.0f;
+
+            double zVector = 0.0f;
             if (pErrorDegZ < -2f) {
                 zVector = -0.5f;
             } else if (pErrorDegZ > 2f) {
                 zVector = 0.5f;
             }
             // FIXME: normalize combination of values applied to all 4 motors
+
+            zVector = 0.0f;
+
+            motorPowers[FRONT_RIGHT] = yVector + xVector + zVector;
+            motorPowers[FRONT_LEFT]  = yVector - xVector - zVector;
+            motorPowers[BACK_RIGHT]  = yVector - xVector + zVector;
+            motorPowers[BACK_LEFT]   = yVector + xVector - zVector;
+            normalizeCombinedPowers(motorPowers);
+
+            frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+            frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+            backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+            backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
         }
         else {
             getTelemetryUtil().addData("Location:", "unknown");
+            frontLeft.setPower(0.0d);
+            frontRight.setPower(0.0d);
+            backLeft.setPower(0.0d);
+            backRight.setPower(0.0d);
         }
 
         getTelemetryUtil().sendTelemetry();

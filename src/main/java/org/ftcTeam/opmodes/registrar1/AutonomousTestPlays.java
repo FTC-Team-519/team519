@@ -68,110 +68,111 @@ public class AutonomousTestPlays extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
+        getTelemetryUtil().addData("activeLoop", "stuff");
+        /** Comment out so that whole project builds
 
-//        getTelemetryUtil().addData("activeLoop", "stuff");
-//        //curve to first beacon
-//        switch(step) {
-//            case 0:
-//                curveLeft(-0.3, 0.1); //curves the robot driving backwards toward the first beacon
-//                ++step;
-//                break;
-//            case 1:
-//                if(gearsTarget.isVisible())//checks if it can see the first target/beacon
-//                {
-//
-//                    ++step;
-//
-//                }
-//                break;
-//            case 2:
-//                if(atDesiredPosition()) {
-//                    ++step;
-//                }
-//                else {
-//                    keepTryingToGetAtDesiredLocation();
-//                }
-//                break;
-//            case 3:
-//                moveForward(.2);
-//                if(.3secondsHavePassed()) {
-//                moveForward(-0.2);
-//                if(.3secondsHavePassed()) {
-//                    moveForward(0.0);
-//                    if(colorOfBeacon.isDesiredColor()) {
-//                        step++;
-//                        break;
-//                        else {
-//                            if(5.0secondsHavePassed()){
-//                                moveForward(.2);
-//                                if(.3secondsHavePassed()) {
-//                                    moveForward(-0.2);
-//                                    if(.3secondsHavePassed()) {
-//                                        moveForward(0.0);
-//                                        step++;
-//                                        break;
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }   }   }
-//            case 4:
-//                strafeRight(.8);//drives toward second beacon
-//                break;
-//            case 5:
-//                if(legosTarget.isVisible())//checks if it can see the second target/beacon
-//                {
-//
-//                    ++step;
-//
-//                }
-//                break;
-//            case 6:
-//                if(atDesiredPosition()) {
-//                    ++step;
-//                }
-//                else {
-//                    keepTryingToGetAtDesiredLocation();
-//                }
-//                break;
-//
-//            case 7:
-//                moveForward(.2);
-//                if(.3secondsHavePassed()) {
-//                    moveForward(-0.2);
-//                    if(.3secondsHavePassed()) {
-//                        moveForward(0.0);
-//                        if(colorOfBeacon.isDesiredColor()) {
-//                            step++;
-//                            break;
-//                            else {
-//                                if(5.0secondsHavePassed()){
-//                                    moveForward(.2);
-//                                    if(.3secondsHavePassed()) {
-//                                        moveForward(-0.2);
-//                                        if(.3secondsHavePassed()) {
-//                                            moveForward(0.0);
-//                                            step++;
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                }   }   }
-//            case 8: {
-//                rotateClockWise(0.6);//rotates until pointing at center vortex
-//                if(.4secondsHavePassed())
-//                {
-//                    moveForward(0.4);//moves toward center vortex
-//                    if(1.0secondsHavePassed())
-//                    {
-//                        moveForward(0.0); //stops, hopefully on center vortex
-//                    }
-//                }
-//
-//            }
-//            }
+        //curve to first beacon
+        switch(step) {
+            case 0:
+                curveLeft(-0.3, 0.1); //curves the robot driving backwards toward the first beacon
+                ++step;
+                break;
+            case 1:
+                if(gearsTarget.isVisible())//checks if it can see the first target/beacon
+                {
 
+                    ++step;
+
+                }
+                break;
+            case 2:
+                if(atDesiredPosition()) {
+                    ++step;
+                }
+                else {
+                    keepTryingToGetAtDesiredLocation();
+                }
+                break;
+            case 3:
+                moveForward(.2);
+                if(.3secondsHavePassed()) {
+                moveForward(-0.2);
+                if(.3secondsHavePassed()) {
+                    moveForward(0.0);
+                    if(colorOfBeacon.isDesiredColor()) {
+                        step++;
+                        break;
+                        else {
+                            if(5.0secondsHavePassed()){
+                                moveForward(.2);
+                                if(.3secondsHavePassed()) {
+                                    moveForward(-0.2);
+                                    if(.3secondsHavePassed()) {
+                                        moveForward(0.0);
+                                        step++;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }   }   }
+            case 4:
+                strafeRight(.8);//drives toward second beacon
+                break;
+            case 5:
+                if(legosTarget.isVisible())//checks if it can see the second target/beacon
+                {
+
+                    ++step;
+
+                }
+                break;
+            case 6:
+                if(atDesiredPosition()) {
+                    ++step;
+                }
+                else {
+                    keepTryingToGetAtDesiredLocation();
+                }
+                break;
+
+            case 7:
+                moveForward(.2);
+                if(.3secondsHavePassed()) {
+                    moveForward(-0.2);
+                    if(.3secondsHavePassed()) {
+                        moveForward(0.0);
+                        if(colorOfBeacon.isDesiredColor()) {
+                            step++;
+                            break;
+                            else {
+                                if(5.0secondsHavePassed()){
+                                    moveForward(.2);
+                                    if(.3secondsHavePassed()) {
+                                        moveForward(-0.2);
+                                        if(.3secondsHavePassed()) {
+                                            moveForward(0.0);
+                                            step++;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                }   }   }
+            case 8: {
+                rotateClockWise(0.6);//rotates until pointing at center vortex
+                if(.4secondsHavePassed())
+                {
+                    moveForward(0.4);//moves toward center vortex
+                    if(1.0secondsHavePassed())
+                    {
+                        moveForward(0.0); //stops, hopefully on center vortex
+                    }
+                }
+
+            }
+            }
+         **/
 
 //        switch(step) {
 //            case 0:
