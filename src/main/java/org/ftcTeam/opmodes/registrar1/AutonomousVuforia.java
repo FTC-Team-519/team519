@@ -365,6 +365,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                     ++step;
                 }
                 break;
+            //case 5:
         }
 //        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
 //        if (robotLocationTransform != null) {
