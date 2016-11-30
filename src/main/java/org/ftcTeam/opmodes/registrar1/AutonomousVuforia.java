@@ -19,6 +19,7 @@ import org.ftcbootstrap.ActiveOpMode;
 
 import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.io.UnsupportedEncodingException;
 
@@ -45,6 +46,8 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     private static final byte[] MY_VALUE = Base64.decode(VALUE, Base64.NO_WRAP);
     private static final String KEY = convert(MY_VALUE);
+
+    int step = 2;
 
     private static String convert(byte[] thing) {
         try {
@@ -165,10 +168,13 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     private OpenGLMatrix lastKnownLocation = null;
 
+    private DcMotor shooter;
     private DcMotor frontLeft;
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
+    private DcMotor midCollector;
+    private DcMotor frontCollector;
 
     private double[] motorPowers = new double[4];
     private static final int FRONT_LEFT  = 0;
@@ -178,6 +184,8 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     private static final double MAX_SPEED = 0.3d;
 
+
+
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
      */
@@ -186,16 +194,23 @@ public class AutonomousVuforia extends ActiveOpMode {
         // FIXME: This is where we need to get the mapping correct!!!!
         // NOTE: For "forward bumper":  [FL: motor4, FR: motor2, BL: motor3, BR: motor1]
         // NOTE: For "backward bumper": [FL: motor1, FR: motor3, BL: motor2, BR: motor4]
-        frontLeft = hardwareMap.dcMotor.get("motor1");
-        frontRight = hardwareMap.dcMotor.get("motor3");
-        backLeft = hardwareMap.dcMotor.get("motor2");
-        backRight = hardwareMap.dcMotor.get("motor4");
+        frontLeft = hardwareMap.dcMotor.get("motor4");
+        frontRight = hardwareMap.dcMotor.get("motor2");
+        backLeft = hardwareMap.dcMotor.get("motor3");
+        backRight = hardwareMap.dcMotor.get("motor1");
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        midCollector = hardwareMap.dcMotor.get("feeder");
+        frontCollector = hardwareMap.dcMotor.get("collector");
+        shooter = hardwareMap.dcMotor.get("shooter");
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.getController().setMotorZeroPowerBehavior(1, DcMotor.ZeroPowerBehavior.FLOAT);
+
         parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
         parameters.vuforiaLicenseKey = KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
         ftc2016Trackables = this.vuforia.loadTrackablesFromAsset("FTC_2016-17");
@@ -313,107 +328,174 @@ public class AutonomousVuforia extends ActiveOpMode {
         boolean isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
         getTelemetryUtil().addData("Target", "Looking for target.");
         getTelemetryUtil().addData("Seen: ", isVisible ? "Visible" : "Not Visible");
+        switch(step) {
+            case 0:
+                shooter.setPower(1.0d);
+                if (getTimer().targetReached(2.0d)) {
+                    ++step;
+                }
+                break;
+            case 1:
+                midCollector.setPower(0.5d);
+                if (getTimer().targetReached(2.0d)) {
+                    midCollector.setPower(0.0d);
+                    shooter.setPower(0.0d);
+                    ++step;
+                }
+                break;
+            case 2:
+                forward(0.5d);
+                if (getTimer().targetReached(0.5d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 3:
+                turnLeft(0.5d, false);
+                if (getTimer().targetReached(0.9d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
 
-        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
-        if (robotLocationTransform != null) {
-            lastKnownLocation = robotLocationTransform;
+            case 4:
+                forward(0.5d);
+                if (getTimer().targetReached(1.0d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
         }
-
-        if (lastKnownLocation != null && isVisible) {
-            getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
-
-            float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-            float pErrorX = DESIRED_MM_RED_X - xyzTranslation[0];
-            float pErrorY = DESIRED_MM_RED_NEAR_Y - xyzTranslation[1];
-
-            Orientation orientation = Orientation.getOrientation(lastKnownLocation,
-                    AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-
-            float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
-
-            getTelemetryUtil().addData("Desired: ", "x:" + DESIRED_MM_RED_X + ", y:" + DESIRED_MM_RED_NEAR_Y + ", z:" + DESIRED_DEGREES_RED_Z);
-            getTelemetryUtil().addData("Error: ", "x: " + pErrorX + ", y:" + pErrorY + ", z:" + pErrorDegZ);
-
-            // pErrorX for RED side, is an attempt to move forward, but only if facing forward/backward
-            // pErrorY for RED side, is an attempt to move sideways, but only if facing forward/backward
-            // pErrorDegZ for RED side, is an attempt to rotate to correct orientation
-            boolean found = false;
-
-            double xVector = 0.0f;
-            if (pErrorX < -20f) {
-                xVector = -1.0f;  // FIXME: Should be some proportional value
-            } else if (pErrorX > 20f) {
-                xVector = 1.0f;
-            } else {
-                found = true;
-            }
-
-            //xVector = 0.0f;
-
-            double yVector = 0.0f;
-            if (pErrorY < -20f) {
-                yVector = -1.0f;
-            } else if (pErrorY > 20f) {
-                yVector = 1.0f;
-            } else {
-                found = true;
-            }
-
-            yVector = 0.0f;
-
-            //double[] altered = rotateVector(xVector, yVector, orientation.thirdAngle);
-            double[] altered = rotateVector(xVector, yVector, 90.0);
-            xVector = altered[0];
-            yVector = altered[1];
-            //yVector = 0.0f;
-
-            double zVector = 0.0f;
-            if (pErrorDegZ < -2f) {
-                zVector = -0.5f;
-            } else if (pErrorDegZ > 2f) {
-                zVector = 0.5f;
-            }
-            // FIXME: normalize combination of values applied to all 4 motors
-
-            zVector = 0.0f;
-
-            if (found) {
-                motorPowers[FRONT_RIGHT] = 0.0d;
-                motorPowers[FRONT_LEFT] = 0.0d;
-                motorPowers[BACK_RIGHT] = 0.0d;
-                motorPowers[BACK_LEFT] = 0.0d;
-            } else {
-                motorPowers[FRONT_RIGHT] = -.10d;
-                motorPowers[FRONT_LEFT] = -.10d;
-                motorPowers[BACK_RIGHT] = -.10d;
-                motorPowers[BACK_LEFT] = -.10d;
-            }
-/**
- motorPowers[FRONT_RIGHT] = yVector + xVector + zVector;
- motorPowers[FRONT_LEFT]  = yVector - xVector - zVector;
- motorPowers[BACK_RIGHT]  = yVector - xVector + zVector;
- motorPowers[BACK_LEFT]   = yVector + xVector - zVector;
- normalizeCombinedPowers(motorPowers);
- **/
-            /** frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
-             frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
-             backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
-             backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
-             **/
-            frontRight.setPower(motorPowers[FRONT_RIGHT]);
-            frontLeft.setPower(motorPowers[FRONT_LEFT]);
-            backRight.setPower(motorPowers[BACK_RIGHT]);
-            backLeft.setPower(motorPowers[BACK_LEFT]);
-        }
-        else {
-            getTelemetryUtil().addData("Location:", "unknown");
-            frontLeft.setPower(0.0d);
-            frontRight.setPower(0.0d);
-            backLeft.setPower(0.0d);
-            backRight.setPower(0.0d);
-        }
-
-        getTelemetryUtil().sendTelemetry();
+//        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+//        if (robotLocationTransform != null) {
+//            lastKnownLocation = robotLocationTransform;
+//        }
+//
+//        if (lastKnownLocation != null && isVisible) {
+//            getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+//
+//            float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
+//            float pErrorX = DESIRED_MM_RED_X - xyzTranslation[0];
+//            float pErrorY = DESIRED_MM_RED_NEAR_Y - xyzTranslation[1];
+//
+//            Orientation orientation = Orientation.getOrientation(lastKnownLocation,
+//                    AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+//
+//            float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
+//
+//            getTelemetryUtil().addData("Desired: ", "x:" + DESIRED_MM_RED_X + ", y:" + DESIRED_MM_RED_NEAR_Y + ", z:" + DESIRED_DEGREES_RED_Z);
+//            getTelemetryUtil().addData("Error: ", "x: " + pErrorX + ", y:" + pErrorY + ", z:" + pErrorDegZ);
+//
+//            // pErrorX for RED side, is an attempt to move forward, but only if facing forward/backward
+//            // pErrorY for RED side, is an attempt to move sideways, but only if facing forward/backward
+//            // pErrorDegZ for RED side, is an attempt to rotate to correct orientation
+//            boolean found = false;
+//
+//            double xVector = 0.0f;
+//            if (pErrorX < -20f) {
+//                xVector = -1.0f;  // FIXME: Should be some proportional value
+//            } else if (pErrorX > 20f) {
+//                xVector = 1.0f;
+//            } else {
+//                found = true;
+//            }
+//
+//            //xVector = 0.0f;
+//
+//            double yVector = 0.0f;
+//            if (pErrorY < -20f) {
+//                yVector = -1.0f;
+//            } else if (pErrorY > 20f) {
+//                yVector = 1.0f;
+//            } else {
+//                found = true;
+//            }
+//
+//            yVector = 0.0f;
+//
+//            //double[] altered = rotateVector(xVector, yVector, orientation.thirdAngle);
+//            double[] altered = rotateVector(xVector, yVector, 90.0);
+//            xVector = altered[0];
+//            yVector = altered[1];
+//            //yVector = 0.0f;
+//
+//            double zVector = 0.0f;
+//            if (pErrorDegZ < -2f) {
+//                zVector = -0.5f;
+//            } else if (pErrorDegZ > 2f) {
+//                zVector = 0.5f;
+//            }
+//            // FIXME: normalize combination of values applied to all 4 motors
+//
+//            zVector = 0.0f;
+//
+//            if (found) {
+//                motorPowers[FRONT_RIGHT] = 0.0d;
+//                motorPowers[FRONT_LEFT] = 0.0d;
+//                motorPowers[BACK_RIGHT] = 0.0d;
+//                motorPowers[BACK_LEFT] = 0.0d;
+//            } else {
+//                motorPowers[FRONT_RIGHT] = -.10d;
+//                motorPowers[FRONT_LEFT] = -.10d;
+//                motorPowers[BACK_RIGHT] = -.10d;
+//                motorPowers[BACK_LEFT] = -.10d;
+//            }
+///**
+// motorPowers[FRONT_RIGHT] = yVector + xVector + zVector;
+// motorPowers[FRONT_LEFT]  = yVector - xVector - zVector;
+// motorPowers[BACK_RIGHT]  = yVector - xVector + zVector;
+// motorPowers[BACK_LEFT]   = yVector + xVector - zVector;
+// normalizeCombinedPowers(motorPowers);
+// **/
+//            /** frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+//             frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+//             backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+//             backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+//             **/
+//            frontRight.setPower(motorPowers[FRONT_RIGHT]);
+//            frontLeft.setPower(motorPowers[FRONT_LEFT]);
+//            backRight.setPower(motorPowers[BACK_RIGHT]);
+//            backLeft.setPower(motorPowers[BACK_LEFT]);
+//        }
+//        else {
+//            getTelemetryUtil().addData("Location:", "unknown");
+//            frontLeft.setPower(0.0d);
+//            frontRight.setPower(0.0d);
+//            backLeft.setPower(0.0d);
+//            backRight.setPower(0.0d);
+//        }
+//
+//        getTelemetryUtil().sendTelemetry();
+    }
+    public void forward (double power){
+        frontRight.setPower(power);
+        frontLeft.setPower(power);
+        backRight.setPower(power);
+        backLeft.setPower(power);
     }
 
+    public void turnLeft (double power, boolean turnOnSpot){
+        frontRight.setPower(power);
+        backRight.setPower(power);
+        if (turnOnSpot){
+            backLeft.setPower(-power);
+            frontLeft.setPower(-power);
+        }
+    }
+
+    public void turnRight (double power, boolean turnOnSpot){
+        frontLeft.setPower(power);
+        backLeft.setPower(power);
+        if (turnOnSpot){
+            backRight.setPower(-power);
+            frontRight.setPower(-power);
+        }
+    }
+
+    public void stopMoving(){
+        frontLeft.setPower(0.0d);
+        frontRight.setPower(0.0d);
+        backLeft.setPower(0.0d);
+        backRight.setPower(0.0d);
+    }
 }
