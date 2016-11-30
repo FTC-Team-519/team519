@@ -5,6 +5,7 @@ import org.ftcTeam.opmodes.registrar1.AutonomousFirstTry;
 import org.ftcTeam.opmodes.registrar1.AutonomousTestPlays;
 import org.ftcTeam.opmodes.registrar1.AutonomousVexMotorAsServo;
 import org.ftcTeam.opmodes.registrar1.AutonomousVuforia;
+import org.ftcTeam.opmodes.registrar1.AutonomousWithoutVuforia;
 import org.ftcTeam.opmodes.registrar1.GamePadDriveOpMode;
 import org.ftcTeam.opmodes.registrar1.GamePadMecanumOpMode;
 import org.ftcTeam.opmodes.registrar1.IRFollow;
@@ -24,17 +25,18 @@ public class Registrar1 extends BootstrapRegistrar {
   protected Class[] getOpmodeClasses() {
     Class[] classes = {
 
-            GamePadDriveOpMode.class,
-            GamePadMecanumOpMode.class,
-            AirAndScareMecanumOpMode.class,
+            //GamePadDriveOpMode.class,
+            //GamePadMecanumOpMode.class,
+            //AirAndScareMecanumOpMode.class,
             TelemetryTest.class,
-            AutonomousFirstTry.class,
+            //AutonomousFirstTry.class,
             AutonomousVuforia.class,
-            AutonomousVexMotorAsServo.class,
-            AutonomousTestPlays.class,
+            //AutonomousVexMotorAsServo.class,
+            //AutonomousTestPlays.class,
             Teleop.class,
-            TestShooterSpeed.class,
-            IRFollow.class
+            AutonomousWithoutVuforia.class,
+            //TestShooterSpeed.class,
+            //IRFollow.class
     };
 
     return classes;

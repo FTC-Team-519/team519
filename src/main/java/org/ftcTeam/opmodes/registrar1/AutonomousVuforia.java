@@ -310,15 +310,16 @@ public class AutonomousVuforia extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
+        boolean isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
         getTelemetryUtil().addData("Target", "Looking for target.");
-        getTelemetryUtil().addData("Seen: ", ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible() ? "Visible" : "Not Visible");
+        getTelemetryUtil().addData("Seen: ", isVisible ? "Visible" : "Not Visible");
 
         OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
         if (robotLocationTransform != null) {
             lastKnownLocation = robotLocationTransform;
         }
 
-        if (lastKnownLocation != null) {
+        if (lastKnownLocation != null && isVisible) {
             getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
 
             float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
@@ -336,23 +337,29 @@ public class AutonomousVuforia extends ActiveOpMode {
             // pErrorX for RED side, is an attempt to move forward, but only if facing forward/backward
             // pErrorY for RED side, is an attempt to move sideways, but only if facing forward/backward
             // pErrorDegZ for RED side, is an attempt to rotate to correct orientation
+            boolean found = false;
+
             double xVector = 0.0f;
             if (pErrorX < -20f) {
                 xVector = -1.0f;  // FIXME: Should be some proportional value
             } else if (pErrorX > 20f) {
                 xVector = 1.0f;
+            } else {
+                found = true;
             }
 
-            xVector = 0.0f;
+            //xVector = 0.0f;
 
             double yVector = 0.0f;
             if (pErrorY < -20f) {
                 yVector = -1.0f;
             } else if (pErrorY > 20f) {
                 yVector = 1.0f;
+            } else {
+                found = true;
             }
 
-            //yVector = 0.0f;
+            yVector = 0.0f;
 
             //double[] altered = rotateVector(xVector, yVector, orientation.thirdAngle);
             double[] altered = rotateVector(xVector, yVector, 90.0);
@@ -370,16 +377,33 @@ public class AutonomousVuforia extends ActiveOpMode {
 
             zVector = 0.0f;
 
-            motorPowers[FRONT_RIGHT] = yVector + xVector + zVector;
-            motorPowers[FRONT_LEFT]  = yVector - xVector - zVector;
-            motorPowers[BACK_RIGHT]  = yVector - xVector + zVector;
-            motorPowers[BACK_LEFT]   = yVector + xVector - zVector;
-            normalizeCombinedPowers(motorPowers);
-
-            frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
-            frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
-            backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
-            backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+            if (found) {
+                motorPowers[FRONT_RIGHT] = 0.0d;
+                motorPowers[FRONT_LEFT] = 0.0d;
+                motorPowers[BACK_RIGHT] = 0.0d;
+                motorPowers[BACK_LEFT] = 0.0d;
+            } else {
+                motorPowers[FRONT_RIGHT] = -.10d;
+                motorPowers[FRONT_LEFT] = -.10d;
+                motorPowers[BACK_RIGHT] = -.10d;
+                motorPowers[BACK_LEFT] = -.10d;
+            }
+/**
+ motorPowers[FRONT_RIGHT] = yVector + xVector + zVector;
+ motorPowers[FRONT_LEFT]  = yVector - xVector - zVector;
+ motorPowers[BACK_RIGHT]  = yVector - xVector + zVector;
+ motorPowers[BACK_LEFT]   = yVector + xVector - zVector;
+ normalizeCombinedPowers(motorPowers);
+ **/
+            /** frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+             frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+             backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+             backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+             **/
+            frontRight.setPower(motorPowers[FRONT_RIGHT]);
+            frontLeft.setPower(motorPowers[FRONT_LEFT]);
+            backRight.setPower(motorPowers[BACK_RIGHT]);
+            backLeft.setPower(motorPowers[BACK_LEFT]);
         }
         else {
             getTelemetryUtil().addData("Location:", "unknown");

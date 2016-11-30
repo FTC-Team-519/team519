@@ -1,7 +1,9 @@
 package org.ftcTeam.opmodes.registrar1;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.TimerComponent;
@@ -13,6 +15,9 @@ public class Teleop extends ActiveOpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
     private DcMotor midCollector;
+    private DcMotor frontCollector;
+    private ColorSensor color;
+    private OpticalDistanceSensor ods;
     private float x;
     private float y;
     private float z;
@@ -51,7 +56,11 @@ public class Teleop extends ActiveOpMode {
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
         midCollector = hardwareMap.dcMotor.get("feeder");
+        frontCollector = hardwareMap.dcMotor.get("collector");
         shooter = hardwareMap.dcMotor.get("shooter");
+
+        color = hardwareMap.colorSensor.get("color");
+        ods = hardwareMap.opticalDistanceSensor.get("ods");
     }
 
     @Override
@@ -106,32 +115,49 @@ public class Teleop extends ActiveOpMode {
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
         double currPower = 0.0d;
 
+//        if (gamepad1.x) {
+//            currPower = 0.1d;
+//        }
+//        else if (gamepad1.y) {
+//            currPower = 0.2d;
+//        }
+//        else if (gamepad1.b) {
+//            currPower = 0.4d;
+//        }
+//        else if (gamepad1.a) {
+//            currPower = 0.6d;
+//        }
+//        else if (gamepad1.left_bumper) {
+//            currPower = 0.8d;
+//        }
+//        else if (gamepad1.right_bumper) {
+//            currPower = 1.0d;
+//        }
+
         if (gamepad1.x) {
-            currPower = 0.1d;
-        }
-        else if (gamepad1.y) {
-            currPower = 0.2d;
+            currPower = -1.0d;
         }
         else if (gamepad1.b) {
-            currPower = 0.4d;
-        }
-        else if (gamepad1.a) {
-            currPower = 0.6d;
-        }
-        else if (gamepad1.left_bumper) {
-            currPower = 0.8d;
-        }
-        else if (gamepad1.right_bumper) {
             currPower = 1.0d;
         }
 
         // Negative, as the wheel needs to go in reverse direction (could reverse motor actually)
         shooter.setPower(currPower);
 
-        if (gamepad1.right_trigger>0) {
+        if (gamepad1.right_trigger > 0) {
+            frontCollector.setPower(-0.5);
+        }
+        else if (gamepad1.left_trigger > 0) {
+            frontCollector.setPower(0.5);
+        }
+        else {
+            frontCollector.setPower(0);
+        }
+
+        if (gamepad1.right_bumper) {
             midCollector.setPower(0.5);
         }
-        else if (gamepad1.left_trigger>0) {
+        else if (gamepad1.left_bumper) {
             midCollector.setPower(-0.5);
         }
         else{
@@ -144,6 +170,9 @@ public class Teleop extends ActiveOpMode {
             previousTickCount = currentTicks;
             getTelemetryUtil().addData("RPM", "ticksPerMinute: " + ticksPerSecond);
         }
+
+//        getTelemetryUtil().addData(color.argb() + "", "color");
+//        getTelemetryUtil().sendTelemetry();
 
         // Might want to have a more effective combination
         //frontRight.setPower(Range.clip(pwr - x - z, -MAX_SPEED, MAX_SPEED));
