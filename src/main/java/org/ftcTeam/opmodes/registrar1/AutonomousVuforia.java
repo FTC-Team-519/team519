@@ -75,7 +75,7 @@ public class AutonomousVuforia extends ActiveOpMode {
      * @param x the x coordinate vector value
      * @param y the y coordinate vector value
      * @param degrees the current rotation around the z axis
-     * @return transformed x and y vector values to account for z rotation.
+     * @returntransformed x and y vector values to account for z rotation.
      */
     public static double[] rotateVector(double x, double y, double degrees) {
         double[] retValue = new double[2];
@@ -279,7 +279,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                 .translation(0, MM_BOT_WIDTH/2, MM_BOT_WIDTH/2)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.YZY,
-                        AngleUnit.DEGREES, -90, 90, 0));
+                        AngleUnit.DEGREES, -90, -90, 0));
 
         OpenGLMatrix backCenteredLocationOnRobot = OpenGLMatrix
                 .translation(0, -MM_BOT_WIDTH/2, MM_BOT_WIDTH/2)
@@ -360,12 +360,51 @@ public class AutonomousVuforia extends ActiveOpMode {
 
             case 4:
                 forward(0.5d);
-                if (getTimer().targetReached(1.0d)) {
+                if (getTimer().targetReached(1.3d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            //case 5:
+            case 5:
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
+
+                if (lastKnownLocation != null && isVisible) {
+                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+
+                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
+
+                    Orientation orientation = Orientation.getOrientation(lastKnownLocation,
+                            AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+
+                    float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
+
+                    getTelemetryUtil().addData("Desired: ", "x:" + DESIRED_MM_RED_X + ", y:" + DESIRED_MM_RED_NEAR_Y + ", z:" + DESIRED_DEGREES_RED_Z);
+                    getTelemetryUtil().addData("z:", pErrorDegZ);
+
+                    double zVector = 0.0f;
+                    if (pErrorDegZ < -2f) {
+                        zVector = -0.14f;
+                    } else if (pErrorDegZ > 2f) {
+                        zVector = 0.14f;
+                    }
+
+                    turnLeft(zVector, true);
+
+                    if (Math.abs(pErrorDegZ) < 12f) {
+                        stopMoving();
+
+                        ++step;
+                    }
+                }
+                else {
+                    turnRight(0.14f, true);
+                }
+
+                break;
+
         }
 //        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
 //        if (robotLocationTransform != null) {
@@ -466,7 +505,7 @@ public class AutonomousVuforia extends ActiveOpMode {
 //            backRight.setPower(0.0d);
 //        }
 //
-//        getTelemetryUtil().sendTelemetry();
+        getTelemetryUtil().sendTelemetry();
     }
     public void forward (double power){
         frontRight.setPower(power);
