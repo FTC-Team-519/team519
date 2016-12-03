@@ -58,6 +58,9 @@ public class Teleop extends ActiveOpMode {
         midCollector = hardwareMap.dcMotor.get("feeder");
         frontCollector = hardwareMap.dcMotor.get("collector");
         shooter = hardwareMap.dcMotor.get("shooter");
+
+        color = hardwareMap.colorSensor.get("colorSensor1");
+        color.enableLed(false);
     }
 
     @Override
@@ -161,12 +164,17 @@ public class Teleop extends ActiveOpMode {
             midCollector.setPower(0);
         }
 
+        getTelemetryUtil().addData("RGB: ", "" + color.red() + "," + color.green() + "," + color.blue());
+        getTelemetryUtil().addData("ARGB", " " + color.argb());
+
         if (timerComponent.targetReached(1.0f)) {
             int currentTicks = shooter.getController().getMotorCurrentPosition(1);
             float ticksPerSecond = currentTicks - previousTickCount;
             previousTickCount = currentTicks;
             getTelemetryUtil().addData("RPM", "ticksPerMinute: " + ticksPerSecond);
         }
+
+        getTelemetryUtil().sendTelemetry();
 
         // Might want to have a more effective combination
         //frontRight.setPower(Range.clip(pwr - x - z, -MAX_SPEED, MAX_SPEED));

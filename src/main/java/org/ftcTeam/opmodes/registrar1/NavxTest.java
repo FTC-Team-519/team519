@@ -90,6 +90,16 @@ public class NavxTest extends ActiveOpMode {
         shooter.getController().setMotorMode(1, DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.getController().setMotorZeroPowerBehavior(1, DcMotor.ZeroPowerBehavior.FLOAT);
         timerComponent = getTimer();
+
+        if (navx_device != null) {
+            calibration_complete = !navx_device.isCalibrating();
+            if (calibration_complete) {
+                navx_device.zeroYaw();
+                getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
+            } else {
+                getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
+            }
+        }
     }
 
     /**
@@ -186,12 +196,13 @@ public class NavxTest extends ActiveOpMode {
             getTelemetryUtil().addData("RPM", "ticksPerMinute: " + ticksPerSecond);
         }
 
-        if (calibration_complete) {
-            getTelemetryUtil().addData("NavX", "Yaw: " + df.format(navx_device.getYaw()));
-        }
-        else {
-            getTelemetryUtil().addData("NavX", "Calibrating");
-            calibration_complete = !navx_device.isCalibrating();
+        if (navx_device != null) {
+            if (calibration_complete) {
+                getTelemetryUtil().addData("NavX", "Yaw: " + df.format(navx_device.getYaw()));
+            } else {
+                getTelemetryUtil().addData("NavX", "Calibrating :-(");
+                calibration_complete = !navx_device.isCalibrating();
+            }
         }
 
 //        getTelemetryUtil().addData(color.argb() + "", "color");
