@@ -58,9 +58,6 @@ public class Teleop extends ActiveOpMode {
         midCollector = hardwareMap.dcMotor.get("feeder");
         frontCollector = hardwareMap.dcMotor.get("collector");
         shooter = hardwareMap.dcMotor.get("shooter");
-
-        color = hardwareMap.colorSensor.get("color");
-        ods = hardwareMap.opticalDistanceSensor.get("ods");
     }
 
     @Override
@@ -89,10 +86,10 @@ public class Teleop extends ActiveOpMode {
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
         double pwr = -y;
 
-        motorPowers[FRONT_RIGHT] = pwr + x - z;
-        motorPowers[FRONT_LEFT] = pwr - x + z;
-        motorPowers[BACK_RIGHT] = pwr - x - z;
-        motorPowers[BACK_LEFT] = pwr + x + z;
+        motorPowers[FRONT_RIGHT] = pwr - x - z;
+        motorPowers[FRONT_LEFT] = 1.5*(pwr + x + z);
+        motorPowers[BACK_RIGHT] = 1.5*(pwr + x - z);
+        motorPowers[BACK_LEFT] = pwr - x + z;
         normalizeCombinedPowers(motorPowers);
 
         frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
@@ -170,9 +167,6 @@ public class Teleop extends ActiveOpMode {
             previousTickCount = currentTicks;
             getTelemetryUtil().addData("RPM", "ticksPerMinute: " + ticksPerSecond);
         }
-
-//        getTelemetryUtil().addData(color.argb() + "", "color");
-//        getTelemetryUtil().sendTelemetry();
 
         // Might want to have a more effective combination
         //frontRight.setPower(Range.clip(pwr - x - z, -MAX_SPEED, MAX_SPEED));

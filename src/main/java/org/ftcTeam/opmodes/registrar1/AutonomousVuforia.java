@@ -345,22 +345,22 @@ public class AutonomousVuforia extends ActiveOpMode {
                 break;
             case 2:
                 forward(0.5d);
-                if (getTimer().targetReached(0.5d)) {
+                if (getTimer().targetReached(1.2d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 3:
-                turnLeft(0.5d, false);
-                if (getTimer().targetReached(0.9d)) {
+                turnRight(0.5d, true);
+                if (getTimer().targetReached(1.2d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
 
             case 4:
-                forward(0.5d);
-                if (getTimer().targetReached(1.3d)) {
+                forward(-0.5d);
+                if (getTimer().targetReached(1.0d)) {
                     stopMoving();
                     ++step;
                 }
@@ -372,17 +372,10 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
 
                 if (lastKnownLocation != null && isVisible) {
-                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
-
-                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-
                     Orientation orientation = Orientation.getOrientation(lastKnownLocation,
                             AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
 
                     float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
-
-                    getTelemetryUtil().addData("Desired: ", "x:" + DESIRED_MM_RED_X + ", y:" + DESIRED_MM_RED_NEAR_Y + ", z:" + DESIRED_DEGREES_RED_Z);
-                    getTelemetryUtil().addData("z:", pErrorDegZ);
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -2f) {
@@ -393,7 +386,7 @@ public class AutonomousVuforia extends ActiveOpMode {
 
                     turnLeft(zVector, true);
 
-                    if (Math.abs(pErrorDegZ) < 12f) {
+                    if (Math.abs(pErrorDegZ) < 2f) {
                         stopMoving();
 
                         ++step;
@@ -404,7 +397,75 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
 
                 break;
+            case 6:
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
 
+                if (lastKnownLocation != null && isVisible) {
+                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
+                    float pErrorY = DESIRED_MM_RED_NEAR_Y - xyzTranslation[1];
+
+                    double yVector = 0.0f;
+                    if (pErrorY < -20f) {
+                        yVector = -0.25f;
+                    } else if (pErrorY > 20f) {
+                        yVector = 0.25f;
+                    }
+
+                    strafeLeft(yVector);
+
+                    if (Math.abs(pErrorY) < 3f) {
+                        stopMoving();
+
+                        ++step;
+                    }
+                }
+                else {
+                    getTelemetryUtil().addData("Location:", "unknown");
+                    stopMoving();
+                }
+                break;
+            case 7:
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
+
+                if (lastKnownLocation != null && isVisible) {
+                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
+                    float pErrorX = DESIRED_MM_RED_X - xyzTranslation[0];
+
+                    double XVector = 0.0f;
+                    if (pErrorX < -20f) {
+                        XVector = -0.2f;
+                    } else if (pErrorX > 20f) {
+                        XVector = 0.2f;
+                    }
+
+                    forward(XVector);
+
+                    if (Math.abs(pErrorX) < 30f) {
+                        stopMoving();
+
+                        ++step;
+                    }
+                }
+                else {
+                    getTelemetryUtil().addData("Location:", "unknown");
+                    stopMoving();
+                }
+                break;
+            case 8:
+                forward(-0.06d);
+                if (getTimer().targetReached(1.4d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
         }
 //        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
 //        if (robotLocationTransform != null) {
@@ -530,6 +591,20 @@ public class AutonomousVuforia extends ActiveOpMode {
             backRight.setPower(-power);
             frontRight.setPower(-power);
         }
+    }
+
+    public void strafeRight (double power){
+        frontLeft.setPower(power);
+        backLeft.setPower(-power);
+        frontRight.setPower(-power);
+        backRight.setPower(power);
+    }
+
+    public void strafeLeft (double power) {
+        frontRight.setPower(power);
+        backRight.setPower(-power);
+        frontLeft.setPower(-power);
+        backLeft.setPower(power);
     }
 
     public void stopMoving(){
