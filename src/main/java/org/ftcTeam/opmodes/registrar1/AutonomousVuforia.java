@@ -48,7 +48,7 @@ public class AutonomousVuforia extends ActiveOpMode {
     private static final byte[] MY_VALUE = Base64.decode(VALUE, Base64.NO_WRAP);
     private static final String KEY = convert(MY_VALUE);
 
-    int step = 2;
+    int step = 0;
 
     private static String convert(byte[] thing) {
         try {
@@ -183,6 +183,8 @@ public class AutonomousVuforia extends ActiveOpMode {
     private static final int FRONT_RIGHT = 1;
     private static final int BACK_LEFT   = 2;
     private static final int BACK_RIGHT  = 3;
+
+    boolean beaconIsRed = false;
 
     private static final double MAX_SPEED = 0.3d;
 
@@ -330,10 +332,9 @@ public class AutonomousVuforia extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
-        boolean isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
-        getTelemetryUtil().addData("Target", "Looking for target.");
-        getTelemetryUtil().addData("Seen: ", isVisible ? "Visible" : "Not Visible");
+        boolean isVisible = false;
         getTelemetryUtil().addData("Step ", "" + step);
+
         switch(step) {
             case 0:
                 shooter.setPower(1.0d);
@@ -372,7 +373,9 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
                 break;
             case 5:
+                isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
                 }
@@ -404,7 +407,9 @@ public class AutonomousVuforia extends ActiveOpMode {
 
                 break;
             case 6:
+                isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
                 }
@@ -435,7 +440,9 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
                 break;
             case 7:
+                isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
                 }
@@ -476,15 +483,21 @@ public class AutonomousVuforia extends ActiveOpMode {
                 forward(0.1d);
                 if (getTimer().targetReached(0.5d)) {
                     stopMoving();
-                    step++;
+                    ++step;
                 }
                 break;
             case 10:
-                boolean beaconIsRed = colorSensor.red()>colorSensor.blue();
-                getTelemetryUtil().addData("red:", " " + colorSensor.red());
+                if (getTimer().targetReached(1.0)) {
+                    beaconIsRed = colorSensor.red() > colorSensor.blue();
+                    getTelemetryUtil().addData("red:", " " + colorSensor.red());
+                    getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
+                    ++step;
+                }
+                break;
+            case 11:
                 if(beaconIsRed)
                 {
-                    step++;
+                    ++step;
                 }
                 else
                 {
@@ -494,15 +507,17 @@ public class AutonomousVuforia extends ActiveOpMode {
                     }
                 }
                 break;
-            case 11:
+            case 12:
                 forward(0.5d);
-                if (getTimer().targetReached(0.3d)) {
+                if (getTimer().targetReached(0.5d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 12:
+            case 13:
+                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
                 }
@@ -532,6 +547,110 @@ public class AutonomousVuforia extends ActiveOpMode {
                     strafeLeft(0.2f);
                 }
                 break;
+            case 14:
+                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
+
+                if (lastKnownLocation != null && isVisible) {
+                    Orientation orientation = Orientation.getOrientation(lastKnownLocation,
+                            AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+
+                    float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
+
+                    double zVector = 0.0f;
+                    if (pErrorDegZ < -2f) {
+                        zVector = -0.14f;
+                    } else if (pErrorDegZ > 2f) {
+                        zVector = 0.14f;
+                    }
+
+                    turnLeft(zVector, true);
+
+                    if (Math.abs(pErrorDegZ) < 2f) {
+                        stopMoving();
+
+                        ++step;
+                    }
+                }
+                else {
+                    turnLeft(0.14f, true);
+                }
+
+                break;
+            case 15:
+                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
+
+                if (lastKnownLocation != null && isVisible) {
+                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
+                    float pErrorX = DESIRED_MM_RED_X - xyzTranslation[0];
+
+                    double XVector = 0.0f;
+                    if (pErrorX < -20f) {
+                        XVector = -0.2f;
+                    } else if (pErrorX > 20f) {
+                        XVector = 0.2f;
+                    }
+
+                    forward(XVector);
+
+                    if (Math.abs(pErrorX) < 30f) {
+                        stopMoving();
+
+                        ++step;
+                    }
+                }
+                else {
+                    getTelemetryUtil().addData("Location:", "unknown");
+                    stopMoving();
+                }
+                break;
+            case 16:
+                forward(-0.1d);
+                if (getTimer().targetReached(2.3d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 17:
+                forward(0.1d);
+                if (getTimer().targetReached(0.5d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 18:
+                if (getTimer().targetReached(1.0)) {
+                    beaconIsRed = colorSensor.red() > colorSensor.blue();
+                    getTelemetryUtil().addData("red:", " " + colorSensor.red());
+                    getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
+                    ++step;
+                }
+                break;
+            case 19:
+                if(beaconIsRed)
+                {
+                    ++step;
+                }
+                else
+                {
+                    if(getTimer().targetReached(5.0))
+                    {
+                        step = 16;
+                    }
+                }
+                break;
+
+
         }
 //        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
 //        if (robotLocationTransform != null) {
@@ -632,6 +751,7 @@ public class AutonomousVuforia extends ActiveOpMode {
 //            backRight.setPower(0.0d);
 //        }
 //
+        getTelemetryUtil().addData("Seen: ", isVisible ? "Visible" : "Not Visible");
         getTelemetryUtil().sendTelemetry();
     }
     public void forward (double power){
@@ -668,8 +788,8 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     public void strafeLeft (double power) {
         frontRight.setPower(power);
-        backRight.setPower(1.7*-power);
-        frontLeft.setPower(1.7*-power);
+        backRight.setPower(2.0*-power);
+        frontLeft.setPower(2.0*-power);
         backLeft.setPower(power);
     }
 
