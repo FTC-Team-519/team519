@@ -1,1 +1,16 @@
 apply from: rootProject.file('build.common.gradle')
+
+def navxFtcProj = project.findProject(':navx_ftc')
+if (navxFtcProj) {
+    repositories {
+        flatDir {
+            dirs navxFtcProj.file('libs')
+        }
+    }
+
+    dependencies {
+        compile(name:'navx_ftc-release', ext:'aar')
+    }
+}
+
+
