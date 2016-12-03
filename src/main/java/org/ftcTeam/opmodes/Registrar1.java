@@ -10,6 +10,7 @@ import org.ftcTeam.opmodes.registrar1.GamePadDriveOpMode;
 import org.ftcTeam.opmodes.registrar1.GamePadMecanumOpMode;
 import org.ftcTeam.opmodes.registrar1.IRFollow;
 import org.ftcTeam.opmodes.registrar1.NavxTest;
+import org.ftcTeam.opmodes.registrar1.ServoTest;
 import org.ftcTeam.opmodes.registrar1.Teleop;
 import org.ftcTeam.opmodes.registrar1.TestShooterSpeed;
 import org.ftcbootstrap.ActiveOpMode;
@@ -36,7 +37,8 @@ public class Registrar1 extends BootstrapRegistrar {
             //AutonomousTestPlays.class,
             Teleop.class,
             AutonomousWithoutVuforia.class,
-            NavxTest.class
+            NavxTest.class,
+            ServoTest.class
             //TestShooterSpeed.class,
             //IRFollow.class
     };
