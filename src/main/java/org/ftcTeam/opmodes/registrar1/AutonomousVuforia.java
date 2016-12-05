@@ -3,6 +3,7 @@ package org.ftcTeam.opmodes.registrar1;
 
 import android.util.Base64;
 
+import com.kauailabs.navx.ftc.AHRS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -23,6 +24,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 
 /**
  * Autonomous Vuforia reference class that doesn't depend upon any motors, just the camera.
@@ -47,6 +49,10 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     private static final byte[] MY_VALUE = Base64.decode(VALUE, Base64.NO_WRAP);
     private static final String KEY = convert(MY_VALUE);
+
+    private DecimalFormat df = new DecimalFormat("#.##");
+    private boolean calibration_complete = false;
+    private AHRS navx_device;
 
     int step = 0;
 
@@ -335,6 +341,14 @@ public class AutonomousVuforia extends ActiveOpMode {
         boolean isVisible = false;
         getTelemetryUtil().addData("Step ", "" + step);
 
+        if (navx_device != null) {
+            if (calibration_complete) {
+                getTelemetryUtil().addData("NavX", "Yaw: " + df.format(navx_device.getYaw()));
+            } else {
+                getTelemetryUtil().addData("NavX", "Calibrating :-(");
+                calibration_complete = !navx_device.isCalibrating();
+            }
+        }
         switch(step) {
             case 0:
                 shooter.setPower(1.0d);
@@ -402,7 +416,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                     }
                 }
                 else {
-                    turnLeft(0.14f, true);
+                    turnLeft(0.12f, true);
                 }
 
                 break;
@@ -421,14 +435,16 @@ public class AutonomousVuforia extends ActiveOpMode {
 
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
-                        yVector = -0.25f;
+                        //yVector = -0.15f;
+                        yVector = -0.22f;
                     } else if (pErrorY > 20f) {
-                        yVector = 0.25f;
+                        //yVector = 0.15f;
+                        yVector = 0.22f;
                     }
 
                     strafeLeft(yVector);
 
-                    if (Math.abs(pErrorY) < 3f) {
+                    if (Math.abs(pErrorY) < 6f) {
                         stopMoving();
 
                         ++step;
@@ -440,48 +456,22 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
                 break;
             case 7:
-                isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
-                getTelemetryUtil().addData("Target", "Looking for target.");
-                if (robotLocationTransform != null) {
-                    lastKnownLocation = robotLocationTransform;
-                }
-
-                if (lastKnownLocation != null && isVisible) {
-                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
-                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-                    float pErrorX = DESIRED_MM_RED_X - xyzTranslation[0];
-
-                    double XVector = 0.0f;
-                    if (pErrorX < -20f) {
-                        XVector = -0.2f;
-                    } else if (pErrorX > 20f) {
-                        XVector = 0.2f;
-                    }
-
-                    forward(XVector);
-
-                    if (Math.abs(pErrorX) < 30f) {
-                        stopMoving();
-
-                        ++step;
-                    }
-                }
-                else {
-                    getTelemetryUtil().addData("Location:", "unknown");
+                forward(-0.2d);
+                if (getTimer().targetReached(1.5d)) {
                     stopMoving();
+                    ++step;
                 }
                 break;
             case 8:
                 forward(-0.1d);
-                if (getTimer().targetReached(2.3d)) {
+                if (getTimer().targetReached(1.0d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 9:
                 forward(0.1d);
-                if (getTimer().targetReached(0.5d)) {
+                if (getTimer().targetReached(0.3d)) {
                     stopMoving();
                     ++step;
                 }
@@ -498,10 +488,11 @@ public class AutonomousVuforia extends ActiveOpMode {
                 if(beaconIsRed)
                 {
                     ++step;
+                    //step = 20;
                 }
                 else
                 {
-                    if(getTimer().targetReached(5.0))
+                    if(getTimer().targetReached(4.0))
                     {
                         step = 8;
                     }
@@ -509,12 +500,19 @@ public class AutonomousVuforia extends ActiveOpMode {
                 break;
             case 12:
                 forward(0.5d);
-                if (getTimer().targetReached(0.5d)) {
+                if (getTimer().targetReached(0.30d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 13:
+                strafeLeft(0.7d);
+                if (getTimer().targetReached(2.25d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 14:
                 isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -529,14 +527,14 @@ public class AutonomousVuforia extends ActiveOpMode {
 
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
-                        yVector = -0.2f;
+                        yVector = -0.22f;
                     } else if (pErrorY > 20f) {
-                        yVector = 0.2f;
+                        yVector = 0.22f;
                     }
 
                     strafeLeft(yVector);
 
-                    if (Math.abs(pErrorY) < 3f) {
+                    if (Math.abs(pErrorY) < 6f) {
                         stopMoving();
 
                         ++step;
@@ -547,7 +545,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                     strafeLeft(0.2f);
                 }
                 break;
-            case 14:
+            case 15:
                 isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -581,62 +579,36 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
 
                 break;
-            case 15:
-                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
-                getTelemetryUtil().addData("Target", "Looking for target.");
-                if (robotLocationTransform != null) {
-                    lastKnownLocation = robotLocationTransform;
-                }
-
-                if (lastKnownLocation != null && isVisible) {
-                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
-                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-                    float pErrorX = DESIRED_MM_RED_X - xyzTranslation[0];
-
-                    double XVector = 0.0f;
-                    if (pErrorX < -20f) {
-                        XVector = -0.2f;
-                    } else if (pErrorX > 20f) {
-                        XVector = 0.2f;
-                    }
-
-                    forward(XVector);
-
-                    if (Math.abs(pErrorX) < 30f) {
-                        stopMoving();
-
-                        ++step;
-                    }
-                }
-                else {
-                    getTelemetryUtil().addData("Location:", "unknown");
-                    stopMoving();
-                }
-                break;
             case 16:
-                forward(-0.1d);
-                if (getTimer().targetReached(2.3d)) {
+                forward(-0.2d);
+                if (getTimer().targetReached(1.5d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 17:
-                forward(0.1d);
-                if (getTimer().targetReached(0.5d)) {
+                forward(-0.1d);
+                if (getTimer().targetReached(1.0d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 18:
-                if (getTimer().targetReached(1.0)) {
+                forward(0.1d);
+                if (getTimer().targetReached(0.3d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 19:
+                if (getTimer().targetReached(0.2)) {
                     beaconIsRed = colorSensor.red() > colorSensor.blue();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
                     getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
                     ++step;
                 }
                 break;
-            case 19:
+            case 20:
                 if(beaconIsRed)
                 {
                     ++step;
@@ -649,8 +621,13 @@ public class AutonomousVuforia extends ActiveOpMode {
                     }
                 }
                 break;
-
-
+            case 22:
+                forward(0.5d);
+                if (getTimer().targetReached(3d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
         }
 //        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
 //        if (robotLocationTransform != null) {
@@ -778,19 +755,54 @@ public class AutonomousVuforia extends ActiveOpMode {
             frontRight.setPower(-power);
         }
     }
-
-    public void strafeRight (double power){
-        frontLeft.setPower(1.5*power);
-        backLeft.setPower(-power);
-        frontRight.setPower(-power);
-        backRight.setPower(1.5*power);
-    }
-
     public void strafeLeft (double power) {
-        frontRight.setPower(power);
-        backRight.setPower(2.0*-power);
-        frontLeft.setPower(2.0*-power);
-        backLeft.setPower(power);
+
+        double correction = 0.0d;
+        if (calibration_complete)
+        {
+            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
+            if(navx_device.getYaw()> 91)//if turned too much clockwise
+            {
+                correction = -0.1;
+            }
+            if(navx_device.getYaw()< 89)//if turned too much counter-clockwise
+            {
+                correction = 0.1;
+            }
+        }
+        else
+        {
+            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
+        }
+
+        frontRight.setPower(0.9*power + correction);
+        backRight.setPower(1.4*-power + correction);
+        frontLeft.setPower(1.3*-power + -correction);
+        backLeft.setPower(0.8*power + -correction);
+    }
+    public void strafeRight (double power) {
+        double correction = 0.0d;
+        if (calibration_complete)
+        {
+            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
+            if(navx_device.getYaw()> 91)//if turned too much clockwise
+            {
+                correction = -0.1;
+            }
+            if(navx_device.getYaw()< 89)//if turned too much counter-clockwise
+            {
+                correction = 0.1;
+            }
+        }
+        else
+        {
+            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
+        }
+
+        frontRight.setPower((-power) + correction);
+        backRight.setPower(1.25*power + correction);
+        frontLeft.setPower(1.25*power + -correction);
+        backLeft.setPower((-power) + -correction);
     }
 
     public void stopMoving(){

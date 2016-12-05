@@ -110,35 +110,6 @@ public class NavxTest extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
-        updateJoyStickValues();
-
-        // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
-        double pwr = -y;
-
-        motorPowers[FRONT_RIGHT] = pwr + x - z;
-        motorPowers[FRONT_LEFT] = pwr - x + z;
-        motorPowers[BACK_RIGHT] = pwr - x - z;
-        motorPowers[BACK_LEFT] = pwr + x + z;
-        normalizeCombinedPowers(motorPowers);
-
-        frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
-        frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
-        backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
-        backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
-
-        if (sillyCounter > 25) {
-            sillyCounter = 0;
-            getTelemetryUtil().addData("Start", "fR: " + frontRight.getPower() +
-                    ", fL: " + frontLeft.getPower() +
-                    ", bR: " + backRight.getPower() +
-                    ", bL: " + backLeft.getPower());
-        }
-        else {
-            ++sillyCounter;
-        }
-
-        // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
-        double currPower = 0.0d;
 
 //        if (gamepad1.x) {
 //            currPower = 0.1d;
@@ -159,12 +130,51 @@ public class NavxTest extends ActiveOpMode {
 //            currPower = 1.0d;
 //        }
 
-        if (gamepad1.x) {
-            currPower = -1.0d;
+//        if (gamepad1.x) {
+//            currPower = -1.0d;
+//        }
+//        else if (gamepad1.b) {
+//            currPower = 1.0d;
+//        }
+
+        if (gamepad1.x){
+            strafeLeft(0.7);
         }
-        else if (gamepad1.b) {
-            currPower = 1.0d;
+        else if(gamepad1.b) {
+            strafeRight(0.7);
         }
+        else {
+            updateJoyStickValues();
+
+            // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
+            double pwr = -y;
+
+            motorPowers[FRONT_RIGHT] = pwr + x - z;
+            motorPowers[FRONT_LEFT] = pwr - x + z;
+            motorPowers[BACK_RIGHT] = pwr - x - z;
+            motorPowers[BACK_LEFT] = pwr + x + z;
+            normalizeCombinedPowers(motorPowers);
+
+            frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+            frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+            backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+            backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+
+            if (sillyCounter > 25) {
+                sillyCounter = 0;
+                getTelemetryUtil().addData("Start", "fR: " + frontRight.getPower() +
+                        ", fL: " + frontLeft.getPower() +
+                        ", bR: " + backRight.getPower() +
+                        ", bL: " + backLeft.getPower());
+            }
+            else {
+                ++sillyCounter;
+            }
+        }
+
+
+        // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
+        double currPower = 0.0d;
 
         // Negative, as the wheel needs to go in reverse direction (could reverse motor actually)
         shooter.setPower(currPower);
@@ -307,5 +317,54 @@ public class NavxTest extends ActiveOpMode {
         return shapedValue;
 
         // return input * (input < 0.0f ? -input : input);
+    }
+    public void strafeLeft (double power) {
+
+        double correction = 0.0d;
+        if (calibration_complete)
+        {
+            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
+            if(navx_device.getYaw()> -89)//if turned too much clockwise
+            {
+                correction = 0.1;
+            }
+            if(navx_device.getYaw()< -91)//if turned too much counter-clockwise
+            {
+                correction = -0.1;
+            }
+        }
+        else
+        {
+            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
+        }
+
+        frontRight.setPower(power + correction);
+        backRight.setPower(-power + correction);
+        frontLeft.setPower(-power + -correction);
+        backLeft.setPower(power + -correction);
+    }
+    public void strafeRight (double power) {
+        double correction = 0.0d;
+        if (calibration_complete)
+        {
+            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
+            if(navx_device.getYaw()> -89)//if turned too much clockwise
+            {
+                correction = 0.1;
+            }
+            if(navx_device.getYaw()< -91)//if turned too much counter-clockwise
+            {
+                correction = -0.1;
+            }
+        }
+        else
+        {
+            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
+        }
+
+        frontRight.setPower(-power + correction);
+        backRight.setPower(power + correction);
+        frontLeft.setPower(power + -correction);
+        backLeft.setPower(-power + -correction);
     }
 }
