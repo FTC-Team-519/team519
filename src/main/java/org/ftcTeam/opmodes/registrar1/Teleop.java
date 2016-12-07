@@ -3,6 +3,7 @@ package org.ftcTeam.opmodes.registrar1;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 import org.ftcbootstrap.ActiveOpMode;
@@ -31,11 +32,16 @@ public class Teleop extends ActiveOpMode {
     private static final int BACK_RIGHT  = 3;
 
     private static final float DEAD_ZONE = 0.2f;
-    private static final double MAX_SPEED = 0.4d;
+    private static final double MAX_SPEED = 1.0d;
 
     TimerComponent timerComponent;
 
     int previousTickCount = 0;
+
+    boolean keepShooterSpinning = false;
+    double SHOOTER_REVERSE_SPEED = -0.1d;
+    double SHOOTER_FORWARD_SPEED = 1.0d;
+    double currentShooterSpeed = 0.0d;
 
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
@@ -90,8 +96,8 @@ public class Teleop extends ActiveOpMode {
         double pwr = -y;
 
         motorPowers[FRONT_RIGHT] = pwr - x - z;
-        motorPowers[FRONT_LEFT] = 1.5*(pwr + x + z);
-        motorPowers[BACK_RIGHT] = 1.5*(pwr + x - z);
+        motorPowers[FRONT_LEFT] = 1.25*(pwr + x + z);
+        motorPowers[BACK_RIGHT] = 1.25*(pwr + x - z);
         motorPowers[BACK_LEFT] = pwr - x + z;
         normalizeCombinedPowers(motorPowers);
 
@@ -113,7 +119,6 @@ public class Teleop extends ActiveOpMode {
         }
 
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
-        double currPower = 0.0d;
 
 //        if (gamepad1.x) {
 //            currPower = 0.1d;
@@ -134,35 +139,65 @@ public class Teleop extends ActiveOpMode {
 //            currPower = 1.0d;
 //        }
 
-        if (gamepad1.x) {
-            currPower = -1.0d;
+        Gamepad driver = gamepad1;
+        Gamepad gunner = gamepad2;
+
+        if (gunner.x || gunner.a || gunner.b) {
+            if (gunner.x) {
+                currentShooterSpeed = SHOOTER_REVERSE_SPEED;
+                keepShooterSpinning = false;
+            }
+            else if (gunner.b) {
+                currentShooterSpeed = SHOOTER_FORWARD_SPEED;
+                keepShooterSpinning = true;
+            }
+            else if (gunner.a) {
+                currentShooterSpeed = 0.0d;
+                keepShooterSpinning = false;
+            }
         }
-        else if (gamepad1.b) {
-            currPower = 1.0d;
+        else {
+            if (! keepShooterSpinning) {
+                currentShooterSpeed = 0.0d;
+            }
+            /** Driver potentially saved controls
+            if (driver.x) {
+                currPower = -1.0d;
+            } else if (driver.b) {
+                currPower = 1.0d;
+            }
+             **/
         }
 
         // Negative, as the wheel needs to go in reverse direction (could reverse motor actually)
-        shooter.setPower(currPower);
+        shooter.setPower(currentShooterSpeed);
 
-        if (gamepad1.right_trigger > 0) {
-            frontCollector.setPower(-0.5);
-        }
-        else if (gamepad1.left_trigger > 0) {
-            frontCollector.setPower(0.5);
-        }
-        else {
-            frontCollector.setPower(0);
-        }
+        // Gunner
 
-        if (gamepad1.right_bumper) {
+        if (gunner.right_bumper) {
             midCollector.setPower(0.5);
         }
-        else if (gamepad1.left_bumper) {
+        else if (gunner.left_bumper) {
             midCollector.setPower(-0.5);
         }
-        else{
-            midCollector.setPower(0);
+        else {
+            midCollector.setPower(0.0);
         }
+
+        // Driver
+        if (driver.right_bumper) {
+            frontCollector.setPower(-0.5);
+        }
+        else if (driver.left_bumper) {
+            frontCollector.setPower(0.5);
+        }
+        else if ((driver.left_trigger > 0) || (driver.right_trigger > 0)){
+            frontCollector.setPower(0.0);
+        }
+        if (driver.x) {
+
+        }
+
 
         getTelemetryUtil().addData("RGB: ", "" + color.red() + "," + color.green() + "," + color.blue());
         getTelemetryUtil().addData("ARGB", " " + color.argb());
