@@ -43,6 +43,8 @@ public class Teleop extends ActiveOpMode {
     double SHOOTER_FORWARD_SPEED = 1.0d;
     double currentShooterSpeed = 0.0d;
 
+    boolean flipped = false;
+
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
      */
@@ -90,7 +92,29 @@ public class Teleop extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
+        Gamepad driver = gamepad1;
+        Gamepad gunner = gamepad2;
+
         updateJoyStickValues();
+
+        if (driver.y) {
+            flipped = false;
+        }
+        else if (driver.a) {
+            flipped = true;
+        }
+
+        if (flipped) {
+            x = -x;
+            y = -y;
+        }
+
+        if (Math.abs(gamepad1.left_stick_x)>Math.abs(gamepad1.left_stick_y)){
+            y = 0;
+        }
+        else{
+            x = 0;
+        }
 
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
         double pwr = -y;
@@ -138,9 +162,6 @@ public class Teleop extends ActiveOpMode {
 //        else if (gamepad1.right_bumper) {
 //            currPower = 1.0d;
 //        }
-
-        Gamepad driver = gamepad1;
-        Gamepad gunner = gamepad2;
 
         if (gunner.x || gunner.a || gunner.b) {
             if (gunner.x) {
@@ -194,10 +215,6 @@ public class Teleop extends ActiveOpMode {
         else if ((driver.left_trigger > 0) || (driver.right_trigger > 0)){
             frontCollector.setPower(0.0);
         }
-        if (driver.x) {
-
-        }
-
 
         getTelemetryUtil().addData("RGB: ", "" + color.red() + "," + color.green() + "," + color.blue());
         getTelemetryUtil().addData("ARGB", " " + color.argb());
