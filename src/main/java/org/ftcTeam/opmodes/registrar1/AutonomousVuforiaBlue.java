@@ -339,6 +339,7 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
     protected void activeLoop() throws InterruptedException {
         boolean isVisible = false;
         getTelemetryUtil().addData("Step ", "" + step);
+        colorSensor.enableLed(false);
 
         if (navx_device != null) {
             if (calibration_complete) {
@@ -365,14 +366,14 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                 break;
             case 2:
                 forward(0.5d);
-                if (getTimer().targetReached(1.2d)) {
+                if (getTimer().targetReached(1.1d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 3:
                 turnLeft(0.5d, true);
-                if (getTimer().targetReached(1.0d)) {
+                if (getTimer().targetReached(1.2d)) {
                     stopMoving();
                     ++step;
                 }
@@ -569,12 +570,15 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                     double zVector = 0.0f;
                     if (pErrorDegZ < -2f) {
                         zVector = 0.18f;
-                        zVector = 0.18f;
                     } else if (pErrorDegZ > 2f) {
                         zVector = -0.18f;
                     }
 
-                    turnLeft(zVector, true);
+                    getTelemetryUtil().addData("DesiredZ: ", DESIRED_DEGREES_BLUE_Z);
+                    getTelemetryUtil().addData("zError: ", pErrorDegZ);
+                    getTelemetryUtil().addData("Third Angle: ", orientation.thirdAngle);
+
+                    turnRight(zVector, true);
 
                     if (Math.abs(pErrorDegZ) < 2f) {
                         stopMoving();
@@ -582,10 +586,6 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                         ++step;
                     }
                 }
-                else {
-                    turnRight(0.18f, true);
-                }
-
                 break;
             case 16:
                 forward(-0.2d);

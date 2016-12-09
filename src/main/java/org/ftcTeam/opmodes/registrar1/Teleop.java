@@ -109,11 +109,19 @@ public class Teleop extends ActiveOpMode {
             y = -y;
         }
 
-        if (Math.abs(gamepad1.left_stick_x)>Math.abs(gamepad1.left_stick_y)){
+        if (Math.abs(driver.left_stick_x)>Math.abs(driver.left_stick_y)){
             y = 0;
         }
-        else{
+        else if (Math.abs(driver.left_stick_y) > Math.abs(driver.left_stick_x)){
             x = 0;
+        }
+        else if (driver.x) {
+            x = -100;
+            y = 0;
+        }
+        else if (driver.b) {
+            x = 100;
+            y = 0;
         }
 
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert

@@ -613,6 +613,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                 {
                     ++step;
                 }
+
                 else
                 {
                     if(getTimer().targetReached(5.0))
