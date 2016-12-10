@@ -55,6 +55,7 @@ public class AutonomousVuforia extends ActiveOpMode {
     private AHRS navx_device;
 
     int step = 0;
+    private boolean missedBeacon = false;
 
     private static String convert(byte[] thing) {
         try {
@@ -436,10 +437,10 @@ public class AutonomousVuforia extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        yVector = -0.22f;
+                        yVector = -0.27f;
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        yVector = 0.22f;
+                        yVector = 0.27f;
                     }
 
                     strafeLeft(yVector);
@@ -463,8 +464,8 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
                 break;
             case 8:
-                forward(-0.1d);
-                if (getTimer().targetReached(1.0d)) {
+                forward(-0.2d);
+                if (getTimer().targetReached(0.65d)) {
                     stopMoving();
                     ++step;
                 }
@@ -473,7 +474,10 @@ public class AutonomousVuforia extends ActiveOpMode {
                 forward(0.1d);
                 if (getTimer().targetReached(0.3d)) {
                     stopMoving();
-                    ++step;
+                    if (missedBeacon)
+                        step = 999;
+                    else
+                        ++step;
                 }
                 break;
             case 10:
@@ -495,6 +499,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                     if(getTimer().targetReached(4.0))
                     {
                         step = 8;
+                        missedBeacon = true;
                     }
                 }
                 break;
@@ -507,7 +512,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                 break;
             case 13:
                 strafeLeft(0.7d);
-                if (getTimer().targetReached(2.25d)) {
+                if (getTimer().targetReached(2.30d)) {
                     stopMoving();
                     ++step;
                 }
@@ -527,9 +532,9 @@ public class AutonomousVuforia extends ActiveOpMode {
 
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
-                        yVector = -0.22f;
+                        yVector = -0.27f;
                     } else if (pErrorY > 20f) {
-                        yVector = 0.22f;
+                        yVector = 0.27f;
                     }
 
                     strafeLeft(yVector);
@@ -542,7 +547,7 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
                 else {
                     getTelemetryUtil().addData("Location:", "unknown");
-                    strafeLeft(0.2f);
+                    strafeLeft(0.23f);
                 }
                 break;
             case 15:
@@ -587,8 +592,8 @@ public class AutonomousVuforia extends ActiveOpMode {
                 }
                 break;
             case 17:
-                forward(-0.1d);
-                if (getTimer().targetReached(1.0d)) {
+                forward(-0.2d);
+                if (getTimer().targetReached(0.65d)) {
                     stopMoving();
                     ++step;
                 }
@@ -624,14 +629,14 @@ public class AutonomousVuforia extends ActiveOpMode {
                 break;
             case 21:
                 turnRight(0.5, false);
-                if (getTimer().targetReached(1.2d)) {
+                if (getTimer().targetReached(1.0d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 22:
                 forward(0.5d);
-                if (getTimer().targetReached(3d)) {
+                if (getTimer().targetReached(2.0d)) {
                     stopMoving();
                     ++step;
                 }
@@ -650,7 +655,7 @@ public class AutonomousVuforia extends ActiveOpMode {
 //            float pErrorY = DESIRED_MM_RED_NEAR_Y - xyzTranslation[1];
 //
 //            Orientation orientation = Orientation.getOrientation(lastKnownLocation,
-//                    AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+//                    AxesReference.EXTRINSIC,AxesOrder.XYZ, AngleUnit.DEGREES);
 //
 //            float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
 //

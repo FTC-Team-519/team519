@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.TimerComponent;
 
-public class Teleop extends ActiveOpMode {
+public class TeleopTestStrafePowers extends ActiveOpMode {
     private DcMotor shooter;
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -45,6 +45,11 @@ public class Teleop extends ActiveOpMode {
 
     boolean flipped = false;
 
+    double lf_power_adjust;
+    double lr_power_adjust;
+    double rf_power_adjust;
+    double rr_power_adjust;
+
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
      */
@@ -69,6 +74,11 @@ public class Teleop extends ActiveOpMode {
 
         color = hardwareMap.colorSensor.get("colorSensor1");
         color.enableLed(false);
+
+        lf_power_adjust = 0.0;
+        lr_power_adjust = 0.0;
+        rf_power_adjust = 0.0;
+        rr_power_adjust = 0.0;
     }
 
     @Override
@@ -97,31 +107,11 @@ public class Teleop extends ActiveOpMode {
 
         updateJoyStickValues();
 
-        if (driver.y) {
-            flipped = false;
-        }
-        else if (driver.a) {
-            flipped = true;
-        }
-
-        if (flipped) {
-            x = -x;
-            y = -y;
-        }
-
         if (Math.abs(driver.left_stick_x)>Math.abs(driver.left_stick_y)){
             y = 0;
         }
         else if (Math.abs(driver.left_stick_y) > Math.abs(driver.left_stick_x)){
             x = 0;
-        }
-        else if (driver.x) {
-            x = -100;
-            y = 0;
-        }
-        else if (driver.b) {
-            x = 100;
-            y = 0;
         }
 
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
@@ -178,7 +168,7 @@ public class Teleop extends ActiveOpMode {
             }
             else if (gunner.b) {
                 currentShooterSpeed = SHOOTER_FORWARD_SPEED;
-                keepShooterSpinning = false;
+                keepShooterSpinning = true;
             }
             else if (gunner.a) {
                 currentShooterSpeed = 0.0d;

@@ -53,7 +53,8 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
     private boolean calibration_complete = false;
     private AHRS navx_device;
 
-    int step = 2;
+    int step = 0;
+    private boolean missedBeacon = false;
 
     private static String convert(byte[] thing) {
         try {
@@ -381,7 +382,7 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
 
             case 4:
                 forward(-0.5d);
-                if (getTimer().targetReached(1.0d)) {
+                if (getTimer().targetReached(1.2d)) {
                     stopMoving();
                     ++step;
                 }
@@ -402,9 +403,9 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -2f) {
-                        zVector = 0.18f;
+                        zVector = 0.16;
                     } else if (pErrorDegZ > 2f) {
-                        zVector = -0.18f;
+                        zVector = -0.16f;
                     }
 
                     getTelemetryUtil().addData("DesiredZ: ", DESIRED_DEGREES_BLUE_Z);
@@ -420,7 +421,7 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                     }
                 }
                 else {
-                    turnRight(0.18f, true);
+                    turnRight(0.16f, true);
                 }
 
                 break;
@@ -444,10 +445,10 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                     double xVector = 0.0f;
                     if (pErrorX < -20f) {
                         //xVector = -0.15f;
-                        xVector = 0.22f;
+                        xVector = 0.3f;
                     } else if (pErrorX > 20f) {
                         //xVector = 0.15f;
-                        xVector = -0.22f;
+                        xVector = -0.3f;
                     }
 
                     strafeRight(xVector);
@@ -471,8 +472,8 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                 }
                 break;
             case 8:
-                forward(-0.1d);
-                if (getTimer().targetReached(1.0d)) {
+                forward(-0.2d);
+                if (getTimer().targetReached(1.5d)) {
                     stopMoving();
                     ++step;
                 }
@@ -481,7 +482,10 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                 forward(0.1d);
                 if (getTimer().targetReached(0.3d)) {
                     stopMoving();
-                    ++step;
+                    if (missedBeacon)
+                        step = 999;
+                    else
+                        ++step;
                 }
                 break;
             case 10:
@@ -503,24 +507,31 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                     if(getTimer().targetReached(4.0))
                     {
                         step = 8;
+                        missedBeacon = true;
                     }
                 }
                 break;
             case 12:
                 forward(0.5d);
-                if (getTimer().targetReached(0.30d)) {
+                if (getTimer().targetReached(0.50d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 13:
                 strafeRight(0.7d);
-                if (getTimer().targetReached(2.25d)) {
+                if (getTimer().targetReached(2.10d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 14:
+                if (getTimer().targetReached(0.50d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 15:
                 isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -535,9 +546,9 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
 
                     double xVector = 0.0f;
                     if (pErrorX < -20f) {
-                        xVector = 0.22f;
+                        xVector = 0.21f;
                     } else if (pErrorX > 20f) {
-                        xVector = -0.22f;
+                        xVector = -0.21f;
                     }
 
                     strafeRight(xVector);
@@ -550,10 +561,10 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                 }
                 else {
                     getTelemetryUtil().addData("Location:", "unknown");
-                    strafeRight(0.2f);
+                    strafeRight(0.21f);
                 }
                 break;
-            case 15:
+            case 16:
                 isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -587,28 +598,28 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                     }
                 }
                 break;
-            case 16:
+            case 17:
                 forward(-0.2d);
                 if (getTimer().targetReached(1.5d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 17:
+            case 18:
                 forward(-0.1d);
                 if (getTimer().targetReached(1.0d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 18:
+            case 19:
                 forward(0.1d);
                 if (getTimer().targetReached(0.3d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 19:
+            case 20:
                 if (getTimer().targetReached(0.2)) {
                     beaconIsBlue = colorSensor.blue() > colorSensor.red();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
@@ -616,7 +627,7 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 20:
+            case 21:
                 if(beaconIsBlue)
                 {
                     // FIXME: Re-add try to hit ball once consistent
@@ -625,20 +636,20 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
                 }
                 else
                 {
-                    if(getTimer().targetReached(5.0))
+                    if(getTimer().targetReached(4.0))
                     {
-                        step = 16;
+                        step = 18;
                     }
                 }
                 break;
-            case 21:
-                turnRight(0.5, false);
+            case 22:
+                turnLeft(0.5, false);
                 if (getTimer().targetReached(1.2d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 22:
+            case 23:
                 forward(0.5d);
                 if (getTimer().targetReached(3d)) {
                     stopMoving();
@@ -822,10 +833,10 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
 
         power += 0.1;
 
-        frontRight.setPower(0.9*(-power) + -correction);
-        backRight.setPower(1.2*power + -correction);
-        frontLeft.setPower(1.1*power + correction);
-        backLeft.setPower(0.8*(-power) + correction);
+        frontRight.setPower(0.8*(-power) + -correction);
+        backRight.setPower(0.8*power + -correction);
+        frontLeft.setPower(1.3*power + correction);
+        backLeft.setPower(1.3*(-power) + correction);
 //        frontRight.setPower((-power) + -correction);
 //        backRight.setPower(power + -correction);
 //        frontLeft.setPower(power + correction);
