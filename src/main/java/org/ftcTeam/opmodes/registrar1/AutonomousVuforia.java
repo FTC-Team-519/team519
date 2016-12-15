@@ -631,7 +631,8 @@ public class AutonomousVuforia extends ActiveOpMode {
                 turnRight(0.5, false);
                 if (getTimer().targetReached(1.0d)) {
                     stopMoving();
-                    ++step;
+                    //++step;
+                    step = 999;
                 }
                 break;
             case 22:

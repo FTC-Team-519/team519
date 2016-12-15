@@ -499,8 +499,8 @@ public class AutonomousVuforiaBlue extends ActiveOpMode {
             case 11:
                 if(beaconIsBlue)
                 {
-                    ++step;
-                    //step = 20;
+                    //++step;
+                    step = 999;
                 }
                 else
                 {
