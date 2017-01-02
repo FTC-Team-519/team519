@@ -1,64 +1,62 @@
 package org.ftcTeam.opmodes.registrar1;
 
-
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.ftcTeam.configurations.FTCTeamRobot;
-import org.ftcbootstrap.ActiveOpMode;
-import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.ViewParent;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
+import org.ftcbootstrap.ActiveOpMode;
+import org.ftcbootstrap.components.TimerComponent;
 
-/**
- * Note:  It is assumed that the proper registry is used for this set of demos. To confirm please
- * search for "Enter your custom registry here"  in  {@link org.ftcTeam.FTCTeamControllerActivity}
- * <p/>
- * Summary:  Use an Operation class to perform a tank drive using the gamepad joysticks.
- * See: {@link GamePadTankDrive}
- */
-
-@TeleOp
 public class GamePadMecanumOpMode extends ActiveOpMode {
-    DcMotor frontleft, frontright, backleft, backright, collectorOne, collectorTwo, liftleft, liftright; //TODO convert to motormap @jake
-    Servo flag, clamp, dump;
-    private float x, y, z, w, pwr;
-    public static double deadzone = 0.2;
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
+    private float x;
+    private float y;
+    private float z;
 
-    private FTCTeamRobot robot;
-    private GamePadTankDrive gamePadTankDrive1, gamePadTankDrive2;
-    //servo minmax
-    final static double CLAMP_MIN  = 172.0/255.0;
-    final static double CLAMP_MID = 220.0/255.0;
-    final static double CLAMP_MAX  = 232.0/255.0;
-    final static double DUMP_MIN  = 80.0/255.0;
-    final static double DUMP_MAX  = 180.0/255.0;
+    private int sillyCounter = 0;
+
+    private double[] motorPowers = new double[4];
+    private static final int FRONT_LEFT  = 0;
+    private static final int FRONT_RIGHT = 1;
+    private static final int BACK_LEFT   = 2;
+    private static final int BACK_RIGHT  = 3;
+
+    private static final float DEAD_ZONE = 0.2f;
+    private static final double MAX_SPEED = 1.0d;
+
+    TimerComponent timerComponent;
+
+    int previousTickCount = 0;
+
+    boolean keepShooterSpinning = false;
+    double SHOOTER_REVERSE_SPEED = -0.1d;
+    double SHOOTER_FORWARD_SPEED = 1.0d;
+    double currentShooterSpeed = 0.0d;
+
+    boolean flipped = false;
 
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.
      */
     @Override
     protected void onInit() {
-/*
-        robot = FTCTeamRobot.newConfig(hardwareMap, getTelemetryUtil());
 
         //Note The Telemetry Utility is designed to let you organize all telemetry data before sending it to
         //the Driver station via the sendTelemetry command
-        getTelemetryUtil().addData("Init", getClass().getSimpleName() + " initializedX.");
-        getTelemetryUtil().sendTelemetry(); */
-        frontleft = hardwareMap.dcMotor.get("motor4");
-        frontright = hardwareMap.dcMotor.get("motor2");
-        backleft = hardwareMap.dcMotor.get("motor3");
-        backright = hardwareMap.dcMotor.get("motor1");
-        frontright.setDirection(DcMotor.Direction.REVERSE);
-        backright.setDirection(DcMotor.Direction.REVERSE);
+        getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit.");
+        getTelemetryUtil().sendTelemetry();
+
+        frontLeft = hardwareMap.dcMotor.get("motor4");
+        frontRight = hardwareMap.dcMotor.get("motor2");
+        backLeft = hardwareMap.dcMotor.get("motor3");
+        backRight = hardwareMap.dcMotor.get("motor1");
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
     }
 
@@ -66,9 +64,11 @@ public class GamePadMecanumOpMode extends ActiveOpMode {
     protected void onStart() throws InterruptedException {
         super.onStart();
 
-        //create the operation  to perform a tank drive using the gamepad joysticks.
-        //gamePadTankDrive1 = new GamePadTankDrive(this, gamepad1, robot.motor1, robot.motor2);
-        //gamePadTankDrive2 = new GamePadTankDrive(this, gamepad1, robot.motor3, robot.motor4);
+        getTelemetryUtil().addData("Start", getClass().getSimpleName() + " onStart.");
+        getTelemetryUtil().sendTelemetry();
+
+
+        timerComponent = getTimer();
     }
 
     /**
@@ -79,96 +79,164 @@ public class GamePadMecanumOpMode extends ActiveOpMode {
      */
     @Override
     protected void activeLoop() throws InterruptedException {
-/*
-        //update the motors with the gamepad joystick values
-        gamePadTankDrive1.update();
-        gamePadTankDrive2.update();
+        Gamepad driver = gamepad1;
 
-        //robot.motor1.setPower(.5);
+        updateJoyStickValues();
 
-        getTelemetryUtil().addData("activeLoop", getClass().getSimpleName() + " allcowseatgrass.");
+        if (driver.y) {
+            flipped = false;
+        }
+        else if (driver.a) {
+            flipped = true;
+        }
+
+        if (flipped) {
+            x = -x;
+            y = -y;
+        }
+
+        if (Math.abs(driver.left_stick_x)>Math.abs(driver.left_stick_y)){
+            y = 0;
+        }
+        else if (Math.abs(driver.left_stick_y) > Math.abs(driver.left_stick_x)){
+            x = 0;
+        }
+        else if (driver.x) {
+            x = -100;
+            y = 0;
+        }
+        else if (driver.b) {
+            x = 100;
+            y = 0;
+        }
+
+        // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
+        double pwr = -y;
+
+        motorPowers[FRONT_RIGHT] = pwr - x - z;
+        motorPowers[FRONT_LEFT] = 1.25*(pwr + x + z);
+        motorPowers[BACK_RIGHT] = 1.25*(pwr + x - z);
+        motorPowers[BACK_LEFT] = pwr - x + z;
+        normalizeCombinedPowers(motorPowers);
+
+        frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+        frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+        backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+        backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+
+        if (sillyCounter > 25) {
+            sillyCounter = 0;
+            getTelemetryUtil().addData("Start", "fR: " + frontRight.getPower() +
+                    ", fL: " + frontLeft.getPower() +
+                    ", bR: " + backRight.getPower() +
+                    ", bL: " + backLeft.getPower());
+            getTelemetryUtil().sendTelemetry();
+        }
+        else {
+            ++sillyCounter;
+        }
+
+
         getTelemetryUtil().sendTelemetry();
 
-
-
-        //send any telemetry that may have been added in the above operations
-        //getTelemetryUtil().sendTelemetry();
-*/
-        getJoyVals();
-        //updates joyvalues with deadzones, xyzw
-
-        pwr = y; //this can be tweaked for exponential power increase
-/*
-fr = m1
-br = 2
-fl = 3
-bl = 4
- */
         // Might want to have a more effective combination
-        frontright.setPower(Range.clip(-pwr - x-z, -0.5, 0.5));
-        frontleft.setPower(Range.clip(-pwr + x+z, -0.5, 0.5));
-        backright.setPower(Range.clip(-pwr + x-z, -0.5, 0.5));
-        backleft.setPower(Range.clip(-pwr - x+z, -0.5, 0.5));
-
+        //frontRight.setPower(Range.clip(pwr - x - z, -MAX_SPEED, MAX_SPEED));
+        //frontLeft.setPower(Range.clip(pwr + x + z, -MAX_SPEED, MAX_SPEED));
+        //backRight.setPower(Range.clip(pwr + x - z, -MAX_SPEED, MAX_SPEED));
+        //backLeft.setPower(Range.clip(pwr - x + z, -MAX_SPEED, MAX_SPEED));
     }
-    public void getJoyVals()
-    {
+
+    /**
+     * Returns power values normalized across motors so that they are all within the
+     * expected [-1.0 .. 1.0] range, which is often not true after combining values for mecanum.
+     *
+     * @param motorPowers the motor values to normalize to a max point.
+     */
+    private static void normalizeCombinedPowers(double[] motorPowers) {
+        double maxAbsPower = 0.0d;
+
+        for (double motorPower : motorPowers) {
+            double tmpAbsPower = Math.abs(motorPower);
+            if (tmpAbsPower > maxAbsPower) {
+                maxAbsPower = tmpAbsPower;
+            }
+        }
+
+        if (maxAbsPower > 1.0d) {
+            for (int i = 0; i < motorPowers.length; ++i) {
+                motorPowers[i] = motorPowers[i] / maxAbsPower;
+            }
+        }
+    }
+
+    /**
+     * Returns a power that is reduced proportionally to the maximum speed, which would be
+     * no reduction if max speed is 1.0 (or basically 100%).
+     *
+     * @param input power to potentially be reduced.
+     * @return a power that is reduced proportionally to the maximum speed, which would be
+     * no reduction if max speed is 1.0 (or basically 100%).
+     */
+    private static double reducePower(double input) {
+        // return input;   // If no reduction desired
+        return input * MAX_SPEED;
+    }
+
+    /**
+     * Re-reads joystick values and assigns the state variables used for other computations.
+     */
+    private void updateJoyStickValues() {
         y = gamepad1.left_stick_y;
         x = gamepad1.left_stick_x;
         z = gamepad1.right_stick_x;
-        w = gamepad1.right_stick_y;
-        //updates joystick values
 
-        //y *= (y < 0) ? -y : y;
+        // NOTE: Check for deadzone before any shaping
+        y = adjustForDeadZone(y);
+        x = adjustForDeadZone(x);
+        z = adjustForDeadZone(z);
 
-        y = shape(gamepad1.left_stick_y);
-        x = shape(gamepad1.left_stick_x);
-        z = shape(gamepad1.right_stick_x);
-        w = shape(gamepad1.right_stick_y);
-
-        if(Math.abs(x)<deadzone) x = 0;
-        if(Math.abs(y)<deadzone) y = 0;
-        if(Math.abs(z)<deadzone) z = 0;
-        if(Math.abs(w)<0.9) w = 0;
-        //checks deadzones
+        y = shapeInput(y);
+        x = shapeInput(x);
+        z = shapeInput(z);
     }
-//attempts to make driving easier by making it less sensitive in the begining
-// while becoming increasingly senseitve, the farther the joystick is pushed
-    //originally written by Luke Adsit, 10/20/16
-public float shape(double conInput){
-    //return 1.0f;
-        //above code is if you want to run into whatever is
-        //directly in front of the robot at full speed!
-    float shape[] = {0f, 0.2f, 0.25f, 0.3f, 0.375f, 0.45f, 0.525f, 0.65f, 0.75f, 0.875f, 1.0f};
-    float conOutput = 0.0f;
-    //determines the sign
-    boolean neg = false;
-    if (conInput < 0) {neg = true;}
-            //finds the input and assigns a new value from the double array shape
-            for(double i = 0.0; i < 1.0; i += 0.1)
-    {
-        if ( conInput < i )
-        {
-            conOutput = shape[(int)((i - 0.1) * 10.0)];
-            if(neg){conOutput = -1 * conOutput;}//preserves the sign/direction of input
-            return conOutput;
+
+    /**
+     * Returns 0.0 if within the deadzone range, otherwise the original value.
+     *
+     * @param input value to check.
+     * @return 0.0 if within the deadzone range, otherwise the original value.
+     */
+    private static float adjustForDeadZone(float input) {
+        float adjustedValue = input;
+
+        if (Math.abs(input) < DEAD_ZONE) {
+            adjustedValue = 0.0f;
         }
+
+        return adjustedValue;
     }
-    return 0.0f;
-    //"fall-back"... doesn't move,
-}
-}
-/*start
-double shape[10] = {0.2, 0.25, 0.3, 0.375, 0.45, 0.525, 0.65, 0.75, 0.875, 1.0}
- conInput = [int} conInput;
-double conOutput
-        conOutput = shape[conInput]
-        //finds the input and assigns a new value from the double array shape
-for (int i = 0; i < 1; i += 0.1;)
-        {
-            if ( conInput < i )
-            {
-                conOutput= shape[(i- 0.1) * 10];
+
+    /**
+     * Returns the input value shaped by squaring and preserving sign.
+     *
+     * REVISIT: This is where using a more custom curve could be done instead.
+     *
+     * @param input value to shape.
+     * @return the input value shaped by squaring and preserving sign.
+     */
+    private static float shapeInput(float input) {
+        float shapedValue = 0.0f;
+        if (input != 0.0f) {
+            if (input < 0.0f) {
+                shapedValue = input * -input;
+            }
+            else {
+                shapedValue = input * input;
             }
         }
-end*/
+
+        return shapedValue;
+
+        // return input * (input < 0.0f ? -input : input);
+    }
+}

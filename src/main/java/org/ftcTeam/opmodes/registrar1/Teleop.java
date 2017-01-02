@@ -39,7 +39,7 @@ public class Teleop extends ActiveOpMode {
     int previousTickCount = 0;
 
     boolean keepShooterSpinning = false;
-    double SHOOTER_REVERSE_SPEED = -0.1d;
+    double SHOOTER_REVERSE_SPEED = -0.3d;
     double SHOOTER_FORWARD_SPEED = 1.0d;
     double currentShooterSpeed = 0.0d;
 
@@ -207,7 +207,7 @@ public class Teleop extends ActiveOpMode {
             midCollector.setPower(0.5);
         }
         else if (gunner.left_bumper) {
-            midCollector.setPower(-0.5);
+            midCollector.setPower(-0.75);
         }
         else {
             midCollector.setPower(0.0);
@@ -215,10 +215,10 @@ public class Teleop extends ActiveOpMode {
 
         // Driver
         if (driver.right_bumper) {
-            frontCollector.setPower(-0.5);
+            frontCollector.setPower(-0.75);
         }
         else if (driver.left_bumper) {
-            frontCollector.setPower(0.5);
+            frontCollector.setPower(0.75);
         }
         else if ((driver.left_trigger > 0) || (driver.right_trigger > 0)){
             frontCollector.setPower(0.0);
