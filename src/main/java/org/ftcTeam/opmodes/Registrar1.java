@@ -15,6 +15,7 @@ import org.ftcTeam.opmodes.registrar1.ServoTest;
 import org.ftcTeam.opmodes.registrar1.SimpleAutonomous;
 import org.ftcTeam.opmodes.registrar1.StrafeTest;
 import org.ftcTeam.opmodes.registrar1.Teleop;
+import org.ftcTeam.opmodes.registrar1.TeleopUltrasonicTest;
 import org.ftcTeam.opmodes.registrar1.TestShooterSpeed;
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.BootstrapRegistrar;
@@ -39,6 +40,7 @@ public class Registrar1 extends BootstrapRegistrar {
             AutonomousVuforiaBlue.class,
             SimpleAutonomous.class,
             StrafeTest.class,
+            TeleopUltrasonicTest.class,
             //AutonomousVexMotorAsServo.class,
             //AutonomousTestPlays.class,
             Teleop.class,

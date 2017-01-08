@@ -106,10 +106,10 @@ public class StrafeTest extends ActiveOpMode {
         }
 
         if(gamepad1.dpad_left) {
-            strafeLeft(1.0, corrections[1], corrections[3], corrections[0], corrections[2]);
+            strafeLeft(0.75, corrections[1], corrections[3], corrections[0], corrections[2]);
         }
         else if (gamepad1.dpad_right) {
-            strafeRight(1.0, corrections[1], corrections[3], corrections[0], corrections[2]);
+            strafeRight(0.75, corrections[1], corrections[3], corrections[0], corrections[2]);
         }
         else {
             stopMoving();
