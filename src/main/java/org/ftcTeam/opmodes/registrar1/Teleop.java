@@ -17,6 +17,7 @@ public class Teleop extends ActiveOpMode {
     private DcMotor backRight;
     private DcMotor midCollector;
     private DcMotor frontCollector;
+    private DcMotor topCollector;
     private ColorSensor color;
     private OpticalDistanceSensor ods;
     private float x;
@@ -63,6 +64,7 @@ public class Teleop extends ActiveOpMode {
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        topCollector = hardwareMap.dcMotor.get("topCollector");
         midCollector = hardwareMap.dcMotor.get("feeder");
         frontCollector = hardwareMap.dcMotor.get("collector");
         shooter = hardwareMap.dcMotor.get("shooter");
@@ -204,24 +206,35 @@ public class Teleop extends ActiveOpMode {
         // Gunner
 
         if (gunner.right_bumper) {
-            midCollector.setPower(0.5);
+            topCollector.setPower(0.6);
+            midCollector.setPower(0.6);
         }
+
+        /*if (gunner.right_trigger) {
+            midCollector.setPower(0.5);
+        }*/
         else if (gunner.left_bumper) {
-            midCollector.setPower(-0.75);
+            topCollector.setPower(-0.6);
+            midCollector.setPower(-0.6);
+
         }
         else {
+            topCollector.setPower(0.0);
             midCollector.setPower(0.0);
         }
 
         // Driver
         if (driver.right_bumper) {
-            frontCollector.setPower(-0.75);
+            frontCollector.setPower(-0.5);
+            //midCollector.setPower(0.25);
         }
         else if (driver.left_bumper) {
-            frontCollector.setPower(0.75);
+            frontCollector.setPower(0.5);
+            //midCollector.setPower(-0.25);
         }
         else if ((driver.left_trigger > 0) || (driver.right_trigger > 0)){
             frontCollector.setPower(0.0);
+            //midCollector.setPower(0.0);
         }
 
         getTelemetryUtil().addData("RGB: ", "" + color.red() + "," + color.green() + "," + color.blue());

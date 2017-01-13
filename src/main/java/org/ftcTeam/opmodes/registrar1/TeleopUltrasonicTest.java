@@ -104,7 +104,7 @@ public class TeleopUltrasonicTest extends ActiveOpMode{
                 frontLeft.setPower(-1.0);
                 backLeft.setPower(-1.0);
                 frontRight.setPower(-1.0);
-                backRight.setPower(-1.0);
+                backRight.setPower(- 1.0);
             }
             else {
                 frontLeft.setPower(0);

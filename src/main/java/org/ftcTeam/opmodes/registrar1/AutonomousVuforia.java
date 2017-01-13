@@ -195,6 +195,8 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     private static final double MAX_SPEED = 0.3d;
 
+    byte[] ultrasonicCache;
+
 
 
     /**
@@ -351,13 +353,13 @@ public class AutonomousVuforia extends ActiveOpMode {
             }
         }
         switch(step) {
-            case 0:
+            case 0://spin up wheel
                 shooter.setPower(1.0d);
                 if (getTimer().targetReached(2.0d)) {
                     ++step;
                 }
                 break;
-            case 1:
+            case 1://shoot
                 midCollector.setPower(0.5d);
                 if (getTimer().targetReached(2.0d)) {
                     midCollector.setPower(0.0d);
@@ -365,16 +367,18 @@ public class AutonomousVuforia extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 2:
+            case 2://move forward then stop
                 forward(0.5d);
+                //if (getTimer().targetReached(1.2d)) {
                 if (getTimer().targetReached(1.2d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 3:
+            case 3: //turn towards first beacon
                 turnRight(0.5d, true);
-                if (getTimer().targetReached(1.2d)) {
+                //if (getTimer().targetReached(1.2d)) {
+                if (getTimer().targetReached(1.0d)) {
                     stopMoving();
                     ++step;
                 }
@@ -382,7 +386,8 @@ public class AutonomousVuforia extends ActiveOpMode {
 
             case 4:
                 forward(-0.5d);
-                if (getTimer().targetReached(1.0d)) {
+                //if (getTimer().targetReached(1.0d)) {
+                if (getTimer().targetReached(0.9d)) {
                     stopMoving();
                     ++step;
                 }
@@ -417,7 +422,8 @@ public class AutonomousVuforia extends ActiveOpMode {
                     }
                 }
                 else {
-                    turnLeft(0.12f, true);
+                    //turnLeft(0.12f, true);
+                    turnLeft(0.06f, true);
                 }
 
                 break;
@@ -456,26 +462,30 @@ public class AutonomousVuforia extends ActiveOpMode {
                     stopMoving();
                 }
                 break;
-            case 7:
+            case 7://move toward first beacon
                 forward(-0.2d);
-                if (getTimer().targetReached(1.5d)) {
+                //if (getTimer().targetReached(1.5d)) {
+                //if (getTimer().targetReached(0.75d)) {
+                if (ultrasonicCache[0] > 10) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 8:
+            case 8://push beacon
                 forward(-0.2d);
-                if (getTimer().targetReached(0.65d)) {
+                //if (getTimer().targetReached(0.65d)) {
+                if (ultrasonicCache[0] > 2) {//back up until it is two centimeters away, hopefully presses button
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 9:
+            case 9://move away from beacon
                 forward(0.1d);
-                if (getTimer().targetReached(0.3d)) {
+                //if (getTimer().targetReached(0.3d)) {
+                if(ultrasonicCache[0] > 4){//back up until it is approximately four centimeters away
                     stopMoving();
                     if (missedBeacon)
-                        step = 999;
+                        step = 999;//give up and quit if not desired color
                     else
                         ++step;
                 }
