@@ -212,7 +212,7 @@ public class Teleop extends ActiveOpMode {
 
         /*if (gunner.right_trigger) {
             midCollector.setPower(0.5);
-        }*/
+        } */
         else if (gunner.left_bumper) {
             topCollector.setPower(-0.6);
             midCollector.setPower(-0.6);
