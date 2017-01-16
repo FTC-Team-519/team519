@@ -2,6 +2,7 @@ package org.ftcTeam.opmodes;
 
 import org.ftcTeam.opmodes.registrar1.AirAndScareMecanumOpMode;
 import org.ftcTeam.opmodes.registrar1.AutonomousFirstTry;
+import org.ftcTeam.opmodes.registrar1.AutonomousRedDistanceSensor;
 import org.ftcTeam.opmodes.registrar1.AutonomousTestPlays;
 import org.ftcTeam.opmodes.registrar1.AutonomousVexMotorAsServo;
 import org.ftcTeam.opmodes.registrar1.AutonomousVuforia;
@@ -39,6 +40,7 @@ public class Registrar1 extends BootstrapRegistrar {
             AutonomousVuforia.class,
             AutonomousVuforiaBlue.class,
             SimpleAutonomous.class,
+            AutonomousRedDistanceSensor.class,
             StrafeTest.class,
             TeleopUltrasonicTest.class,
             //AutonomousVexMotorAsServo.class,
