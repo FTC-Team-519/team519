@@ -35,7 +35,7 @@ import java.text.DecimalFormat;
  */
 
 @Autonomous
-public class AutonomousRedDistanceSensor extends ActiveOpMode {
+public class AutonomousCopy extends ActiveOpMode {
     private static final String A = "QWJaajY5di8vLy8vQUFBQUdTWHZyMEc2TDBrTXJ3TUQwT";
     private static final String B = "zdZRWdNc0lmOEI2WFZ1eEV1UTNCci8wV1d0Tk13dHBSMm";
     private static final String C = "5sZHA5cmsxTk1PbHhWc0VBcXIwbmFac1o0dmlvTlZ0R0Q";
@@ -58,7 +58,7 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
     private boolean calibration_complete = false;
     private AHRS navx_device;
 
-    int step = 2;
+    int step = 0;
     private boolean missedBeacon = false;
 
     private static String convert(byte[] thing) {
@@ -367,50 +367,20 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                 calibration_complete = !navx_device.isCalibrating();
             }
         }
+        getTelemetryUtil().addData("distance", ultrasonicCache[0]);
         switch(step) {
-            case 0://spin up wheel
-                shooter.setPower(1.0d);
-                if (getTimer().targetReached(1.8d)) {
-                    ++step;
-                }
-                break;
-            case 1://shoot
-                topCollector.setPower(0.5d);
-                midCollector.setPower(0.5d);
-                if (getTimer().targetReached(0.6d)) {
-                    topCollector.setPower(0.0d);
-                    midCollector.setPower(0.0d);
-                    shooter.setPower(0.0d);
-                    ++step;
-                    //step = 99999;
-                }
-                break;
-            case 2://move forward then stop
-                forward(0.5d);
-                //if (getTimer().targetReached(1.2d)) {
-                if (getTimer().targetReached(0.9d)) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 3: //turn towards first beacon
-                turnRight(0.5d, true);
-                //if (getTimer().targetReached(1.2d)) {
-                if (getTimer().targetReached(0.85d)) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
+            case 0:
+                forward(-0.2d);
+                //if (getTimer().targetReached(1.5d)) {
+                //if (getTimer().targetReached(0.75d)) {
 
-            case 4:
-                forward(-0.5d);
-                //if (getTimer().targetReached(1.0d)) {
-                if (getTimer().targetReached(0.9d)) {
+                if (ultrasonicCache[0] < 60 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
+                    //step = 999999;
                 }
                 break;
-            case 5:
+            case 1:
                 isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -445,7 +415,7 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                 }
 
                 break;
-            case 6:
+            case 2:
                 isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -461,13 +431,14 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        yVector = 0.4f;
+                        strafeRight(0.4f);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        yVector = -0.4f;
+                        strafeLeft(0.4f);
                     }
-
-                    strafeRight(yVector);
+                    else {
+                        stopMoving();
+                    }
 
                     if (Math.abs(pErrorY) < 6f) {
                         stopMoving();
@@ -480,7 +451,7 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                     stopMoving();
                 }
                 break;
-            case 7://move toward first beacon
+            case 3://move toward first beacon
                 forward(-0.13d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
@@ -489,32 +460,42 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 8://move away from beacon
+            case 4://press beacon
                 forward(-0.2d);
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
+                    shooter.setPower(1.0d);
                     stopMoving();
                     ++step;
                 }
-            case 9://move away from beacon
+            case 5://move away from beacon
                 forward(0.2d);
-                //if (getTimer().targetReached(0.3d)) {
-                if (getTimer().targetReached(0.3d)) {
+                //if (getTimer().targetReached(1.5d)) {
+                //if (getTimer().targetReached(0.75d)) {
+                if (ultrasonicCache[0] > 10) {//back up until it is ten centimeters away from wall
                     stopMoving();
-                    if (false/*missedBeacon*/)
-                        step = 999;//give up and quit if not desired color
-                    else
-                        ++step;
+                    ++step;
                 }
-            case 10:
-                if (getTimer().targetReached(1.0)) {
+            case 6:
+                if (getTimer().targetReached(1.6)) {
                     beaconIsRed = colorSensor.red() > colorSensor.blue();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
                     getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
                     ++step;
                 }
                 break;
-            case 11:
+            case 7:
+                topCollector.setPower(0.5d);
+                midCollector.setPower(0.5d);
+                if (getTimer().targetReached(0.6d)) {
+                    topCollector.setPower(0.0d);
+                    midCollector.setPower(0.0d);
+                    shooter.setPower(0.0d);
+                    ++step;
+                    //step = 99999;
+                }
+                break;
+            case 8:
                 if(beaconIsRed)
                 {
                     ++step;
@@ -522,28 +503,21 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                 }
                 else
                 {
-                    if(getTimer().targetReached(3.7))
+                    if(getTimer().targetReached(2.2))
                     {
-                        step = 7;
+                        step = 3;
                         missedBeacon = true;
                     }
                 }
                 break;
-            case 12:
-                forward(0.5d);
-                if (getTimer().targetReached(0.30d)) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 13:
+            case 9:
                 strafeLeft(1.0d);
-                if (getTimer().targetReached(1.6d)) {
+                if (getTimer().targetReached(1.4d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 14:
+            case 10:
                 isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -559,15 +533,16 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        yVector = 0.4f;
+                        strafeRight(0.4f);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        yVector = -0.4f;
+                        strafeLeft(0.4f);
+                    }
+                    else {
+                        stopMoving();
                     }
 
-                    strafeRight(yVector);
-
-                    if (Math.abs(pErrorY) < 6f) {
+                    if (Math.abs(pErrorY) < 20f) {
                         stopMoving();
 
                         ++step;
@@ -579,41 +554,7 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                     strafeLeft(0.4);
                 }
                 break;
-            case 15:
-                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
-                getTelemetryUtil().addData("Target", "Looking for target.");
-                if (robotLocationTransform != null) {
-                    lastKnownLocation = robotLocationTransform;
-                }
-
-                if (lastKnownLocation != null && isVisible) {
-                    Orientation orientation = Orientation.getOrientation(lastKnownLocation,
-                            AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-
-                    float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
-
-                    double zVector = 0.0f;
-                    if (pErrorDegZ < -2f) {
-                        zVector = -0.17f;
-                    } else if (pErrorDegZ > 2f) {
-                        zVector = 0.17f;
-                    }
-
-                    turnLeft(zVector, true);
-
-                    if (Math.abs(pErrorDegZ) < 2f) {
-                        stopMoving();
-
-                        ++step;
-                    }
-                }
-                else {
-                    turnLeft(0.15f, true);
-                }
-
-                break;
-            case 16://move toward first beacon
+            case 11://move toward first beacon
                 forward(-0.13d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
@@ -622,32 +563,30 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 17://move away from beacon
+            case 12://move away from beacon
                 forward(-0.2d);
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
                     stopMoving();
                     ++step;
                 }
-            case 18://move away from beacon
+            case 13://move away from beacon
                 forward(0.2d);
-                //if (getTimer().targetReached(0.3d)) {
-                if (getTimer().targetReached(0.3d)) {
+                //if (getTimer().targetReached(1.5d)) {
+                //if (getTimer().targetReached(0.75d)) {
+                if (ultrasonicCache[0] > 10) {//back up until it is ten centimeters away from wall
                     stopMoving();
-                    if (missedBeacon)
-                        step = 999;//give up and quit if not desired color
-                    else
-                        ++step;
+                    ++step;
                 }
-            case 19:
-                if (getTimer().targetReached(1.0)) {
+            case 14:
+                if (getTimer().targetReached(1.5)) {
                     beaconIsRed = colorSensor.red() > colorSensor.blue();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
                     getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
                     ++step;
                 }
                 break;
-            case 20:
+            case 15:
                 if(beaconIsRed)
                 {
                     ++step;
@@ -655,20 +594,22 @@ public class AutonomousRedDistanceSensor extends ActiveOpMode {
                 }
                 else
                 {
-                    if(getTimer().targetReached(3.7))
+                    if(getTimer().targetReached(2.2))
                     {
-                        step = 16;
+                        step = 11;
                         missedBeacon = true;
                     }
                 }
                 break;
-            case 21:
-                forward(0.5d);
-                if (getTimer().targetReached(0.30d)) {
-                    stopMoving();
-                    ++step;
-                    ++step;
-                }
+//            case 15:
+//                forward(0.5d);
+//                if (getTimer().targetReached(0.30d)) {
+//                    stopMoving();
+//                    ++step;
+//                }
+//                break;
+            case 999999:
+                getTelemetryUtil().addData("distance", ultrasonicCache[0]);
                 break;
         }
 //        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
