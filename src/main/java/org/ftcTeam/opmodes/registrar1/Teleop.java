@@ -225,11 +225,11 @@ public class Teleop extends ActiveOpMode {
 
         // Driver
         if (driver.right_bumper) {
-            frontCollector.setPower(-0.5);
+            frontCollector.setPower(-1.0);
             //midCollector.setPower(0.25);
         }
         else if (driver.left_bumper) {
-            frontCollector.setPower(0.5);
+            frontCollector.setPower(1.0);
             //midCollector.setPower(-0.25);
         }
         else if ((driver.left_trigger > 0) || (driver.right_trigger > 0)){
