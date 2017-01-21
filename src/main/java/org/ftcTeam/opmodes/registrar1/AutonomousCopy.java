@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.ftcbootstrap.ActiveOpMode;
+import org.ftcbootstrap.components.TimerComponent;
 
 import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -58,6 +59,7 @@ public class AutonomousCopy extends ActiveOpMode {
     private boolean calibration_complete = false;
     private AHRS navx_device;
 
+    // FIXME: This should be step 0 unless you are testing
     int step = 0;
     private boolean missedBeacon = false;
 
@@ -206,6 +208,8 @@ public class AutonomousCopy extends ActiveOpMode {
     public static final int ULTRASONIC_REG_START = 0x04; //Register to start reading
     public static final int ULTRASONIC_READ_LENGTH = 2; //Number of byte to read
 
+    // FIXME: This should be false, but change to true to not shoot during testing
+    boolean firstShotComplete = false;
 
 
     /**
@@ -370,7 +374,7 @@ public class AutonomousCopy extends ActiveOpMode {
         getTelemetryUtil().addData("distance", ultrasonicCache[0]);
         switch(step) {
             case 0:
-                forward(-0.2d);
+                forward(-0.25d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
 
@@ -403,7 +407,7 @@ public class AutonomousCopy extends ActiveOpMode {
 
                     turnLeft(zVector, true);
 
-                    if (Math.abs(pErrorDegZ) < 17f) {
+                    if (Math.abs(pErrorDegZ) <= 17f) {
                         stopMoving();
 
                         ++step;
@@ -431,16 +435,17 @@ public class AutonomousCopy extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRight(0.4f);
+                        strafeRightSlow();
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeft(0.4f);
+                        //strafeLeft(0.4f);
+                        strafeLeftSlow();
                     }
                     else {
-                        stopMoving();
+                        //stopMoving();
                     }
 
-                    if (Math.abs(pErrorY) < 6f) {
+                    if (Math.abs(pErrorY) <= 20f) {
                         stopMoving();
 
                         ++step;
@@ -464,20 +469,24 @@ public class AutonomousCopy extends ActiveOpMode {
                 forward(-0.2d);
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
-                    shooter.setPower(1.0d);
+                    if (!firstShotComplete) {
+                        shooter.setPower(0.7d);
+                    }
                     stopMoving();
                     ++step;
                 }
+                break;
             case 5://move away from beacon
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] > 10) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] > 8) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
+                break;
             case 6:
-                if (getTimer().targetReached(1.6)) {
+                if (getTimer().targetReached(1.4d)) {
                     beaconIsRed = colorSensor.red() > colorSensor.blue();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
                     getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
@@ -485,14 +494,20 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 break;
             case 7:
-                topCollector.setPower(0.5d);
-                midCollector.setPower(0.5d);
-                if (getTimer().targetReached(0.6d)) {
-                    topCollector.setPower(0.0d);
-                    midCollector.setPower(0.0d);
-                    shooter.setPower(0.0d);
+                if (!firstShotComplete) {
+                    topCollector.setPower(0.5d);
+                    midCollector.setPower(0.5d);
+                    if (getTimer().targetReached(0.6d)) {
+                        firstShotComplete = true;
+                        topCollector.setPower(0.0d);
+                        midCollector.setPower(0.0d);
+                        shooter.setPower(0.0d);
+                        ++step;
+                        //step = 99999;
+                    }
+                }
+                else {
                     ++step;
-                    //step = 99999;
                 }
                 break;
             case 8:
@@ -510,14 +525,31 @@ public class AutonomousCopy extends ActiveOpMode {
                     }
                 }
                 break;
-            case 9:
-                strafeLeft(1.0d);
-                if (getTimer().targetReached(1.4d)) {
+            case 9://move away from beacon
+                forward(0.2d);
+                //if (getTimer().targetReached(1.5d)) {
+                //if (getTimer().targetReached(0.75d)) {
+                if (ultrasonicCache[0] > 20) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
                 break;
             case 10:
+                strafeLeft(1.0d);
+                if (getTimer().targetReached(1.8d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 11:
+                stopMoving();
+                // Ensure there isn't a stale location
+                lastKnownLocation = null;
+                if (getTimer().targetReached(0.25d)) {
+                    ++step;
+                }
+                break;
+            case 12:
                 isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
@@ -533,28 +565,34 @@ public class AutonomousCopy extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRight(0.4f);
+                        strafeRightSlow();
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeft(0.4f);
+                        strafeLeftSlow();
                     }
                     else {
-                        stopMoving();
+                        // This should get caught in clause below
+                        //stopMoving();
                     }
 
-                    if (Math.abs(pErrorY) < 20f) {
+                    if (Math.abs(pErrorY) <= 20f) {
                         stopMoving();
 
-                        ++step;
+                        if (getRuntime() > 22.0d) {
+                            step = 18;
+                        }
+                        else {
+                            ++step;
+                        }
                     }
                 }
                 else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
-                    strafeLeft(0.4);
+                    strafeLeftSlow();
                 }
                 break;
-            case 11://move toward first beacon
+            case 13://move toward first beacon
                 forward(-0.13d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
@@ -563,14 +601,15 @@ public class AutonomousCopy extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 12://move away from beacon
+            case 14://move away from beacon
                 forward(-0.2d);
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
                     stopMoving();
                     ++step;
                 }
-            case 13://move away from beacon
+                break;
+            case 15://move away from beacon
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
@@ -578,7 +617,8 @@ public class AutonomousCopy extends ActiveOpMode {
                     stopMoving();
                     ++step;
                 }
-            case 14:
+                break;
+            case 16:
                 if (getTimer().targetReached(1.5)) {
                     beaconIsRed = colorSensor.red() > colorSensor.blue();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
@@ -586,7 +626,7 @@ public class AutonomousCopy extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 15:
+            case 17:
                 if(beaconIsRed)
                 {
                     ++step;
@@ -596,11 +636,24 @@ public class AutonomousCopy extends ActiveOpMode {
                 {
                     if(getTimer().targetReached(2.2))
                     {
-                        step = 11;
+                        step = 13;
                         missedBeacon = true;
                     }
                 }
                 break;
+            case 18:  // Turn to drive to center vortex and ball
+                turnRight(0.5d, true);
+                if (getTimer().targetReached(0.3)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 19:
+                forward(1.0d);
+                if (getTimer().targetReached(1.0) ) {
+                    stopMoving();
+                    ++step;
+                }
 //            case 15:
 //                forward(0.5d);
 //                if (getTimer().targetReached(0.30d)) {
@@ -610,6 +663,7 @@ public class AutonomousCopy extends ActiveOpMode {
 //                break;
             case 999999:
                 getTelemetryUtil().addData("distance", ultrasonicCache[0]);
+                getTelemetryUtil().addData("play", "give up");
                 break;
         }
 //        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
@@ -713,6 +767,7 @@ public class AutonomousCopy extends ActiveOpMode {
 //
         getTelemetryUtil().addData("distance", ultrasonicCache[0]);
         getTelemetryUtil().addData("Seen: ", isVisible ? "Visible" : "Not Visible");
+        getTelemetryUtil().addData("runtime: ", "" + getRuntime());
         getTelemetryUtil().sendTelemetry();
     }
     public void forward (double power){
@@ -752,6 +807,20 @@ public class AutonomousCopy extends ActiveOpMode {
         backRight.setPower(0.95*power);
         frontLeft.setPower(1.0*power);
         backLeft.setPower(0.75*(-power));
+    }
+    public void strafeLeftSlow() {
+
+        frontRight.setPower(0.5*.65);
+        backRight.setPower(-0.5*.65);
+        frontLeft.setPower(-0.5*.65);
+        backLeft.setPower(0.4749*.65);
+    }
+    public void strafeRightSlow() {
+
+        frontRight.setPower(-0.425*.65);
+        backRight.setPower(0.5*.65);
+        frontLeft.setPower(0.5*.65);
+        backLeft.setPower(-0.5*.65);
     }
 
     public void stopMoving(){
