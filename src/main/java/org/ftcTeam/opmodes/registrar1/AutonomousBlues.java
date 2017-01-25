@@ -146,8 +146,8 @@ public class AutonomousBlues extends ActiveOpMode {
     public static final float MM_BOT_WIDTH = 18 * MM_PER_INCH;            // ... or whatever is right for your robot
     public static final float MM_FTC_FIELD_WIDTH = (12*12 - 2) * MM_PER_INCH;   // the FTC field is ~11'10" center-to-center of the glass panels
     public static final float MM_TARGET_CENTER_HEIGHT_Z = (1.5f + (8.5f / 2.0f)) * MM_PER_INCH; // half height of 8.5x11 sheet plus 1.5" above floor
-    public static final float MM_NEAR_OFFSET = (1 * 12) * MM_PER_INCH; // one foot away from center
-    public static final float MM_FAR_OFFSET = (3 * 12) * MM_PER_INCH;  // three feet away from center
+    public static final float MM_NEAR_OFFSET = ((1 * 12)+6) * MM_PER_INCH; // one foot away from center
+    public static final float MM_FAR_OFFSET = ((3 * 12)-6) * MM_PER_INCH;  // three feet away from center
 
     public static final float MM_RED_BEACON_WALL_X = -(MM_FTC_FIELD_WIDTH/2);
     public static final float MM_BLUE_BEACON_WALL_Y = (MM_FTC_FIELD_WIDTH/2);
@@ -678,15 +678,15 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 19:  // Turn to drive to center vortex and ball
-                turnLeft(0.5d, true);
-                if (getTimer().targetReached(0.45)) {
+                turnLeft(0.45d, true);
+                if (getTimer().targetReached(0.4)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 20:
-                forward(1.0d);
-                if (getTimer().targetReached(1.1) ) {
+                forward(0.9d);
+                if (getTimer().targetReached(1.2) ) {
                     stopMoving();
                     ++step;
                 }
