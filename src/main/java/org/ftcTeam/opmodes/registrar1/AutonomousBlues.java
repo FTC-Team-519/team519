@@ -36,7 +36,7 @@ import java.text.DecimalFormat;
  */
 
 @Autonomous
-public class AutonomousCopy extends ActiveOpMode {
+public class AutonomousBlues extends ActiveOpMode {
     private static final String A = "QWJaajY5di8vLy8vQUFBQUdTWHZyMEc2TDBrTXJ3TUQwT";
     private static final String B = "zdZRWdNc0lmOEI2WFZ1eEV1UTNCci8wV1d0Tk13dHBSMm";
     private static final String C = "5sZHA5cmsxTk1PbHhWc0VBcXIwbmFac1o0dmlvTlZ0R0Q";
@@ -385,8 +385,8 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 break;
             case 1:
-                isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener)wheels.getListener()).isVisible();
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)wheels.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -420,8 +420,8 @@ public class AutonomousCopy extends ActiveOpMode {
 
                 break;
             case 2:
-                isVisible = ((VuforiaTrackableDefaultListener)gears.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener)wheels.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)wheels.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -550,8 +550,8 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 break;
             case 12:
-                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -593,8 +593,8 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 break;
             case 13:
-                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -678,14 +678,14 @@ public class AutonomousCopy extends ActiveOpMode {
                 break;
             case 19:  // Turn to drive to center vortex and ball
                 turnRight(0.5d, true);
-                if (getTimer().targetReached(0.22)) {
+                if (getTimer().targetReached(0.3)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 20:
                 forward(1.0d);
-                if (getTimer().targetReached(1.2) ) {
+                if (getTimer().targetReached(1.1) ) {
                     stopMoving();
                     ++step;
                 }
