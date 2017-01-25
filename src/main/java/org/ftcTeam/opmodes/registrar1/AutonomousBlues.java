@@ -1,6 +1,6 @@
 package org.ftcTeam.opmodes.registrar1;
 
-//RED
+//BLUE
 import android.util.Base64;
 
 import com.kauailabs.navx.ftc.AHRS;
@@ -169,7 +169,8 @@ public class AutonomousBlues extends ActiveOpMode {
     public static final float DESIRED_MM_BLUE_Y      = MM_BLUE_BEACON_WALL_Y - DESIRED_MM_DISTANCE_FROM_WALL;
     public static final float DESIRED_MM_BLUE_NEAR_X = MM_BLUE_NEAR_TARGET_X;
     public static final float DESIRED_MM_BLUE_FAR_X  = MM_BLUE_FAR_TARGET_X;
-    public static final float DESIRED_DEGREES_BLUE_Z = -90f; // compare against orientation
+    //public static final float DESIRED_DEGREES_BLUE_Z = -90f; // compare against orientation
+    public static final float DESIRED_DEGREES_BLUE_Z = 0f;
 
     private VuforiaLocalizer.Parameters parameters;
     private VuforiaLocalizer vuforia;
@@ -200,7 +201,7 @@ public class AutonomousBlues extends ActiveOpMode {
     private static final int BACK_LEFT   = 2;
     private static final int BACK_RIGHT  = 3;
 
-    boolean beaconIsRed = false;
+    boolean beaconIsBlue = false;
 
     private static final double MAX_SPEED = 0.3d;
 
@@ -373,12 +374,12 @@ public class AutonomousBlues extends ActiveOpMode {
         }
         getTelemetryUtil().addData("distance", ultrasonicCache[0]);
         switch(step) {
-            case 0:
+            case 0://uses ultrasonic to move to first beacon
                 forward(-0.25d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
 
-                if (ultrasonicCache[0] < 60 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] < 50 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                     //step = 999999;
@@ -396,18 +397,18 @@ public class AutonomousBlues extends ActiveOpMode {
                     Orientation orientation = Orientation.getOrientation(lastKnownLocation,
                             AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
 
-                    float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
+                    float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -17f) {
-                        zVector = -0.15f;
-                    } else if (pErrorDegZ > 17f) {
-                        zVector = 0.15f;
+                    if (pErrorDegZ < -9f) {
+                        zVector = -0.16f; //mansi yell louder
+                    } else if (pErrorDegZ > 9f) {
+                        zVector = 0.16f; //it was a lion
                     }
 
                     turnLeft(zVector, true);
 
-                    if (Math.abs(pErrorDegZ) <= 17f) {
+                    if (Math.abs(pErrorDegZ) <= 9f) {
                         stopMoving();
 
                         ++step;
@@ -415,7 +416,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnLeft(0.17f, true);
+                    turnRight(0.17f, true);
                 }
 
                 break;
@@ -430,7 +431,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 if (lastKnownLocation != null && isVisible) {
                     getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
                     float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-                    float pErrorY = DESIRED_MM_RED_NEAR_Y - xyzTranslation[1];
+                    float pErrorY = DESIRED_MM_BLUE_NEAR_X - xyzTranslation[0];
 
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
@@ -460,7 +461,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 forward(-0.13d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] < 7 || ultrasonicCache[0] > 150) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] < 9 || ultrasonicCache[0] > 150) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
@@ -470,7 +471,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
                     if (!firstShotComplete) {
-                        shooter.setPower(0.7d);
+                        shooter.setPower(1.0d);
                     }
                     stopMoving();
                     ++step;
@@ -487,7 +488,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 break;
             case 6:
                 if (getTimer().targetReached(1.4d)) {
-                    beaconIsRed = colorSensor.red() > colorSensor.blue();
+                    beaconIsBlue = colorSensor.blue() > colorSensor.red();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
                     getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
                     ++step;
@@ -511,7 +512,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 8:
-                if(beaconIsRed)
+                if(beaconIsBlue)
                 {
                     ++step;
                     //step = 20;
@@ -529,13 +530,13 @@ public class AutonomousBlues extends ActiveOpMode {
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] > 20) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] > 15) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
                 break;
             case 10:
-                strafeLeft(1.0d);
+                strafeRight(1.0d);
                 if (getTimer().targetReached(1.8d)) {
                     stopMoving();
                     ++step;
@@ -560,15 +561,15 @@ public class AutonomousBlues extends ActiveOpMode {
                 if (lastKnownLocation != null && isVisible) {
                     getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
                     float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-                    float pErrorY = DESIRED_MM_RED_FAR_Y - xyzTranslation[1];
+                    float pErrorY = DESIRED_MM_BLUE_FAR_X - xyzTranslation[0];
 
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRightSlow();
+                        strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeftSlow();
+                        strafeLeft(0.5);
                     }
                     else {
                         // This should get caught in clause below
@@ -589,7 +590,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
-                    strafeLeftSlow();
+                    strafeRightSlow();
                 }
                 break;
             case 13:
@@ -604,7 +605,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     Orientation orientation = Orientation.getOrientation(lastKnownLocation,
                             AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
 
-                    float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
+                    float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -17f) {
@@ -613,7 +614,7 @@ public class AutonomousBlues extends ActiveOpMode {
                         zVector = 0.15f;
                     }
 
-                    turnLeft(zVector, true);
+                    turnRight(zVector, true);
 
                     if (Math.abs(pErrorDegZ) <= 17f) {
                         stopMoving();
@@ -623,7 +624,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnLeft(0.17f, true);
+                    turnRight(0.17f, true);
                 }
 
                 break;
@@ -655,14 +656,14 @@ public class AutonomousBlues extends ActiveOpMode {
                 break;
             case 17:
                 if (getTimer().targetReached(1.5)) {
-                    beaconIsRed = colorSensor.red() > colorSensor.blue();
+                    beaconIsBlue = colorSensor.blue() > colorSensor.red();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
                     getTelemetryUtil().addData("blue:", " " + colorSensor.blue());
                     ++step;
                 }
                 break;
             case 18:
-                if(beaconIsRed)
+                if(beaconIsBlue)
                 {
                     ++step;
                     //step = 20;
@@ -677,8 +678,8 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 19:  // Turn to drive to center vortex and ball
-                turnRight(0.5d, true);
-                if (getTimer().targetReached(0.3)) {
+                turnLeft(0.5d, true);
+                if (getTimer().targetReached(0.45)) {
                     stopMoving();
                     ++step;
                 }
@@ -845,17 +846,17 @@ public class AutonomousBlues extends ActiveOpMode {
     }
     public void strafeLeftSlow() {
 
-        frontRight.setPower(0.5*.65);
-        backRight.setPower(-0.5*.65);
-        frontLeft.setPower(-0.5*.65);
-        backLeft.setPower(0.4749*.65);
+        frontRight.setPower(0.5*.8);
+        backRight.setPower(-0.5*.8);
+        frontLeft.setPower(-0.5*.8);
+        backLeft.setPower(0.4749*.8);
     }
     public void strafeRightSlow() {
 
-        frontRight.setPower(-0.425*.65);
-        backRight.setPower(0.5*.65);
-        frontLeft.setPower(0.5*.65);
-        backLeft.setPower(-0.5*.65);
+        frontRight.setPower(-0.425*.8);
+        backRight.setPower(0.5*.8);
+        frontLeft.setPower(0.5*.8);
+        backLeft.setPower(-0.5*.8);
     }
 
     public void stopMoving(){
