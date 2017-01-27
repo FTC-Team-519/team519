@@ -14,6 +14,7 @@ import org.ftcTeam.opmodes.registrar1.GamePadDriveOpMode;
 import org.ftcTeam.opmodes.registrar1.GamePadMecanumOpMode;
 import org.ftcTeam.opmodes.registrar1.IRFollow;
 import org.ftcTeam.opmodes.registrar1.NavxTest;
+import org.ftcTeam.opmodes.registrar1.OutreachBot;
 import org.ftcTeam.opmodes.registrar1.ServoTest;
 import org.ftcTeam.opmodes.registrar1.SimpleAutonomous;
 import org.ftcTeam.opmodes.registrar1.StrafeTest;
@@ -43,6 +44,7 @@ public class Registrar1 extends BootstrapRegistrar {
             //AutonomousVuforiaBlue.class,
             AutonomousCopy.class,
             AutonomousBlues.class,
+            OutreachBot.class,
             SimpleAutonomous.class,
             //AutonomousRedDistanceSensor.class,
             StrafeTest.class,
