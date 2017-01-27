@@ -1,0 +1,288 @@
+package org.ftcTeam.opmodes.registrar1;
+
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+
+import org.ftcbootstrap.ActiveOpMode;
+import org.ftcbootstrap.components.TimerComponent;
+
+public class OutreachBot extends ActiveOpMode {
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
+    private float x;
+    private float y;
+    private float z;
+
+    private int sillyCounter = 0;
+
+    private double[] motorPowers = new double[4];
+    private static final int FRONT_LEFT  = 0;
+    private static final int FRONT_RIGHT = 1;
+    private static final int BACK_LEFT   = 2;
+    private static final int BACK_RIGHT  = 3;
+
+    private static final float DEAD_ZONE = 0.2f;
+    private static final double MAX_SPEED = 1.0d;
+
+    TimerComponent timerComponent;
+
+    int previousTickCount = 0;
+
+    boolean keepShooterSpinning = false;
+    double SHOOTER_REVERSE_SPEED = -0.3d;
+    double SHOOTER_FORWARD_SPEED = 1.0d;
+    double currentShooterSpeed = 0.0d;
+
+    boolean flipped = false;
+
+    /**
+     * Implement this method to define the code to run when the Init button is pressed on the Driver station.
+     */
+    @Override
+    protected void onInit() {
+
+        //Note The Telemetry Utility is designed to let you organize all telemetry data before sending it to
+        //the Driver station via the sendTelemetry command
+        getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit.");
+        getTelemetryUtil().sendTelemetry();
+
+        frontLeft = hardwareMap.dcMotor.get("motor4");
+        frontRight = hardwareMap.dcMotor.get("motor2");
+        backLeft = hardwareMap.dcMotor.get("motor3");
+        backRight = hardwareMap.dcMotor.get("motor1");
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+    }
+
+    @Override
+    protected void onStart() throws InterruptedException {
+        super.onStart();
+
+        getTelemetryUtil().addData("Start", getClass().getSimpleName() + " onStart.");
+        getTelemetryUtil().sendTelemetry();
+
+        timerComponent = getTimer();
+    }
+
+    /**
+     * Implement this method to define the code to run when the Start button is pressed on the Driver station.
+     * This method will be called on each hardware cycle just as the loop() method is called for event based Opmodes
+     *
+     * @throws InterruptedException
+     */
+    @Override
+    protected void activeLoop() throws InterruptedException {
+        Gamepad driver = gamepad1;
+        Gamepad gunner = gamepad2;
+
+        updateJoyStickValues();
+
+        if (driver.y) {
+            flipped = false;
+        }
+        else if (driver.a) {
+            flipped = true;
+        }
+
+        if (flipped) {
+            x = -x;
+            y = -y;
+        }
+
+        if (Math.abs(driver.left_stick_x)>Math.abs(driver.left_stick_y)){
+            y = 0;
+        }
+        else if (Math.abs(driver.left_stick_y) > Math.abs(driver.left_stick_x)){
+            x = 0;
+        }
+        else if (driver.x) {
+            x = -100;
+            y = 0;
+        }
+        else if (driver.b) {
+            x = 100;
+            y = 0;
+        }
+
+        // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
+        double pwr = -y;
+
+        motorPowers[FRONT_RIGHT] = pwr - x + z;
+        motorPowers[FRONT_LEFT] = 1.25*(pwr + x - z);
+        motorPowers[BACK_RIGHT] = 1.25*(pwr + x + z);
+        motorPowers[BACK_LEFT] = pwr - x - z;
+        normalizeCombinedPowers(motorPowers);
+
+        frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+        frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+        backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+        backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+
+        if (sillyCounter > 25) {
+            sillyCounter = 0;
+            getTelemetryUtil().addData("Start", "fR: " + frontRight.getPower() +
+                    ", fL: " + frontLeft.getPower() +
+                    ", bR: " + backRight.getPower() +
+                    ", bL: " + backLeft.getPower());
+            getTelemetryUtil().sendTelemetry();
+        }
+        else {
+            ++sillyCounter;
+        }
+
+        // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
+
+//        if (gamepad1.x) {
+//            currPower = 0.1d;
+//        }
+//        else if (gamepad1.y) {
+//            currPower = 0.2d;
+//        }
+//        else if (gamepad1.b) {
+//            currPower = 0.4d;
+//        }
+//        else if (gamepad1.a) {
+//            currPower = 0.6d;
+//        }
+//        else if (gamepad1.left_bumper) {
+//            currPower = 0.8d;
+//        }
+//        else if (gamepad1.right_bumper) {
+//            currPower = 1.0d;
+//        }
+
+        if (gunner.x || gunner.a || gunner.b) {
+            if (gunner.x) {
+                currentShooterSpeed = SHOOTER_REVERSE_SPEED;
+                keepShooterSpinning = false;
+            }
+            else if (gunner.b) {
+                currentShooterSpeed = SHOOTER_FORWARD_SPEED;
+                keepShooterSpinning = false;
+            }
+            else if (gunner.a) {
+                currentShooterSpeed = 0.0d;
+                keepShooterSpinning = false;
+            }
+        }
+        else {
+            if (! keepShooterSpinning) {
+                currentShooterSpeed = 0.0d;
+            }
+            /** Driver potentially saved controls
+             if (driver.x) {
+             currPower = -1.0d;
+             } else if (driver.b) {
+             currPower = 1.0d;
+             }
+             **/
+        }
+
+        getTelemetryUtil().sendTelemetry();
+
+        // Might want to have a more effective combination
+        //frontRight.setPower(Range.clip(pwr - x - z, -MAX_SPEED, MAX_SPEED));
+        //frontLeft.setPower(Range.clip(pwr + x + z, -MAX_SPEED, MAX_SPEED));
+        //backRight.setPower(Range.clip(pwr + x - z, -MAX_SPEED, MAX_SPEED));
+        //backLeft.setPower(Range.clip(pwr - x + z, -MAX_SPEED, MAX_SPEED));
+    }
+
+    /**
+     * Returns power values normalized across motors so that they are all within the
+     * expected [-1.0 .. 1.0] range, which is often not true after combining values for mecanum.
+     *
+     * @param motorPowers the motor values to normalize to a max point.
+     */
+    private static void normalizeCombinedPowers(double[] motorPowers) {
+        double maxAbsPower = 0.0d;
+
+        for (double motorPower : motorPowers) {
+            double tmpAbsPower = Math.abs(motorPower);
+            if (tmpAbsPower > maxAbsPower) {
+                maxAbsPower = tmpAbsPower;
+            }
+        }
+
+        if (maxAbsPower > 1.0d) {
+            for (int i = 0; i < motorPowers.length; ++i) {
+                motorPowers[i] = motorPowers[i] / maxAbsPower;
+            }
+        }
+    }
+
+    /**
+     * Returns a power that is reduced proportionally to the maximum speed, which would be
+     * no reduction if max speed is 1.0 (or basically 100%).
+     *
+     * @param input power to potentially be reduced.
+     * @return a power that is reduced proportionally to the maximum speed, which would be
+     * no reduction if max speed is 1.0 (or basically 100%).
+     */
+    private static double reducePower(double input) {
+        // return input;   // If no reduction desired
+        return input * MAX_SPEED;
+    }
+
+    /**
+     * Re-reads joystick values and assigns the state variables used for other computations.
+     */
+    private void updateJoyStickValues() {
+        y = gamepad1.left_stick_y;
+        x = gamepad1.left_stick_x;
+        z = gamepad1.right_stick_x;
+
+        // NOTE: Check for deadzone before any shaping
+        y = adjustForDeadZone(y);
+        x = adjustForDeadZone(x);
+        z = adjustForDeadZone(z);
+
+        y = shapeInput(y);
+        x = shapeInput(x);
+        z = shapeInput(z);
+    }
+
+    /**
+     * Returns 0.0 if within the deadzone range, otherwise the original value.
+     *
+     * @param input value to check.
+     * @return 0.0 if within the deadzone range, otherwise the original value.
+     */
+    private static float adjustForDeadZone(float input) {
+        float adjustedValue = input;
+
+        if (Math.abs(input) < DEAD_ZONE) {
+            adjustedValue = 0.0f;
+        }
+
+        return adjustedValue;
+    }
+
+    /**
+     * Returns the input value shaped by squaring and preserving sign.
+     *
+     * REVISIT: This is where using a more custom curve could be done instead.
+     *
+     * @param input value to shape.
+     * @return the input value shaped by squaring and preserving sign.
+     */
+    private static float shapeInput(float input) {
+        float shapedValue = 0.0f;
+        if (input != 0.0f) {
+            if (input < 0.0f) {
+                shapedValue = input * -input;
+            }
+            else {
+                shapedValue = input * input;
+            }
+        }
+
+        return shapedValue;
+
+        // return input * (input < 0.0f ? -input : input);
+    }
+}
