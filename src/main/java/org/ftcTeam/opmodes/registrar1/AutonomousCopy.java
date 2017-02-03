@@ -435,11 +435,13 @@ public class AutonomousCopy extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRightSlow();
+                        //strafeRightSlow();
+                        strafeRightSlower();
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
                         //strafeLeft(0.4f);
-                        strafeLeftSlow();
+                        //strafeLeftSlow();
+                        strafeLeftSlower();
                     }
                     else {
                         //stopMoving();
@@ -460,7 +462,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 forward(-0.13d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] < 7 || ultrasonicCache[0] > 150) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] < 10 || ultrasonicCache[0] > 150) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
@@ -631,7 +633,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 forward(-0.13d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] < 7 || ultrasonicCache[0] > 150) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] < 10 || ultrasonicCache[0] > 150) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
@@ -863,5 +865,37 @@ public class AutonomousCopy extends ActiveOpMode {
         frontRight.setPower(0.0d);
         backLeft.setPower(0.0d);
         backRight.setPower(0.0d);
+    }
+    public void strafeRightSlower() {
+        double power = 0.8;
+        double pow = .5;
+        if(getTimer().targetReached(0.2)){
+            frontRight.setPower(0.775*(-power));
+            backRight.setPower(0.95*power);
+            frontLeft.setPower(1.0*power);
+            backLeft.setPower(0.75*(-power));
+        }
+
+         frontRight.setPower(-0.425*pow);
+         backRight.setPower(0.5*pow);
+         frontLeft.setPower(0.5*pow);
+         backLeft.setPower(-0.5*pow);
+        }
+
+    public void strafeLeftSlower() {
+        double power = 0.8;
+        double pow = .5;
+        if(getTimer().targetReached(0.2)){
+            frontRight.setPower(0.925*power);
+            backRight.setPower(1.0*-power);
+            frontLeft.setPower(1.0*-power);
+            backLeft.setPower(0.675*power);
+
+        }
+
+        frontRight.setPower(-0.425*pow);
+        backRight.setPower(0.5*pow);
+        frontLeft.setPower(0.5*pow);
+        backLeft.setPower(-0.5*pow);
     }
 }
