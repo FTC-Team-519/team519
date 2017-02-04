@@ -435,13 +435,15 @@ public class AutonomousCopy extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        //strafeRightSlow();
-                        strafeRightSlower();
+                        strafeRightSlow();
+                        // FIXME: "Slower" methods cannot use timer within them
+                        //strafeRightSlower();
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
                         //strafeLeft(0.4f);
-                        //strafeLeftSlow();
-                        strafeLeftSlower();
+                        strafeLeftSlow();
+                        // FIXME: cannot use slower method until timer pulled out of method
+                        //strafeLeftSlower();
                     }
                     else {
                         //stopMoving();
@@ -472,7 +474,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
                     if (!firstShotComplete) {
-                        shooter.setPower(0.7d);
+                        shooter.setPower(0.95d);
                     }
                     stopMoving();
                     ++step;
@@ -687,7 +689,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 break;
             case 20:
                 forward(1.0d);
-                if (getTimer().targetReached(1.2) ) {
+                if (getTimer().targetReached(0.975) ) {
                     stopMoving();
                     ++step;
                 }
