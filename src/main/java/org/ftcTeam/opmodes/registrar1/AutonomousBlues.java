@@ -212,7 +212,7 @@ public class AutonomousBlues extends ActiveOpMode {
     public static final int ULTRASONIC_READ_LENGTH = 2; //Number of byte to read
 
     // FIXME: This should be false, but change to true to not shoot during testing
-    boolean firstShotComplete = true;
+    boolean firstShotComplete = false;
 
 
     /**
@@ -438,11 +438,12 @@ public class AutonomousBlues extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRightSlow();
+                        //strafeRightSlow();
+                        strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        //strafeLeft(0.4f);
-                        strafeLeftSlow();
+                        strafeLeft(0.5f);
+                        //strafeLeftSlow();
                     }
                     else {
                         //stopMoving();
@@ -568,10 +569,12 @@ public class AutonomousBlues extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRightSlow();
+                        //strafeRightSlow();
+                        strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeftSlow();
+                        //strafeLeftSlow();
+                        strafeLeft(0.5);
                     }
                     else {
                         // This should get caught in clause below
@@ -592,7 +595,8 @@ public class AutonomousBlues extends ActiveOpMode {
                 else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
-                    strafeRightSlow();
+                    //strafeRightSlow();
+                    strafeRight(0.5);
                 }
                 break;
             case 13:
@@ -681,7 +685,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 break;
             case 19:  // Turn to drive to center vortex and ball
                 turnLeft(0.5d, true);
-                if (getTimer().targetReached(0.4)) {
+                if (getTimer().targetReached(0.3)) {
                     stopMoving();
                     ++step;
                 }
@@ -834,15 +838,15 @@ public class AutonomousBlues extends ActiveOpMode {
     }
     public void strafeLeft (double power) {
 
-        frontRight.setPower(0.925*power);
-        backRight.setPower(1.0*-power);
+        frontRight.setPower(0.8*power);
+        backRight.setPower(0.9*-power);
         frontLeft.setPower(1.0*-power);
-        backLeft.setPower(0.675*power);
+        backLeft.setPower(0.725*power);
     }
     public void strafeRight (double power) {
 
-        frontRight.setPower(0.775*(-power));
-        backRight.setPower(0.95*power);
+        frontRight.setPower(0.65*(-power));
+        backRight.setPower(0.8*power);
         frontLeft.setPower(1.0*power);
         backLeft.setPower(0.75*(-power));
     }

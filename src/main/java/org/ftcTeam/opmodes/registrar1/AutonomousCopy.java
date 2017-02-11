@@ -435,13 +435,14 @@ public class AutonomousCopy extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRightSlow();
+                        strafeRight(0.5f);
+                        //strafeRightSlow();
                         // FIXME: "Slower" methods cannot use timer within them
                         //strafeRightSlower();
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        //strafeLeft(0.4f);
-                        strafeLeftSlow();
+                        strafeLeft(0.5f);
+                        //strafeLeftSlow();
                         // FIXME: cannot use slower method until timer pulled out of method
                         //strafeLeftSlower();
                     }
@@ -569,10 +570,12 @@ public class AutonomousCopy extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        strafeRightSlow();
+                        //strafeRightSlow();
+                        strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeftSlow();
+                        //strafeLeftSlow();
+                        strafeLeft(0.5);
                     }
                     else {
                         // This should get caught in clause below
@@ -593,7 +596,8 @@ public class AutonomousCopy extends ActiveOpMode {
                 else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
-                    strafeLeftSlow();
+                    //strafeLeftSlow();
+                    strafeLeft(0.5);
                 }
                 break;
             case 13:
@@ -835,15 +839,15 @@ public class AutonomousCopy extends ActiveOpMode {
     }
     public void strafeLeft (double power) {
 
-        frontRight.setPower(0.925*power);
-        backRight.setPower(1.0*-power);
+        frontRight.setPower(0.8*power);
+        backRight.setPower(0.9*-power);
         frontLeft.setPower(1.0*-power);
-        backLeft.setPower(0.675*power);
+        backLeft.setPower(0.725*power);
     }
     public void strafeRight (double power) {
 
-        frontRight.setPower(0.775*(-power));
-        backRight.setPower(0.95*power);
+        frontRight.setPower(0.65*(-power));
+        backRight.setPower(0.875*power);
         frontLeft.setPower(1.0*power);
         backLeft.setPower(0.75*(-power));
     }

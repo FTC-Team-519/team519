@@ -80,13 +80,13 @@ public class IRFollow extends ActiveOpMode {
                 frontright.setPower(turnPower);
                 backright.setPower(turnPower);
             }
-//            else if (Math.abs(angle) < 60){
-//                double forwardPower = 0.2;
-//                frontleft.setPower(forwardPower);
-//                backleft.setPower(forwardPower);
-//                frontright.setPower(forwardPower);
-//                backleft.setPower(forwardPower);
-//            }
+            else if (Math.abs(angle) < 10){
+                double forwardPower = 0.2;
+                frontleft.setPower(forwardPower);
+                backleft.setPower(forwardPower);
+                frontright.setPower(forwardPower);
+                backleft.setPower(forwardPower);
+            }
         }
         else{
             frontleft.setPower(0);

@@ -54,9 +54,9 @@ public class Registrar1 extends BootstrapRegistrar {
             Teleop.class,
             //AutonomousWithoutVuforia.class,
             NavxTest.class,
-            ServoTest.class
+            ServoTest.class,
             //TestShooterSpeed.class,
-            //IRFollow.class
+            IRFollow.class
     };
 
     return classes;
