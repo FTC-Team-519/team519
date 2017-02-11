@@ -586,7 +586,7 @@ public class AutonomousCopy extends ActiveOpMode {
                         stopMoving();
 
                         if (getRuntime() > 22.0d) {
-                            step = 18;
+                            step = 19;
                         }
                         else {
                             ++step;

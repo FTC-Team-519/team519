@@ -381,7 +381,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
 
-                if (ultrasonicCache[0] < 45 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] < 50 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                     //step = 999999;
@@ -402,15 +402,15 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -9f) {
+                    if (pErrorDegZ < -2f) {
                         zVector = -0.16f; //mansi yell louder
-                    } else if (pErrorDegZ > 9f) {
+                    } else if (pErrorDegZ > 2f) {
                         zVector = 0.16f; //it was a lion
                     }
 
                     turnLeft(zVector, true);
 
-                    if (Math.abs(pErrorDegZ) <= 9f) {
+                    if (Math.abs(pErrorDegZ) <= 2f) {
                         stopMoving();
 
                         ++step;
@@ -438,12 +438,12 @@ public class AutonomousBlues extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        //strafeRightSlow();
-                        strafeRight(0.5);
+                        strafeRightSlow();
+                        //strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeft(0.5f);
-                        //strafeLeftSlow();
+                        //strafeLeft(0.5f);
+                        strafeLeftSlow();
                     }
                     else {
                         //stopMoving();
@@ -474,7 +474,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
                     if (!firstShotComplete) {
-                        shooter.setPower(1.0d);
+                        shooter.setPower(0.97d);
                     }
                     stopMoving();
                     ++step;
@@ -550,7 +550,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 // Ensure there isn't a stale location
                 lastKnownLocation = null;
                 if (getTimer().targetReached(0.25d)) {
-                    ++step;
+                    step = 25;
                 }
                 break;
             case 12:
@@ -569,12 +569,12 @@ public class AutonomousBlues extends ActiveOpMode {
                     double yVector = 0.0f;
                     if (pErrorY < -20f) {
                         //yVector = -0.15f;
-                        //strafeRightSlow();
-                        strafeRight(0.5);
+                        strafeRightSlow();
+                        //strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        //strafeLeftSlow();
-                        strafeLeft(0.5);
+                        strafeLeftSlow();
+                        //strafeLeft(0.5);
                     }
                     else {
                         // This should get caught in clause below
@@ -584,19 +584,20 @@ public class AutonomousBlues extends ActiveOpMode {
                     if (Math.abs(pErrorY) <= 20f) {
                         stopMoving();
 
-                        if (getRuntime() > 22.0d) {
-                            step = 18;
-                        }
-                        else {
-                            ++step;
-                        }
+//                        if (getRuntime() > 22.0d) {
+//                            step = 18;
+//                        }
+//                        else {
+//                            ++step;
+//                        }
+                        ++step;
                     }
                 }
                 else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
-                    //strafeRightSlow();
-                    strafeRight(0.5);
+                    strafeRightSlow();
+                    //strafeRight(0.5);
                 }
                 break;
             case 13:
@@ -614,15 +615,15 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -9f) {
+                    if (pErrorDegZ < -7f) {
                         zVector = -0.16f;
-                    } else if (pErrorDegZ > 9f) {
+                    } else if (pErrorDegZ > 7f) {
                         zVector = 0.16f;
                     }
 
                     turnLeft(zVector, true);
 
-                    if (Math.abs(pErrorDegZ) <= 9f) {
+                    if (Math.abs(pErrorDegZ) <= 7f) {
                         stopMoving();
 
                         ++step;
@@ -685,17 +686,18 @@ public class AutonomousBlues extends ActiveOpMode {
                 break;
             case 19:  // Turn to drive to center vortex and ball
                 turnLeft(0.5d, true);
-                if (getTimer().targetReached(0.3)) {
+                if (getTimer().targetReached(0.35)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 20:
                 forward(0.9d);
-                if (getTimer().targetReached(1.2) ) {
+                if (getTimer().targetReached(1.1) ) {
                     stopMoving();
                     ++step;
                 }
+                break;
 //            case 15:
 //                forward(0.5d);
 //                if (getTimer().targetReached(0.30d)) {
@@ -703,110 +705,113 @@ public class AutonomousBlues extends ActiveOpMode {
 //                    ++step;
 //                }
 //                break;
+            case 25:
+                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
+
+                if (lastKnownLocation != null && isVisible) {
+                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+                        ++step;
+                }
+                else {
+                    getTelemetryUtil().addData("Location:", "unknown");
+                    //stopMoving();
+                    strafeRightSlow();
+                    //strafeRight(0.5);
+                }
+                break;
+            case 26:
+                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
+
+                if (lastKnownLocation != null && isVisible) {
+                    Orientation orientation = Orientation.getOrientation(lastKnownLocation,
+                            AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+
+                    float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
+
+                    double zVector = 0.0f;
+                    if (pErrorDegZ < -2f) {
+                        zVector = -0.16f;
+                    } else if (pErrorDegZ > 2f) {
+                        zVector = 0.16f;
+                    }
+
+                    turnLeft(zVector, true);
+
+                    if (Math.abs(pErrorDegZ) <= 2f) {
+                        stopMoving();
+
+                        ++step;
+                    }
+                }
+                else {
+                    //turnLeft(0.12f, true);
+                    turnRight(0.17f, true);
+                }
+
+                break;
+            case 27:
+                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                getTelemetryUtil().addData("Target", "Looking for target.");
+                if (robotLocationTransform != null) {
+                    lastKnownLocation = robotLocationTransform;
+                }
+
+                if (lastKnownLocation != null && isVisible) {
+                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
+                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
+                    float pErrorY = DESIRED_MM_BLUE_FAR_X - xyzTranslation[0];
+
+                    double yVector = 0.0f;
+                    if (pErrorY < -20f) {
+                        //yVector = -0.15f;
+                        strafeRightSlow();
+                        //strafeRight(0.5);
+                    } else if (pErrorY > 20f) {
+                        //yVector = 0.15f;
+                        strafeLeftSlow();
+                        //strafeLeft(0.5);
+                    }
+                    else {
+                        // This should get caught in clause below
+                        //stopMoving();
+                    }
+
+                    if (Math.abs(pErrorY) <= 20f) {
+                        stopMoving();
+
+                        if (getRuntime() > 22.0d) {
+                            step = 19;
+                        }
+                        else {
+                            step=14;
+                        }
+                        //step=14;
+                    }
+                }
+                else {
+                    getTelemetryUtil().addData("Location:", "unknown");
+                    //stopMoving();
+                    strafeRightSlow();
+                    //strafeRight(0.5);
+                }
+                break;
             case 999999:
                 getTelemetryUtil().addData("distance", ultrasonicCache[0]);
                 getTelemetryUtil().addData("play", "give up");
                 break;
         }
-//        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)gears.getListener()).getUpdatedRobotLocation();
-//        if (robotLocationTransform != null) {
-//            lastKnownLocation = robotLocationTransform;
-//        }
-//
-//        if (lastKnownLocation != null && isVisible) {
-//            getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
-//
-//            float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-//            float pErrorX = DESIRED_MM_RED_X - xyzTranslation[0];
-//            float pErrorY = DESIRED_MM_RED_NEAR_Y - xyzTranslation[1];
-//
-//            Orientation orientation = Orientation.getOrientation(lastKnownLocation,
-//                    AxesReference.EXTRINSIC,AxesOrder.XYZ, AngleUnit.DEGREES);
-//
-//            float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
-//
-//            getTelemetryUtil().addData("Desired: ", "x:" + DESIRED_MM_RED_X + ", y:" + DESIRED_MM_RED_NEAR_Y + ", z:" + DESIRED_DEGREES_RED_Z);
-//            getTelemetryUtil().addData("Error: ", "x: " + pErrorX + ", y:" + pErrorY + ", z:" + pErrorDegZ);
-//
-//            // pErrorX for RED side, is an attempt to move forward, but only if facing forward/backward
-//            // pErrorY for RED side, is an attempt to move sideways, but only if facing forward/backward
-//            // pErrorDegZ for RED side, is an attempt to rotate to correct orientation
-//            boolean found = false;
-//
-//            double xVector = 0.0f;
-//            if (pErrorX < -20f) {
-//                xVector = -1.0f;  // FIXME: Should be some proportional value
-//            } else if (pErrorX > 20f) {
-//                xVector = 1.0f;
-//            } else {
-//                found = true;
-//            }
-//
-//            //xVector = 0.0f;
-//
-//            double yVector = 0.0f;
-//            if (pErrorY < -20f) {
-//                yVector = -1.0f;
-//            } else if (pErrorY > 20f) {
-//                yVector = 1.0f;
-//            } else {
-//                found = true;
-//            }
-//
-//            yVector = 0.0f;
-//
-//            //double[] altered = rotateVector(xVector, yVector, orientation.thirdAngle);
-//            double[] altered = rotateVector(xVector, yVector, 90.0);
-//            xVector = altered[0];
-//            yVector = altered[1];
-//            //yVector = 0.0f;
-//
-//            double zVector = 0.0f;
-//            if (pErrorDegZ < -2f) {
-//                zVector = -0.5f;
-//            } else if (pErrorDegZ > 2f) {
-//                zVector = 0.5f;
-//            }
-//            // FIXME: normalize combination of values applied to all 4 motors
-//
-//            zVector = 0.0f;
-//
-//            if (found) {
-//                motorPowers[FRONT_RIGHT] = 0.0d;
-//                motorPowers[FRONT_LEFT] = 0.0d;
-//                motorPowers[BACK_RIGHT] = 0.0d;
-//                motorPowers[BACK_LEFT] = 0.0d;
-//            } else {
-//                motorPowers[FRONT_RIGHT] = -.10d;
-//                motorPowers[FRONT_LEFT] = -.10d;
-//                motorPowers[BACK_RIGHT] = -.10d;
-//                motorPowers[BACK_LEFT] = -.10d;
-//            }
-///**
-// motorPowers[FRONT_RIGHT] = yVector + xVector + zVector;
-// motorPowers[FRONT_LEFT]  = yVector - xVector - zVector;
-// motorPowers[BACK_RIGHT]  = yVector - xVector + zVector;
-// motorPowers[BACK_LEFT]   = yVector + xVector - zVector;
-// normalizeCombinedPowers(motorPowers);
-// **/
-//            /** frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
-//             frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
-//             backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
-//             backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
-//             **/
-//            frontRight.setPower(motorPowers[FRONT_RIGHT]);
-//            frontLeft.setPower(motorPowers[FRONT_LEFT]);
-//            backRight.setPower(motorPowers[BACK_RIGHT]);
-//            backLeft.setPower(motorPowers[BACK_LEFT]);
-//        }
-//        else {
-//            getTelemetryUtil().addData("Location:", "unknown");
-//            frontLeft.setPower(0.0d);
-//            frontRight.setPower(0.0d);
-//            backLeft.setPower(0.0d);
-//            backRight.setPower(0.0d);
-//        }
-//
+
         getTelemetryUtil().addData("distance", ultrasonicCache[0]);
         getTelemetryUtil().addData("Seen: ", isVisible ? "Visible" : "Not Visible");
         getTelemetryUtil().addData("runtime: ", "" + getRuntime());
@@ -851,18 +856,18 @@ public class AutonomousBlues extends ActiveOpMode {
         backLeft.setPower(0.75*(-power));
     }
     public void strafeLeftSlow() {
-
-        frontRight.setPower(0.5*.65);
-        backRight.setPower(-0.5*.65);
-        frontLeft.setPower(-0.5*.65);
-        backLeft.setPower(0.4749*.65);
+        double pow = .65;
+        frontRight.setPower(0.475*pow);
+        backRight.setPower(-0.5*pow);
+        frontLeft.setPower(-0.45*pow);
+        backLeft.setPower(0.45*pow);
     }
     public void strafeRightSlow() {
-
-        frontRight.setPower(-0.425*.65);
-        backRight.setPower(0.5*.65);
-        frontLeft.setPower(0.5*.65);
-        backLeft.setPower(-0.5*.65);
+        double pow = .65;
+        frontRight.setPower(-0.425*pow);
+        backRight.setPower(0.5*pow);
+        frontLeft.setPower(0.5*pow);
+        backLeft.setPower(-0.5*pow);
     }
 
     public void stopMoving(){

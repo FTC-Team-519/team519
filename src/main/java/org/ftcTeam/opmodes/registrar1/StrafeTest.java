@@ -35,6 +35,7 @@ public class StrafeTest extends ActiveOpMode {
 
 
     double[] corrections = new double[4];
+    double speedRatio = 1.0d;
 
     int currMotorAdjust;
 
@@ -56,6 +57,7 @@ public class StrafeTest extends ActiveOpMode {
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        speedRatio = 1.0d;
 
         for (int i = 0; i < 4; i++)
             corrections[i] = 1.0;
@@ -89,6 +91,14 @@ public class StrafeTest extends ActiveOpMode {
         if (gamepad1.a) currMotorAdjust = 2;
         if (gamepad1.b) currMotorAdjust = 3;
 
+        if (gamepad1.right_bumper) {
+            speedRatio += 0.001d;
+        }
+
+        if (gamepad1.left_bumper) {
+            speedRatio -= 0.001d;
+        }
+
         if (gamepad1.dpad_up && !UpBeingPressed) {
             corrections[currMotorAdjust] += 0.025;
             UpBeingPressed = true;
@@ -106,10 +116,10 @@ public class StrafeTest extends ActiveOpMode {
         }
 
         if(gamepad1.dpad_left) {
-            strafeLeft(0.75, corrections[1], corrections[3], corrections[0], corrections[2]);
+            strafeLeft(speedRatio, corrections[1], corrections[3], corrections[0], corrections[2]);
         }
         else if (gamepad1.dpad_right) {
-            strafeRight(0.75, corrections[1], corrections[3], corrections[0], corrections[2]);
+            strafeRight(speedRatio, corrections[1], corrections[3], corrections[0], corrections[2]);
         }
         else {
             stopMoving();
@@ -119,6 +129,7 @@ public class StrafeTest extends ActiveOpMode {
         getTelemetryUtil().addData("frontright: ", corrections[1]);
         getTelemetryUtil().addData("backleft: ", corrections[2]);
         getTelemetryUtil().addData("backright: ", corrections[3]);
+        getTelemetryUtil().addData("speedRatio: ", speedRatio);
         getTelemetryUtil().sendTelemetry();
     }
 
