@@ -402,15 +402,15 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -2f) {
+                    if (pErrorDegZ < -4f) {
                         zVector = -0.16f; //mansi yell louder
-                    } else if (pErrorDegZ > 2f) {
+                    } else if (pErrorDegZ > 4f) {
                         zVector = 0.16f; //it was a lion
                     }
 
                     turnLeft(zVector, true);
 
-                    if (Math.abs(pErrorDegZ) <= 2f) {
+                    if (Math.abs(pErrorDegZ) <= 4f) {
                         stopMoving();
 
                         ++step;
@@ -436,11 +436,11 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorY = DESIRED_MM_BLUE_NEAR_X - xyzTranslation[0];
 
                     double yVector = 0.0f;
-                    if (pErrorY < -20f) {
+                    if (pErrorY < -25f) {
                         //yVector = -0.15f;
                         strafeRightSlow();
                         //strafeRight(0.5);
-                    } else if (pErrorY > 20f) {
+                    } else if (pErrorY > 25f) {
                         //yVector = 0.15f;
                         //strafeLeft(0.5f);
                         strafeLeftSlow();
@@ -449,7 +449,7 @@ public class AutonomousBlues extends ActiveOpMode {
                         //stopMoving();
                     }
 
-                    if (Math.abs(pErrorY) <= 20f) {
+                    if (Math.abs(pErrorY) <= 25f) {
                         stopMoving();
 
                         ++step;
@@ -474,7 +474,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
                     if (!firstShotComplete) {
-                        shooter.setPower(0.97d);
+                        shooter.setPower(0.89d);
                     }
                     stopMoving();
                     ++step;
@@ -501,11 +501,14 @@ public class AutonomousBlues extends ActiveOpMode {
                 if (!firstShotComplete) {
                     topCollector.setPower(0.5d);
                     midCollector.setPower(0.5d);
+                    //new
+                    //frontCollector.setPower(0.5d);
                     if (getTimer().targetReached(0.6d)) {
                         firstShotComplete = true;
                         topCollector.setPower(0.0d);
                         midCollector.setPower(0.0d);
                         shooter.setPower(0.0d);
+                        //frontCollector.setPower(0.0d);
                         ++step;
                         //step = 99999;
                     }
@@ -686,7 +689,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 break;
             case 19:  // Turn to drive to center vortex and ball
                 turnLeft(0.5d, true);
-                if (getTimer().targetReached(0.35)) {
+                if (getTimer().targetReached(0.4)) {
                     stopMoving();
                     ++step;
                 }
@@ -739,15 +742,15 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -2f) {
+                    if (pErrorDegZ < -4f) {
                         zVector = -0.16f;
-                    } else if (pErrorDegZ > 2f) {
+                    } else if (pErrorDegZ > 4f) {
                         zVector = 0.16f;
                     }
 
                     turnLeft(zVector, true);
 
-                    if (Math.abs(pErrorDegZ) <= 2f) {
+                    if (Math.abs(pErrorDegZ) <= 4f) {
                         stopMoving();
 
                         ++step;
@@ -773,11 +776,11 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorY = DESIRED_MM_BLUE_FAR_X - xyzTranslation[0];
 
                     double yVector = 0.0f;
-                    if (pErrorY < -20f) {
+                    if (pErrorY < -25f) {
                         //yVector = -0.15f;
                         strafeRightSlow();
                         //strafeRight(0.5);
-                    } else if (pErrorY > 20f) {
+                    } else if (pErrorY > 25f) {
                         //yVector = 0.15f;
                         strafeLeftSlow();
                         //strafeLeft(0.5);
@@ -787,7 +790,7 @@ public class AutonomousBlues extends ActiveOpMode {
                         //stopMoving();
                     }
 
-                    if (Math.abs(pErrorY) <= 20f) {
+                    if (Math.abs(pErrorY) <= 25f) {
                         stopMoving();
 
                         if (getRuntime() > 22.0d) {
@@ -856,14 +859,14 @@ public class AutonomousBlues extends ActiveOpMode {
         backLeft.setPower(0.75*(-power));
     }
     public void strafeLeftSlow() {
-        double pow = .65;
+        double pow = .7;
         frontRight.setPower(0.475*pow);
         backRight.setPower(-0.5*pow);
         frontLeft.setPower(-0.45*pow);
         backLeft.setPower(0.45*pow);
     }
     public void strafeRightSlow() {
-        double pow = .65;
+        double pow = .7;
         frontRight.setPower(-0.425*pow);
         backRight.setPower(0.5*pow);
         frontLeft.setPower(0.5*pow);
