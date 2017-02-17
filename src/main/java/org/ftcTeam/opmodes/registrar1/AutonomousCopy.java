@@ -378,7 +378,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
 
-                if (ultrasonicCache[0] < 60 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] < 65 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                     //step = 999999;
@@ -433,13 +433,13 @@ public class AutonomousCopy extends ActiveOpMode {
                     float pErrorY = DESIRED_MM_RED_NEAR_Y - xyzTranslation[1];
 
                     double yVector = 0.0f;
-                    if (pErrorY < -20f) {
+                    if (pErrorY < -25f) {
                         //yVector = -0.15f;
                         //strafeRight(0.5f);
                         strafeRightSlow();
                         // FIXME: "Slower" methods cannot use timer within them
                         //strafeRightSlower();
-                    } else if (pErrorY > 20f) {
+                    } else if (pErrorY > 25f) {
                         //yVector = 0.15f;
                         //strafeLeft(0.5f);
                         strafeLeftSlow();
@@ -450,7 +450,7 @@ public class AutonomousCopy extends ActiveOpMode {
                         //stopMoving();
                     }
 
-                    if (Math.abs(pErrorY) <= 20f) {
+                    if (Math.abs(pErrorY) <= 25f) {
                         stopMoving();
 
                         ++step;

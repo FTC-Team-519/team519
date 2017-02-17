@@ -687,7 +687,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     }
                 }
                 break;
-            case 19:  // Turn to drive to center vortex and ball
+            case 19:  // Turn towards center vortex and cap ball
                 turnLeft(0.5d, true);
                 if (getTimer().targetReached(0.4)) {
                     stopMoving();
@@ -859,14 +859,14 @@ public class AutonomousBlues extends ActiveOpMode {
         backLeft.setPower(0.75*(-power));
     }
     public void strafeLeftSlow() {
-        double pow = .7;
+        double pow = .65;
         frontRight.setPower(0.475*pow);
         backRight.setPower(-0.5*pow);
         frontLeft.setPower(-0.45*pow);
         backLeft.setPower(0.45*pow);
     }
     public void strafeRightSlow() {
-        double pow = .7;
+        double pow = .65;
         frontRight.setPower(-0.425*pow);
         backRight.setPower(0.5*pow);
         frontLeft.setPower(0.5*pow);

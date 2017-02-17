@@ -40,6 +40,7 @@ public class SimpleAutonomous extends ActiveOpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
     private DcMotor midCollector;
+    private DcMotor topCollector;
     private DcMotor frontCollector;
     private ColorSensor colorSensor;
 
@@ -72,6 +73,7 @@ public class SimpleAutonomous extends ActiveOpMode {
 
         midCollector = hardwareMap.dcMotor.get("feeder");
         frontCollector = hardwareMap.dcMotor.get("collector");
+        topCollector = hardwareMap.dcMotor.get("topCollector");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.getController().setMotorZeroPowerBehavior(1, DcMotor.ZeroPowerBehavior.FLOAT);
@@ -111,28 +113,32 @@ public class SimpleAutonomous extends ActiveOpMode {
         getTelemetryUtil().addData("Step ", "" + step);
 
         switch(step) {
-            case -1:
+            case -1://wait
                 if (getTimer().targetReached(7.0d)) {
                     ++step;
                 }
                 break;
-            case 0:
+            case 0://spin up shooter
                 shooter.setPower(1.0d);
                 if (getTimer().targetReached(2.5d)) {
                     ++step;
                 }
                 break;
-            case 1:
+            case 1://shoot
                 midCollector.setPower(0.5d);
+                topCollector.setPower(0.5d);
+                frontCollector.setPower(0.5d);
                 if (getTimer().targetReached(2.0d)) {
                     midCollector.setPower(0.0d);
+                    topCollector.setPower(0.0d);
+                    frontCollector.setPower(0.0d);
                     shooter.setPower(0.0d);
                     ++step;
                 }
                 break;
-            case 2:
+            case 2://park on center vortex
                 forward(0.5d);
-                if (getTimer().targetReached(2.0d)) {
+                if (getTimer().targetReached(1.4d)) {
                     stopMoving();
                     ++step;
                 }
