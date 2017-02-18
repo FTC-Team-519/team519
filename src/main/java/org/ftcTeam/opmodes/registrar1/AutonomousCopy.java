@@ -399,15 +399,16 @@ public class AutonomousCopy extends ActiveOpMode {
                     float pErrorDegZ = DESIRED_DEGREES_RED_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -4f) {
-                        zVector = -0.15f;
-                    } else if (pErrorDegZ > 4f) {
-                        zVector = 0.15f;
+                    if (pErrorDegZ < -3f) {
+                        zVector = -0.14f;
+                    } else if (pErrorDegZ > -3f) {
+                        zVector = 0.14f;
                     }
 
                     turnLeft(zVector, true);
 
                     if (Math.abs(pErrorDegZ) <= 4f) {
+                    //if (pErrorDegZ > -14 && pErrorDegZ < -8){
                         stopMoving();
 
                         ++step;
@@ -686,14 +687,14 @@ public class AutonomousCopy extends ActiveOpMode {
                 break;
             case 19:  // Turn to drive to center vortex and ball
                 turnRight(0.5d, true);
-                if (getTimer().targetReached(0.22)) {
+                if (getTimer().targetReached(0.25)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 20:
                 forward(1.0d);
-                if (getTimer().targetReached(0.975) ) {
+                if (getTimer().targetReached(0.85) ) {
                     stopMoving();
                     ++step;
                 }
