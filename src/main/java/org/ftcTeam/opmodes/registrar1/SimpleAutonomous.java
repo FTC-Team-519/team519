@@ -138,7 +138,7 @@ public class SimpleAutonomous extends ActiveOpMode {
                 break;
             case 2://park on center vortex
                 forward(0.5d);
-                if (getTimer().targetReached(1.4d)) {
+                if (getTimer().targetReached(1.7d)) {
                     stopMoving();
                     ++step;
                 }

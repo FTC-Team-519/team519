@@ -484,7 +484,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] > 8) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] > 10) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
@@ -689,7 +689,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 break;
             case 19:  // Turn towards center vortex and cap ball
                 turnLeft(0.5d, true);
-                if (getTimer().targetReached(0.4)) {
+                if (getTimer().targetReached(0.32)) {
                     stopMoving();
                     ++step;
                 }
@@ -793,7 +793,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     if (Math.abs(pErrorY) <= 25f) {
                         stopMoving();
 
-                        if (getRuntime() > 22.0d) {
+                        if (getRuntime() > 22.8d) {
                             step = 19;
                         }
                         else {

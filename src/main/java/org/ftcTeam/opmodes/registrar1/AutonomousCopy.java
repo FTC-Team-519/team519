@@ -486,7 +486,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] > 8) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] > 10f) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
@@ -687,14 +687,14 @@ public class AutonomousCopy extends ActiveOpMode {
                 break;
             case 19:  // Turn to drive to center vortex and ball
                 turnRight(0.5d, true);
-                if (getTimer().targetReached(0.25)) {
+                if (getTimer().targetReached(0.31)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 20:
                 forward(1.0d);
-                if (getTimer().targetReached(0.85) ) {
+                if (getTimer().targetReached(1.15) ) {
                     stopMoving();
                     ++step;
                 }
@@ -849,14 +849,14 @@ public class AutonomousCopy extends ActiveOpMode {
         backLeft.setPower(0.75*(-power));
     }
     public void strafeLeftSlow() {
-        double pow = .7;
+        double pow = .65;
         frontRight.setPower(0.475*pow);
         backRight.setPower(-0.5*pow);
         frontLeft.setPower(-0.45*pow);
         backLeft.setPower(0.45*pow);
     }
     public void strafeRightSlow() {
-        double pow = .7;
+        double pow = .65;
         frontRight.setPower(-0.425*pow);
         backRight.setPower(0.5*pow);
         frontLeft.setPower(0.5*pow);
