@@ -757,7 +757,6 @@ public class AutonomousBlues extends ActiveOpMode {
                     }
                 }
                 else {
-                    //turnLeft(0.12f, true);
                     turnRight(0.15f, true);
                 }
 
