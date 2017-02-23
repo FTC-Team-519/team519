@@ -403,9 +403,9 @@ public class AutonomousBlues extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -4f) {
-                        zVector = -0.16f; //mansi yell louder
+                        zVector = -0.14f; //mansi yell louder
                     } else if (pErrorDegZ > 4f) {
-                        zVector = 0.16f; //it was a lion
+                        zVector = 0.14f; //it was a lion
                     }
 
                     turnLeft(zVector, true);
@@ -418,7 +418,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnRight(0.17f, true);
+                    turnRight(0.15f, true);
                 }
 
                 break;
@@ -536,7 +536,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] > 15) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] > 20) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
@@ -743,9 +743,9 @@ public class AutonomousBlues extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -4f) {
-                        zVector = -0.16f;
+                        zVector = -0.14f;
                     } else if (pErrorDegZ > 4f) {
-                        zVector = 0.16f;
+                        zVector = 0.14f;
                     }
 
                     turnLeft(zVector, true);
@@ -758,7 +758,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnRight(0.17f, true);
+                    turnRight(0.15f, true);
                 }
 
                 break;
@@ -853,10 +853,14 @@ public class AutonomousBlues extends ActiveOpMode {
     }
     public void strafeRight (double power) {
 
+//        frontRight.setPower(0.65*(-power));
+//        backRight.setPower(0.8*power);
+//        frontLeft.setPower(1.0*power);
+//        backLeft.setPower(0.75*(-power));
         frontRight.setPower(0.65*(-power));
-        backRight.setPower(0.8*power);
+        backRight.setPower(1.0*power);
         frontLeft.setPower(1.0*power);
-        backLeft.setPower(0.75*(-power));
+        backLeft.setPower(0.8*(-power));
     }
     public void strafeLeftSlow() {
         double pow = .65;

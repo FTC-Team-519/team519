@@ -24,7 +24,6 @@ import org.ftcbootstrap.ActiveOpMode;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
-
 /**
  * Autonomous Vuforia reference class that doesn't depend upon any motors, just the camera.
  */
