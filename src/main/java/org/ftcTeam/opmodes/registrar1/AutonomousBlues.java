@@ -776,7 +776,6 @@ public class AutonomousBlues extends ActiveOpMode {
 
                     double yVector = 0.0f;
                     if (pErrorY < -25f) {
-                        //yVector = -0.15f;
                         strafeRightSlow();
                         //strafeRight(0.5);
                     } else if (pErrorY > 25f) {
