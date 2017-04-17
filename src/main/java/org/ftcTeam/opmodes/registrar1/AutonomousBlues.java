@@ -378,10 +378,10 @@ public class AutonomousBlues extends ActiveOpMode {
         switch(step) {
             case 0://uses ultrasonic to move to first beacon
                 forward(-0.25d);
-                //if (getTimer().targetReached(1.5d)) {
+                if (getTimer().targetReached(1.55d)) {
                 //if (getTimer().targetReached(0.75d)) {
 
-                if (ultrasonicCache[0] < 50 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
+                //if (ultrasonicCache[0] < 50 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                     //step = 999999;
@@ -402,10 +402,10 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -4f) {
-                        zVector = -0.14f; //mansi yell louder
-                    } else if (pErrorDegZ > 4f) {
-                        zVector = 0.14f; //it was a lion
+                    if (pErrorDegZ < -3f) {
+                        zVector = -0.133f; //mansi yell louder
+                    } else if (pErrorDegZ > 3f) {
+                        zVector = 0.133f; //it was a lion
                     }
 
                     turnLeft(zVector, true);
@@ -418,7 +418,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnRight(0.15f, true);
+                    turnRight(0.133f, true);
                 }
 
                 break;
@@ -688,11 +688,11 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 19:  // Turn towards center vortex and cap ball
-                turnLeft(0.5d, true);
-                if (getTimer().targetReached(0.32)) {
-                    stopMoving();
-                    ++step;
-                }
+                step = 99999999;
+//                if (getTimer().targetReached(0.32)) {
+//                    stopMoving();
+//                    ++step;
+//                }
                 break;
             case 20:
                 forward(0.9d);
@@ -742,10 +742,10 @@ public class AutonomousBlues extends ActiveOpMode {
                     float pErrorDegZ = DESIRED_DEGREES_BLUE_Z - orientation.thirdAngle;
 
                     double zVector = 0.0f;
-                    if (pErrorDegZ < -4f) {
-                        zVector = -0.14f;
-                    } else if (pErrorDegZ > 4f) {
-                        zVector = 0.14f;
+                    if (pErrorDegZ < -3f) {
+                        zVector = -0.133f;
+                    } else if (pErrorDegZ > 3f) {
+                        zVector = 0.133f;
                     }
 
                     turnLeft(zVector, true);
@@ -757,7 +757,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     }
                 }
                 else {
-                    turnRight(0.15f, true);
+                    turnRight(0.133f, true);
                 }
 
                 break;
@@ -810,6 +810,9 @@ public class AutonomousBlues extends ActiveOpMode {
             case 999999:
                 getTelemetryUtil().addData("distance", ultrasonicCache[0]);
                 getTelemetryUtil().addData("play", "give up");
+                break;
+            default:
+                stopMoving();
                 break;
         }
 

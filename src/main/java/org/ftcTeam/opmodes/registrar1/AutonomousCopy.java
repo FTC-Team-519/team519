@@ -375,10 +375,10 @@ public class AutonomousCopy extends ActiveOpMode {
         switch(step) {
             case 0:
                 forward(-0.25d);
-                //if (getTimer().targetReached(1.5d)) {
+                if (getTimer().targetReached(1.55d)) {
                 //if (getTimer().targetReached(0.75d)) {
 
-                if (ultrasonicCache[0] < 65 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
+                //if (ultrasonicCache[0] < 65 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                     //step = 999999;
@@ -400,9 +400,9 @@ public class AutonomousCopy extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -3f) {
-                        zVector = -0.14f;
+                        zVector = -0.132f;
                     } else if (pErrorDegZ > -3f) {
-                        zVector = 0.14f;
+                        zVector = 0.132f;
                     }
 
                     turnLeft(zVector, true);
@@ -416,7 +416,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnLeft(0.17f, true);
+                    turnLeft(0.132f, true);
                 }
 
                 break;
@@ -686,11 +686,12 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 break;
             case 19:  // Turn to drive to center vortex and ball
-                turnRight(0.5d, true);
-                if (getTimer().targetReached(0.31)) {
-                    stopMoving();
-                    ++step;
-                }
+                step = 9999;
+//                turnRight(0.5d, true);
+//                if (getTimer().targetReached(0.31)) {
+//                    stopMoving();
+//                    ++step;
+//                }
                 break;
             case 20:
                 forward(1.0d);
@@ -749,7 +750,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnLeft(0.17f, true);
+                    turnLeft(0.15f, true);
                 }
 
                 break;
@@ -802,6 +803,9 @@ public class AutonomousCopy extends ActiveOpMode {
             case 999999:
                 getTelemetryUtil().addData("distance", ultrasonicCache[0]);
                 getTelemetryUtil().addData("play", "give up");
+                break;
+            default:
+                stopMoving();
                 break;
         }
 
