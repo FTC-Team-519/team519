@@ -403,9 +403,11 @@ public class AutonomousBlues extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -3f) {
-                        zVector = -0.133f; //mansi yell louder
+                        //zVector = -0.133f; //mansi yell louder
+                        zVector = -0.133;
                     } else if (pErrorDegZ > 3f) {
-                        zVector = 0.133f; //it was a lion
+                        //zVector = 0.133f; //it was a lion
+                        zVector = .133;
                     }
 
                     turnLeft(zVector, true);
@@ -418,7 +420,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnRight(0.133f, true);
+                    turnRight(0.12f, true);
                 }
 
                 break;

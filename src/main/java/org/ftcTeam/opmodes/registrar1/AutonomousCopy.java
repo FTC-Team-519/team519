@@ -400,8 +400,10 @@ public class AutonomousCopy extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -3f) {
+                        //zVector = -.16f;
                         zVector = -0.132f;
                     } else if (pErrorDegZ > -3f) {
+                        //zVector = 0.16f;
                         zVector = 0.132f;
                     }
 
@@ -416,7 +418,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnLeft(0.132f, true);
+                    turnLeft(0.13f, true);
                 }
 
                 break;
