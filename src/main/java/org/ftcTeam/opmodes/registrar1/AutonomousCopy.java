@@ -401,10 +401,10 @@ public class AutonomousCopy extends ActiveOpMode {
                     double zVector = 0.0f;
                     if (pErrorDegZ < -3f) {
                         //zVector = -.16f;
-                        zVector = -0.132f;
+                        zVector = -0.19f;
                     } else if (pErrorDegZ > -3f) {
                         //zVector = 0.16f;
-                        zVector = 0.132f;
+                        zVector = 0.19f;
                     }
 
                     turnLeft(zVector, true);
@@ -600,7 +600,8 @@ public class AutonomousCopy extends ActiveOpMode {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
                     //strafeLeftSlow();
-                    strafeLeft(0.5);
+                    //strafeLeft(1.0);
+                    strafeLeft(.5);
                 }
                 break;
             case 13:
@@ -842,10 +843,10 @@ public class AutonomousCopy extends ActiveOpMode {
     }
     public void strafeLeft (double power) {
 
-        frontRight.setPower(0.8*power);
-        backRight.setPower(0.9*-power);
-        frontLeft.setPower(1.0*-power);
-        backLeft.setPower(0.725*power);
+        frontRight.setPower(1.0*power);
+        backRight.setPower(1.0*-power);
+        frontLeft.setPower(0.825*-power);
+        backLeft.setPower(0.65*power);
     }
     public void strafeRight (double power) {
 

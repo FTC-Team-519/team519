@@ -378,13 +378,15 @@ public class AutonomousBlues extends ActiveOpMode {
         switch(step) {
             case 0://uses ultrasonic to move to first beacon
                 forward(-0.25d);
-                if (getTimer().targetReached(1.55d)) {
-                //if (getTimer().targetReached(0.75d)) {
+               // if (getTimer().targetReached(1.55d)) {
+                    if (getTimer().targetReached(1.85d)) {
+
+                        //if (getTimer().targetReached(0.75d)) {
 
                 //if (ultrasonicCache[0] < 50 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
-                    //step = 999999;
+                    //step = 999991;
                 }
                 break;
             case 1:
@@ -419,8 +421,8 @@ public class AutonomousBlues extends ActiveOpMode {
                     }
                 }
                 else {
-                    //turnLeft(0.12f, true);
-                    turnRight(0.12f, true);
+                    //turnLeft(0.15f, true);
+                    turnRight(0.145f, true);
                 }
 
                 break;
@@ -482,7 +484,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 5://move away from beacon
+            case 5://move away from first beacon
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
@@ -491,7 +493,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 6:
+            case 6://check color
                 if (getTimer().targetReached(1.4d)) {
                     beaconIsBlue = colorSensor.blue() > colorSensor.red();
                     getTelemetryUtil().addData("red:", " " + colorSensor.red());
@@ -499,7 +501,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 7:
+            case 7://shoot
                 if (!firstShotComplete) {
                     topCollector.setPower(0.5d);
                     midCollector.setPower(0.5d);
@@ -519,7 +521,7 @@ public class AutonomousBlues extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 8:
+            case 8://re-press if red
                 if(beaconIsBlue)
                 {
                     ++step;
@@ -543,14 +545,14 @@ public class AutonomousBlues extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 10:
+            case 10://strafe toward second beacon
                 strafeRight(1.0d);
-                if (getTimer().targetReached(1.5d)) {
+                if (getTimer().targetReached(2.3d)) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 11:
+            case 11://skip to step 25
                 stopMoving();
                 // Ensure there isn't a stale location
                 lastKnownLocation = null;
@@ -621,9 +623,9 @@ public class AutonomousBlues extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -7f) {
-                        zVector = -0.16f;
+                        zVector = -0.36f;
                     } else if (pErrorDegZ > 7f) {
-                        zVector = 0.16f;
+                        zVector = 0.36f;
                     }
 
                     turnLeft(zVector, true);
@@ -746,8 +748,12 @@ public class AutonomousBlues extends ActiveOpMode {
                     double zVector = 0.0f;
                     if (pErrorDegZ < -3f) {
                         zVector = -0.133f;
+                        zVector = 0.22f;
+
                     } else if (pErrorDegZ > 3f) {
                         zVector = 0.133f;
+                        zVector = 0.22f;
+
                     }
 
                     turnLeft(zVector, true);
@@ -866,14 +872,18 @@ public class AutonomousBlues extends ActiveOpMode {
         backLeft.setPower(0.8*(-power));
     }
     public void strafeLeftSlow() {
-        double pow = .65;
+        //double pow = .65;
+        double pow = .9;
+
         frontRight.setPower(0.475*pow);
         backRight.setPower(-0.5*pow);
         frontLeft.setPower(-0.45*pow);
         backLeft.setPower(0.45*pow);
     }
     public void strafeRightSlow() {
-        double pow = .65;
+        //double pow = .65;
+        double pow = .9;
+
         frontRight.setPower(-0.425*pow);
         backRight.setPower(0.5*pow);
         frontLeft.setPower(0.5*pow);
