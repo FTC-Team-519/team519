@@ -375,7 +375,7 @@ public class AutonomousCopy extends ActiveOpMode {
         switch(step) {
             case 0:
                 forward(-0.25d);
-                if (getTimer().targetReached(1.55d)) {
+                if (getTimer().targetReached(1.75d)) {
                 //if (getTimer().targetReached(0.75d)) {
 
                 //if (ultrasonicCache[0] < 65 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
@@ -400,11 +400,11 @@ public class AutonomousCopy extends ActiveOpMode {
 
                     double zVector = 0.0f;
                     if (pErrorDegZ < -3f) {
-                        //zVector = -.16f;
-                        zVector = -0.19f;
+                        //zVector = -.160f;
+                        zVector = -0.18f;
                     } else if (pErrorDegZ > -3f) {
-                        //zVector = 0.16f;
-                        zVector = 0.19f;
+                        //zVector = 0.160f;
+                        zVector = 0.18f;
                     }
 
                     turnLeft(zVector, true);
@@ -418,7 +418,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 else {
                     //turnLeft(0.12f, true);
-                    turnLeft(0.13f, true);
+                    turnLeft(0.14f, true);
                 }
 
                 break;
@@ -544,7 +544,7 @@ public class AutonomousCopy extends ActiveOpMode {
                 break;
             case 10:
                 strafeLeft(1.0d);
-                if (getTimer().targetReached(1.8d)) {
+                if (getTimer().targetReached(1.6-8d)) {
                     stopMoving();
                     ++step;
                 }
@@ -777,7 +777,7 @@ public class AutonomousCopy extends ActiveOpMode {
                         //strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeftSlow();
+                        strafeLeft(.4);
                         //strafeLeft(0.5);
                     }
                     else {
@@ -850,20 +850,20 @@ public class AutonomousCopy extends ActiveOpMode {
     }
     public void strafeRight (double power) {
 
-        frontRight.setPower(0.65*(-power));
-        backRight.setPower(0.875*power);
-        frontLeft.setPower(1.0*power);
-        backLeft.setPower(0.75*(-power));
+        frontRight.setPower(0.85*(-power));
+        backRight.setPower(0.975*power);
+        frontLeft.setPower(0.85*power);
+        backLeft.setPower(1.0*(-power));
     }
     public void strafeLeftSlow() {
-        double pow = .65;
+        double pow = .95;
         frontRight.setPower(0.475*pow);
         backRight.setPower(-0.5*pow);
         frontLeft.setPower(-0.45*pow);
         backLeft.setPower(0.45*pow);
     }
     public void strafeRightSlow() {
-        double pow = .65;
+        double pow = .95;
         frontRight.setPower(-0.425*pow);
         backRight.setPower(0.5*pow);
         frontLeft.setPower(0.5*pow);

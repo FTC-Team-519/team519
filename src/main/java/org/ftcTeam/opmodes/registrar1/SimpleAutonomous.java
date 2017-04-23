@@ -111,7 +111,7 @@ public class SimpleAutonomous extends ActiveOpMode {
         boolean isVisible = false;
         getTelemetryUtil().addData("Step ", "" + step);
 
-        switch(step) {
+        /*switch(step) {
             case -1://wait
                 if (getTimer().targetReached(7.0d)) {
                     ++step;
@@ -126,7 +126,7 @@ public class SimpleAutonomous extends ActiveOpMode {
             case 1://shoot
                 midCollector.setPower(0.5d);
                 topCollector.setPower(0.5d);
-                frontCollector.setPower(0.5d);
+                frontCollector.setPower(-0.5d);
                 if (getTimer().targetReached(2.0d)) {
                     midCollector.setPower(0.0d);
                     topCollector.setPower(0.0d);
@@ -137,7 +137,47 @@ public class SimpleAutonomous extends ActiveOpMode {
                 break;
             case 2://park on center vortex
                 forward(0.5d);
-                if (getTimer().targetReached(1.7d)) {
+                if (getTimer().targetReached(1.3d)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+        }*/
+        switch(step) {
+            case -1://wait
+                if (getTimer().targetReached(7.0d)) {
+                    ++step;
+                }
+                break;
+            case 0:
+                forward(.55);
+                if(getTimer().targetReached(.5))
+                {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 1://spin up shooter
+                shooter.setPower(1.0d);
+                if (getTimer().targetReached(2.5d)) {
+                    ++step;
+                }
+                break;
+            case 2://shoot
+                midCollector.setPower(0.5d);
+                topCollector.setPower(0.5d);
+                frontCollector.setPower(-0.5d);
+                if (getTimer().targetReached(2.0d)) {
+                    midCollector.setPower(0.0d);
+                    topCollector.setPower(0.0d);
+                    frontCollector.setPower(0.0d);
+                    shooter.setPower(0.0d);
+                    ++step;
+                }
+                break;
+            case 3://park on center vortex
+                forward(0.5d);
+                if (getTimer().targetReached(1.3d)) {
                     stopMoving();
                     ++step;
                 }
