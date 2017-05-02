@@ -537,14 +537,14 @@ public class AutonomousCopy extends ActiveOpMode {
                 forward(0.2d);
                 //if (getTimer().targetReached(1.5d)) {
                 //if (getTimer().targetReached(0.75d)) {
-                if (ultrasonicCache[0] > 20) {//back up until it is ten centimeters away from wall
+                if (ultrasonicCache[0] > 22) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                 }
                 break;
             case 10:
-                strafeLeft(1.0d);
-                if (getTimer().targetReached(1.6-8d)) {
+                strafeLeft(0.9d);
+                if (getTimer().targetReached(2.8d)) {
                     stopMoving();
                     ++step;
                 }
@@ -554,54 +554,15 @@ public class AutonomousCopy extends ActiveOpMode {
                 // Ensure there isn't a stale location
                 lastKnownLocation = null;
                 if (getTimer().targetReached(0.25d)) {
-                    step = 25;
+                    step = 12;
                 }
                 break;
             case 12:
-                isVisible = ((VuforiaTrackableDefaultListener)tools.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)tools.getListener()).getUpdatedRobotLocation();
-                getTelemetryUtil().addData("Target", "Looking for target.");
-                if (robotLocationTransform != null) {
-                    lastKnownLocation = robotLocationTransform;
-                }
-
-                if (lastKnownLocation != null && isVisible) {
-                    getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
-                    float[] xyzTranslation = lastKnownLocation.getTranslation().getData();
-                    float pErrorY = DESIRED_MM_RED_FAR_Y - xyzTranslation[1];
-
-                    double yVector = 0.0f;
-                    if (pErrorY < -20f) {
-                        //yVector = -0.15f;
-                        //strafeRightSlow();
-                        strafeRight(0.5);
-                    } else if (pErrorY > 20f) {
-                        //yVector = 0.15f;
-                        //strafeLeftSlow();
-                        strafeLeft(0.5);
-                    }
-                    else {
-                        // This should get caught in clause below
-                        //stopMoving();
-                    }
-
-                    if (Math.abs(pErrorY) <= 20f) {
-                        stopMoving();
-
-                        if (getRuntime() > 22.0d) {
-                            step = 19;
-                        }
-                        else {
-                            ++step;
-                        }
-                    }
+                if (getRuntime() > 22.0d) {
+                    step = 19;
                 }
                 else {
-                    getTelemetryUtil().addData("Location:", "unknown");
-                    //stopMoving();
-                    //strafeLeftSlow();
-                    //strafeLeft(1.0);
-                    strafeLeft(.5);
+                    step = 14;
                 }
                 break;
             case 13:
@@ -689,7 +650,8 @@ public class AutonomousCopy extends ActiveOpMode {
                 }
                 break;
             case 19:  // Turn to drive to center vortex and ball
-                step = 9999;
+                stopMoving();
+                //step = 9999;
 //                turnRight(0.5d, true);
 //                if (getTimer().targetReached(0.31)) {
 //                    stopMoving();
@@ -777,7 +739,7 @@ public class AutonomousCopy extends ActiveOpMode {
                         //strafeRight(0.5);
                     } else if (pErrorY > 20f) {
                         //yVector = 0.15f;
-                        strafeLeft(.4);
+                        strafeLeft(.3);
                         //strafeLeft(0.5);
                     }
                     else {
@@ -856,10 +818,10 @@ public class AutonomousCopy extends ActiveOpMode {
         backLeft.setPower(1.0*(-power));
     }
     public void strafeLeftSlow() {
-        double pow = .95;
+        double pow = .75;
         frontRight.setPower(0.475*pow);
         backRight.setPower(-0.5*pow);
-        frontLeft.setPower(-0.45*pow);
+        frontLeft.setPower(-0.5*pow);
         backLeft.setPower(0.45*pow);
     }
     public void strafeRightSlow() {

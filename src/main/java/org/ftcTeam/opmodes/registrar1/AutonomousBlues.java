@@ -478,7 +478,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 //if (getTimer().targetReached(0.3d)) {
                 if (getTimer().targetReached(0.3d)) {
                     if (!firstShotComplete) {
-                        shooter.setPower(0.89d);
+                        shooter.setPower(0.95d);
                     }
                     stopMoving();
                     ++step;

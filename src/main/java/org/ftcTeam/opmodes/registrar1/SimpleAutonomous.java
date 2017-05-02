@@ -145,7 +145,7 @@ public class SimpleAutonomous extends ActiveOpMode {
         }*/
         switch(step) {
             case -1://wait
-                if (getTimer().targetReached(7.0d)) {
+                if (getTimer().targetReached(15.0d)) {
                     ++step;
                 }
                 break;
@@ -159,7 +159,7 @@ public class SimpleAutonomous extends ActiveOpMode {
                 break;
             case 1://spin up shooter
                 shooter.setPower(1.0d);
-                if (getTimer().targetReached(2.5d)) {
+                if (getTimer().targetReached(3.0d)) {
                     ++step;
                 }
                 break;
