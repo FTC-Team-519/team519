@@ -1,10 +1,14 @@
 package org.ftcTeam.opmodes.registrar1;
 
 //RED
+
 import android.util.Base64;
 
-import com.kauailabs.navx.ftc.AHRS;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -17,11 +21,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.ftcbootstrap.ActiveOpMode;
-
-import com.qualcomm.ftcrobotcontroller.R;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
@@ -52,7 +51,6 @@ public class AutonomousVuforia extends ActiveOpMode {
 
     private DecimalFormat df = new DecimalFormat("#.##");
     private boolean calibration_complete = false;
-    private AHRS navx_device;
 
     int step = 0;
     private boolean missedBeacon = false;
@@ -344,14 +342,6 @@ public class AutonomousVuforia extends ActiveOpMode {
         boolean isVisible = false;
         getTelemetryUtil().addData("Step ", "" + step);
 
-        if (navx_device != null) {
-            if (calibration_complete) {
-                getTelemetryUtil().addData("NavX", "Yaw: " + df.format(navx_device.getYaw()));
-            } else {
-                getTelemetryUtil().addData("NavX", "Calibrating :-(");
-                calibration_complete = !navx_device.isCalibrating();
-            }
-        }
         switch(step) {
             case 0://spin up wheel
                 shooter.setPower(1.0d);
@@ -782,22 +772,6 @@ public class AutonomousVuforia extends ActiveOpMode {
     public void strafeLeft (double power) {
 
         double correction = 0.0d;
-        if (calibration_complete)
-        {
-            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
-            if(navx_device.getYaw()> 91)//if turned too much clockwise
-            {
-                correction = -0.1;
-            }
-            if(navx_device.getYaw()< 89)//if turned too much counter-clockwise
-            {
-                correction = 0.1;
-            }
-        }
-        else
-        {
-            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
-        }
 
         frontRight.setPower(0.9*power + correction);
         backRight.setPower(1.3*-power + correction);
@@ -806,22 +780,6 @@ public class AutonomousVuforia extends ActiveOpMode {
     }
     public void strafeRight (double power) {
         double correction = 0.0d;
-        if (calibration_complete)
-        {
-            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
-            if(navx_device.getYaw()> 91)//if turned too much clockwise
-            {
-                correction = -0.1;
-            }
-            if(navx_device.getYaw()< 89)//if turned too much counter-clockwise
-            {
-                correction = 0.1;
-            }
-        }
-        else
-        {
-            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
-        }
 
         frontRight.setPower((-power) + correction);
         backRight.setPower(1.25*power + correction);

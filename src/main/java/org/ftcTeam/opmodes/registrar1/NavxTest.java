@@ -1,7 +1,5 @@
 package org.ftcTeam.opmodes.registrar1;
 
-import com.kauailabs.navx.ftc.AHRS;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
@@ -21,7 +19,6 @@ public class NavxTest extends ActiveOpMode {
     private DcMotor frontCollector;
 
     private static final int NAVX_DIM_I2C_PORT = 0;
-    private AHRS navx_device;
 
     private float x;
     private float y;
@@ -56,14 +53,6 @@ public class NavxTest extends ActiveOpMode {
         getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit.");
 
         DeviceInterfaceModule dim = hardwareMap.deviceInterfaceModule.get("dim");
-        if (dim == null) {
-            getTelemetryUtil().addData("NavX", "DeviceInterface module named dim not found!!!");
-        }
-        else {
-            navx_device = AHRS.getInstance(hardwareMap.deviceInterfaceModule.get("dim"),
-                    NAVX_DIM_I2C_PORT,
-                    AHRS.DeviceDataType.kProcessedData);
-        }
 
         frontLeft = hardwareMap.dcMotor.get("motor4");
         frontRight = hardwareMap.dcMotor.get("motor2");
@@ -90,16 +79,6 @@ public class NavxTest extends ActiveOpMode {
         shooter.getController().setMotorMode(1, DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.getController().setMotorZeroPowerBehavior(1, DcMotor.ZeroPowerBehavior.FLOAT);
         timerComponent = getTimer();
-
-        if (navx_device != null) {
-            calibration_complete = !navx_device.isCalibrating();
-            if (calibration_complete) {
-                navx_device.zeroYaw();
-                getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
-            } else {
-                getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
-            }
-        }
     }
 
     /**
@@ -204,15 +183,6 @@ public class NavxTest extends ActiveOpMode {
             float ticksPerSecond = currentTicks - previousTickCount;
             previousTickCount = currentTicks;
             getTelemetryUtil().addData("RPM", "ticksPerMinute: " + ticksPerSecond);
-        }
-
-        if (navx_device != null) {
-            if (calibration_complete) {
-                getTelemetryUtil().addData("NavX", "Yaw: " + df.format(navx_device.getYaw()));
-            } else {
-                getTelemetryUtil().addData("NavX", "Calibrating :-(");
-                calibration_complete = !navx_device.isCalibrating();
-            }
         }
 
 //        getTelemetryUtil().addData(color.argb() + "", "color");
@@ -321,22 +291,7 @@ public class NavxTest extends ActiveOpMode {
     public void strafeLeft (double power) {
 
         double correction = 0.0d;
-        if (calibration_complete)
-        {
-            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
-            if(navx_device.getYaw()> -89)//if turned too much clockwise
-            {
-                correction = 0.1;
-            }
-            if(navx_device.getYaw()< -91)//if turned too much counter-clockwise
-            {
-                correction = -0.1;
-            }
-        }
-        else
-        {
-            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
-        }
+
 
         frontRight.setPower(power + correction);
         backRight.setPower(-power + correction);
@@ -345,22 +300,7 @@ public class NavxTest extends ActiveOpMode {
     }
     public void strafeRight (double power) {
         double correction = 0.0d;
-        if (calibration_complete)
-        {
-            getTelemetryUtil().addData("NavX", "Yaw zeroed: " + df.format(navx_device.getYaw()));
-            if(navx_device.getYaw()> -89)//if turned too much clockwise
-            {
-                correction = 0.1;
-            }
-            if(navx_device.getYaw()< -91)//if turned too much counter-clockwise
-            {
-                correction = -0.1;
-            }
-        }
-        else
-        {
-            getTelemetryUtil().addData("NavX", "Uncalibrated, not zeroed!!!");
-        }
+
 
         frontRight.setPower(-power + correction);
         backRight.setPower(power + correction);

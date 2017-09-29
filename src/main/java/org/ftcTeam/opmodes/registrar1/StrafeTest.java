@@ -1,10 +1,6 @@
 package org.ftcTeam.opmodes.registrar1;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.TimerComponent;

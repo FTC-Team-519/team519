@@ -3,12 +3,8 @@ package org.ftcTeam.opmodes.registrar1;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
-import org.ftcTeam.configurations.FTCTeamRobot;
 import org.ftcbootstrap.ActiveOpMode;
-import org.ftcbootstrap.components.TimerComponent;
 import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
 
 

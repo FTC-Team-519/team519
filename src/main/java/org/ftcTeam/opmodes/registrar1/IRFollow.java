@@ -2,21 +2,12 @@ package org.ftcTeam.opmodes.registrar1;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IrSeekerSensor;
 
-import org.ftcTeam.configurations.FTCTeamRobot;
 import org.ftcTeam.configurations.MotorAndServoRobot;
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.IrSeekerSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.ViewParent;
 
 
 /**

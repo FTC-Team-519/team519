@@ -1,10 +1,18 @@
 package org.ftcTeam.opmodes.registrar1;
 
 //BLUE
+
 import android.util.Base64;
 
-import com.kauailabs.navx.ftc.AHRS;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -17,16 +25,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.ftcbootstrap.ActiveOpMode;
-import org.ftcbootstrap.components.TimerComponent;
-
-import com.qualcomm.ftcrobotcontroller.R;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.I2cAddr;
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
@@ -57,7 +55,6 @@ public class AutonomousBlues extends ActiveOpMode {
 
     private DecimalFormat df = new DecimalFormat("#.##");
     private boolean calibration_complete = false;
-    private AHRS navx_device;
 
     // FIXME: This should be step 0 unless you are testing
     int step = 0;
@@ -366,14 +363,6 @@ public class AutonomousBlues extends ActiveOpMode {
         getTelemetryUtil().addData("Step ", "" + step);
         ultrasonicCache = ultrasonicReader.read(ULTRASONIC_REG_START, ULTRASONIC_READ_LENGTH);
 
-        if (navx_device != null) {
-            if (calibration_complete) {
-                getTelemetryUtil().addData("NavX", "Yaw: " + df.format(navx_device.getYaw()));
-            } else {
-                getTelemetryUtil().addData("NavX", "Calibrating :-(");
-                calibration_complete = !navx_device.isCalibrating();
-            }
-        }
         getTelemetryUtil().addData("distance", ultrasonicCache[0]);
         switch(step) {
             case 0://uses ultrasonic to move to first beacon

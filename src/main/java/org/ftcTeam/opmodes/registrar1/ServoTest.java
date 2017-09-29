@@ -1,15 +1,8 @@
 package org.ftcTeam.opmodes.registrar1;
 
-import com.kauailabs.navx.ftc.AHRS;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.ftcbootstrap.ActiveOpMode;
-import org.ftcbootstrap.components.TimerComponent;
-
-import java.text.DecimalFormat;
 
 public class ServoTest extends ActiveOpMode {
 
