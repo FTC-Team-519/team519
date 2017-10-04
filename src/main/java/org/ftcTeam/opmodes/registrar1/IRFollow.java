@@ -1,6 +1,7 @@
 package org.ftcTeam.opmodes.registrar1;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IrSeekerSensor;
@@ -19,6 +20,7 @@ import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
  */
 
 @TeleOp
+@Disabled
 public class IRFollow extends ActiveOpMode {
     DcMotor frontleft, frontright, backleft, backright; //TODO convert to motormap @jake
     IrSeekerSensor IRSeeker;

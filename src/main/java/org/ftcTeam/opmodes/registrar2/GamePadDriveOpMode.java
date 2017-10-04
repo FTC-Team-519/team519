@@ -1,5 +1,6 @@
 package org.ftcTeam.opmodes.registrar2;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.ftcTeam.configurations.FTCTeamRobot;
@@ -16,6 +17,7 @@ import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
  */
 
 @TeleOp
+@Disabled
 public class GamePadDriveOpMode extends ActiveOpMode {
 
     private FTCTeamRobot robot;

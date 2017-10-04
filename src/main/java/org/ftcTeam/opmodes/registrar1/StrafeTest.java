@@ -1,10 +1,12 @@
 package org.ftcTeam.opmodes.registrar1;
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.TimerComponent;
 
+@TeleOp
 public class StrafeTest extends ActiveOpMode {
     private DcMotor frontLeft;
     private DcMotor frontRight;

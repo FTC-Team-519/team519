@@ -1,5 +1,7 @@
 package org.ftcTeam.opmodes.registrar1;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -9,6 +11,7 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import org.ftcbootstrap.ActiveOpMode;
 import org.ftcbootstrap.components.TimerComponent;
 
+@TeleOp
 public class Teleop extends ActiveOpMode {
     private DcMotor shooter;
     private DcMotor frontLeft;
@@ -45,6 +48,7 @@ public class Teleop extends ActiveOpMode {
     double currentShooterSpeed = 0.0d;
 
     boolean flipped = false;
+
 
     /**
      * Implement this method to define the code to run when the Init button is pressed on the Driver station.

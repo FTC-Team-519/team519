@@ -2,6 +2,7 @@ package org.ftcTeam.opmodes.registrar1;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,6 +13,7 @@ import org.ftcbootstrap.ActiveOpMode;
  */
 
 @Autonomous
+@Disabled
 public class SimpleAutonomous extends ActiveOpMode {
 
     int step = -1;

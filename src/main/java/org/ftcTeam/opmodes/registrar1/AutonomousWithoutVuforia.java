@@ -2,6 +2,7 @@ package org.ftcTeam.opmodes.registrar1;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -11,6 +12,7 @@ import org.ftcbootstrap.components.TimerComponent;
 
 
 @Autonomous
+@Disabled
 public class AutonomousWithoutVuforia extends ActiveOpMode {
 
     TimerComponent timer;

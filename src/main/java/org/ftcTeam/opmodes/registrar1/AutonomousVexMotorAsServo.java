@@ -2,6 +2,7 @@ package org.ftcTeam.opmodes.registrar1;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.ftcbootstrap.ActiveOpMode;
@@ -17,6 +18,7 @@ import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
  */
 
 @Autonomous
+@Disabled
 public class AutonomousVexMotorAsServo extends ActiveOpMode {
 
     CRServo vexMotor;

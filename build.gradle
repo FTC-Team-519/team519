@@ -13,4 +13,10 @@ if (navxFtcProj) {
     }
 }
 
+android {
+    lintOptions {
+        abortOnError false
+    }
+}
+
 

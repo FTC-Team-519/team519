@@ -2,6 +2,7 @@ package org.ftcTeam.opmodes.registrar1;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.ftcbootstrap.ActiveOpMode;
@@ -17,6 +18,7 @@ import org.ftcbootstrap.components.operations.motors.GamePadTankDrive;
  */
 
 @Autonomous
+@Disabled
 public class AutonomousTestPlays extends ActiveOpMode {
 
     TimerComponent timer;

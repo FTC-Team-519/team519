@@ -36,27 +36,27 @@ public class Registrar1 extends BootstrapRegistrar {
     Class[] classes = {
 
             //GamePadDriveOpMode.class,
-            GamePadMecanumOpMode.class,
+            //GamePadMecanumOpMode.class,
             //AirAndScareMecanumOpMode.class,
-            TelemetryTest.class,
+            //TelemetryTest.class,
             //AutonomousFirstTry.class,
             //AutonomousVuforia.class,
             //AutonomousVuforiaBlue.class,
-            AutonomousCopy.class,
-            AutonomousBlues.class,
-            OutreachBot.class,
-            SimpleAutonomous.class,
+            //AutonomousCopy.class,
+            //AutonomousBlues.class,
+            //OutreachBot.class,
+            //SimpleAutonomous.class,
             //AutonomousRedDistanceSensor.class,
-            StrafeTest.class,
-            TeleopUltrasonicTest.class,
+            //StrafeTest.class,
+            //TeleopUltrasonicTest.class,
             //AutonomousVexMotorAsServo.class,
             //AutonomousTestPlays.class,
-            Teleop.class,
+            //Teleop.class,
             //AutonomousWithoutVuforia.class,
-            NavxTest.class,
-            ServoTest.class,
+            //NavxTest.class,
+            //ServoTest.class,
             //TestShooterSpeed.class,
-            IRFollow.class
+            //IRFollow.class
     };
 
     return classes;
