@@ -65,8 +65,7 @@ public class AutonomousBlues extends ActiveOpMode {
     private static String convert(byte[] thing) {
         try {
             return new String(thing, "US-ASCII");
-        }
-        catch (UnsupportedEncodingException uee) {
+        } catch (UnsupportedEncodingException uee) {
             return "Could not convert!!!";
         }
     }
@@ -75,6 +74,7 @@ public class AutonomousBlues extends ActiveOpMode {
 
     /**
      * Degrees to radians is pi times the angle in degrees divided by 180 degrees.
+     *
      * @param degrees
      * @return
      */
@@ -85,8 +85,8 @@ public class AutonomousBlues extends ActiveOpMode {
     /**
      * Returns the transformed x and y vector values to account for z rotation.
      *
-     * @param x the x coordinate vector value
-     * @param y the y coordinate vector value
+     * @param x       the x coordinate vector value
+     * @param y       the y coordinate vector value
      * @param degrees the current rotation around the z axis
      * @returntransformed x and y vector values to account for z rotation.
      */
@@ -95,7 +95,7 @@ public class AutonomousBlues extends ActiveOpMode {
 
         double radians = degreesToRadians(degrees);
         double cosineA = Math.cos(radians);
-        double sineA   = Math.sin(radians);
+        double sineA = Math.sin(radians);
 
         // RotationMatrix = +cos?   -sin?
         //                  +sin?   +cos?
@@ -143,31 +143,31 @@ public class AutonomousBlues extends ActiveOpMode {
 
     public static final float MM_PER_INCH = 25.4f;
     public static final float MM_BOT_WIDTH = 18 * MM_PER_INCH;            // ... or whatever is right for your robot
-    public static final float MM_FTC_FIELD_WIDTH = (12*12 - 2) * MM_PER_INCH;   // the FTC field is ~11'10" center-to-center of the glass panels
+    public static final float MM_FTC_FIELD_WIDTH = (12 * 12 - 2) * MM_PER_INCH;   // the FTC field is ~11'10" center-to-center of the glass panels
     public static final float MM_TARGET_CENTER_HEIGHT_Z = (1.5f + (8.5f / 2.0f)) * MM_PER_INCH; // half height of 8.5x11 sheet plus 1.5" above floor
     public static final float MM_NEAR_OFFSET = (1 * 12) * MM_PER_INCH; // one foot away from center
     public static final float MM_FAR_OFFSET = (3 * 12) * MM_PER_INCH;  // three feet away from center
 
-    public static final float MM_RED_BEACON_WALL_X = -(MM_FTC_FIELD_WIDTH/2);
-    public static final float MM_BLUE_BEACON_WALL_Y = (MM_FTC_FIELD_WIDTH/2);
+    public static final float MM_RED_BEACON_WALL_X = -(MM_FTC_FIELD_WIDTH / 2);
+    public static final float MM_BLUE_BEACON_WALL_Y = (MM_FTC_FIELD_WIDTH / 2);
 
-    public static final float MM_RED_NEAR_TARGET_Y  = -MM_NEAR_OFFSET;
-    public static final float MM_RED_FAR_TARGET_Y   = MM_FAR_OFFSET;
+    public static final float MM_RED_NEAR_TARGET_Y = -MM_NEAR_OFFSET;
+    public static final float MM_RED_FAR_TARGET_Y = MM_FAR_OFFSET;
     public static final float MM_BLUE_NEAR_TARGET_X = MM_NEAR_OFFSET;
-    public static final float MM_BLUE_FAR_TARGET_X  = -MM_NEAR_OFFSET;
+    public static final float MM_BLUE_FAR_TARGET_X = -MM_NEAR_OFFSET;
 
     // FIXME: This should be set to whatever distance is desired back from wall to look at
     //        colors/maybe shoot/and start going straight into buttons once lined up with target
     public static final float DESIRED_MM_DISTANCE_FROM_WALL = 16 * MM_PER_INCH;
 
-    public static final float DESIRED_MM_RED_X      = MM_RED_BEACON_WALL_X + DESIRED_MM_DISTANCE_FROM_WALL;
+    public static final float DESIRED_MM_RED_X = MM_RED_BEACON_WALL_X + DESIRED_MM_DISTANCE_FROM_WALL;
     public static final float DESIRED_MM_RED_NEAR_Y = MM_RED_NEAR_TARGET_Y;
-    public static final float DESIRED_MM_RED_FAR_Y  = MM_RED_FAR_TARGET_Y;
+    public static final float DESIRED_MM_RED_FAR_Y = MM_RED_FAR_TARGET_Y;
     public static final float DESIRED_DEGREES_RED_Z = 90f;  // compare against orientation
 
-    public static final float DESIRED_MM_BLUE_Y      = MM_BLUE_BEACON_WALL_Y - DESIRED_MM_DISTANCE_FROM_WALL;
+    public static final float DESIRED_MM_BLUE_Y = MM_BLUE_BEACON_WALL_Y - DESIRED_MM_DISTANCE_FROM_WALL;
     public static final float DESIRED_MM_BLUE_NEAR_X = MM_BLUE_NEAR_TARGET_X;
-    public static final float DESIRED_MM_BLUE_FAR_X  = MM_BLUE_FAR_TARGET_X;
+    public static final float DESIRED_MM_BLUE_FAR_X = MM_BLUE_FAR_TARGET_X;
     //public static final float DESIRED_DEGREES_BLUE_Z = -90f; // compare against orientation
     public static final float DESIRED_DEGREES_BLUE_Z = 0f;
 
@@ -197,10 +197,10 @@ public class AutonomousBlues extends ActiveOpMode {
     public I2cDeviceSynch ultrasonicReader;
 
     private double[] motorPowers = new double[4];
-    private static final int FRONT_LEFT  = 0;
+    private static final int FRONT_LEFT = 0;
     private static final int FRONT_RIGHT = 1;
-    private static final int BACK_LEFT   = 2;
-    private static final int BACK_RIGHT  = 3;
+    private static final int BACK_LEFT = 2;
+    private static final int BACK_RIGHT = 3;
 
     boolean beaconIsBlue = false;
 
@@ -252,9 +252,9 @@ public class AutonomousBlues extends ActiveOpMode {
         ftc2016Trackables = this.vuforia.loadTrackablesFromAsset("FTC_2016-17");
 
         wheels = ftc2016Trackables.get(0);
-        tools  = ftc2016Trackables.get(1);
-        legos  = ftc2016Trackables.get(2);
-        gears  = ftc2016Trackables.get(3);
+        tools = ftc2016Trackables.get(1);
+        legos = ftc2016Trackables.get(2);
+        gears = ftc2016Trackables.get(3);
 
         wheels.setName("wheels"); // blue-near
         tools.setName("tools"); // red-far
@@ -312,23 +312,23 @@ public class AutonomousBlues extends ActiveOpMode {
         // NOTE: +Y translation puts it on front of robot, and -Y to put on back
         // FIXME: Still need +z translation to put at proper height (probably not centered)
         OpenGLMatrix frontCenteredLocationOnRobot = OpenGLMatrix
-                .translation(0, MM_BOT_WIDTH/2, MM_BOT_WIDTH/2)
+                .translation(0, MM_BOT_WIDTH / 2, MM_BOT_WIDTH / 2)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.YZY,
                         AngleUnit.DEGREES, -90, -90, 0));
 
         OpenGLMatrix backCenteredLocationOnRobot = OpenGLMatrix
-                .translation(0, -MM_BOT_WIDTH/2, MM_BOT_WIDTH/2)
+                .translation(0, -MM_BOT_WIDTH / 2, MM_BOT_WIDTH / 2)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.YZY,
                         AngleUnit.DEGREES, -90, -90, 0));
 
         OpenGLMatrix phoneLocationOnRobot = frontCenteredLocationOnRobot;
 
-        ((VuforiaTrackableDefaultListener)wheels.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)tools.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)legos.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)gears.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener) wheels.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener) tools.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener) legos.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener) gears.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
         //Note The Telemetry Utility is designed to let you organize all telemetry data before sending it to
         //the Driver station via the sendTelemetry command
@@ -366,23 +366,23 @@ public class AutonomousBlues extends ActiveOpMode {
         ultrasonicCache = ultrasonicReader.read(ULTRASONIC_REG_START, ULTRASONIC_READ_LENGTH);
 
         getTelemetryUtil().addData("distance", ultrasonicCache[0]);
-        switch(step) {
+        switch (step) {
             case 0://uses ultrasonic to move to first beacon
                 forward(-0.25d);
-               // if (getTimer().targetReached(1.55d)) {
-                    if (getTimer().targetReached(1.85d)) {
+                // if (getTimer().targetReached(1.55d)) {
+                if (getTimer().targetReached(1.85d)) {
 
-                        //if (getTimer().targetReached(0.75d)) {
+                    //if (getTimer().targetReached(0.75d)) {
 
-                //if (ultrasonicCache[0] < 50 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
+                    //if (ultrasonicCache[0] < 50 && ultrasonicCache[0] > 0) {//back up until it is ten centimeters away from wall
                     stopMoving();
                     ++step;
                     //step = 999991;
                 }
                 break;
             case 1:
-                isVisible = ((VuforiaTrackableDefaultListener)wheels.getListener()).isVisible();
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)wheels.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener) wheels.getListener()).isVisible();
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) wheels.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -410,16 +410,15 @@ public class AutonomousBlues extends ActiveOpMode {
 
                         ++step;
                     }
-                }
-                else {
+                } else {
                     //turnLeft(0.150f, true);
                     turnRight(0.145f, true);
                 }
 
                 break;
             case 2:
-                isVisible = ((VuforiaTrackableDefaultListener)wheels.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)wheels.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener) wheels.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener) wheels.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -439,8 +438,7 @@ public class AutonomousBlues extends ActiveOpMode {
                         //yVector = 0.15f;
                         //strafeLeft(0.5f);
                         strafeLeftSlow();
-                    }
-                    else {
+                    } else {
                         //stopMoving();
                     }
 
@@ -449,8 +447,7 @@ public class AutonomousBlues extends ActiveOpMode {
 
                         ++step;
                     }
-                }
-                else {
+                } else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     stopMoving();
                 }
@@ -507,21 +504,16 @@ public class AutonomousBlues extends ActiveOpMode {
                         ++step;
                         //step = 99999;
                     }
-                }
-                else {
+                } else {
                     ++step;
                 }
                 break;
             case 8://re-press if red
-                if(beaconIsBlue)
-                {
+                if (beaconIsBlue) {
                     ++step;
                     //step = 20;
-                }
-                else
-                {
-                    if(getTimer().targetReached(2.2))
-                    {
+                } else {
+                    if (getTimer().targetReached(2.2)) {
                         step = 3;
                         missedBeacon = true;
                     }
@@ -552,8 +544,8 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 12:
-                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener) legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener) legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -573,8 +565,7 @@ public class AutonomousBlues extends ActiveOpMode {
                         //yVector = 0.15f;
                         strafeLeftSlow();
                         //strafeLeft(0.5);
-                    }
-                    else {
+                    } else {
                         // This should get caught in clause below
                         //stopMoving();
                     }
@@ -590,8 +581,7 @@ public class AutonomousBlues extends ActiveOpMode {
 //                        }
                         ++step;
                     }
-                }
-                else {
+                } else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
                     strafeRightSlow();
@@ -599,8 +589,8 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 13:
-                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener) legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener) legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -626,8 +616,7 @@ public class AutonomousBlues extends ActiveOpMode {
 
                         ++step;
                     }
-                }
-                else {
+                } else {
                     //turnLeft(0.12f, true);
                     turnRight(0.17f, true);
                 }
@@ -668,15 +657,11 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 18:
-                if(beaconIsBlue)
-                {
+                if (beaconIsBlue) {
                     ++step;
                     //step = 20;
-                }
-                else
-                {
-                    if(getTimer().targetReached(2.2))
-                    {
+                } else {
+                    if (getTimer().targetReached(2.2)) {
                         step = 14;
                         missedBeacon = true;
                     }
@@ -691,7 +676,7 @@ public class AutonomousBlues extends ActiveOpMode {
                 break;
             case 20:
                 forward(0.9d);
-                if (getTimer().targetReached(1.1) ) {
+                if (getTimer().targetReached(1.1)) {
                     stopMoving();
                     ++step;
                 }
@@ -704,8 +689,8 @@ public class AutonomousBlues extends ActiveOpMode {
 //                }
 //                break;
             case 25:
-                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener) legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener) legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -713,9 +698,8 @@ public class AutonomousBlues extends ActiveOpMode {
 
                 if (lastKnownLocation != null && isVisible) {
                     getTelemetryUtil().addData("Location:", lastKnownLocation.formatAsTransform());
-                        ++step;
-                }
-                else {
+                    ++step;
+                } else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
                     strafeRightSlow();
@@ -723,8 +707,8 @@ public class AutonomousBlues extends ActiveOpMode {
                 }
                 break;
             case 26:
-                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener) legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener) legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -754,15 +738,14 @@ public class AutonomousBlues extends ActiveOpMode {
 
                         ++step;
                     }
-                }
-                else {
+                } else {
                     turnRight(0.133f, true);
                 }
 
                 break;
             case 27:
-                isVisible = ((VuforiaTrackableDefaultListener)legos.getListener()).isVisible();
-                robotLocationTransform = ((VuforiaTrackableDefaultListener)legos.getListener()).getUpdatedRobotLocation();
+                isVisible = ((VuforiaTrackableDefaultListener) legos.getListener()).isVisible();
+                robotLocationTransform = ((VuforiaTrackableDefaultListener) legos.getListener()).getUpdatedRobotLocation();
                 getTelemetryUtil().addData("Target", "Looking for target.");
                 if (robotLocationTransform != null) {
                     lastKnownLocation = robotLocationTransform;
@@ -781,8 +764,7 @@ public class AutonomousBlues extends ActiveOpMode {
                         //yVector = 0.15f;
                         strafeLeftSlow();
                         //strafeLeft(0.5);
-                    }
-                    else {
+                    } else {
                         // This should get caught in clause below
                         //stopMoving();
                     }
@@ -792,14 +774,12 @@ public class AutonomousBlues extends ActiveOpMode {
 
                         if (getRuntime() > 22.8d) {
                             step = 19;
-                        }
-                        else {
-                            step=14;
+                        } else {
+                            step = 14;
                         }
                         //step=14;
                     }
-                }
-                else {
+                } else {
                     getTelemetryUtil().addData("Location:", "unknown");
                     //stopMoving();
                     strafeRightSlow();
@@ -820,68 +800,73 @@ public class AutonomousBlues extends ActiveOpMode {
         getTelemetryUtil().addData("runtime: ", "" + getRuntime());
         getTelemetryUtil().sendTelemetry();
     }
-    public void forward (double power){
+
+    public void forward(double power) {
         frontRight.setPower(power);
         frontLeft.setPower(power);
         backRight.setPower(power);
         backLeft.setPower(power);
     }
 
-    public void turnLeft (double power, boolean turnOnSpot){
+    public void turnLeft(double power, boolean turnOnSpot) {
         frontRight.setPower(power);
         backRight.setPower(power);
-        if (turnOnSpot){
+        if (turnOnSpot) {
             backLeft.setPower(-power);
             frontLeft.setPower(-power);
         }
     }
 
-    public void turnRight (double power, boolean turnOnSpot){
+    public void turnRight(double power, boolean turnOnSpot) {
         frontLeft.setPower(power);
         backLeft.setPower(power);
-        if (turnOnSpot){
+        if (turnOnSpot) {
             backRight.setPower(-power);
             frontRight.setPower(-power);
         }
     }
-    public void strafeLeft (double power) {
 
-        frontRight.setPower(0.8*power);
-        backRight.setPower(0.9*-power);
-        frontLeft.setPower(1.0*-power);
-        backLeft.setPower(0.725*power);
+    public void strafeLeft(double power) {
+
+        frontRight.setPower(0.8 * power);
+        backRight.setPower(0.9 * -power);
+        frontLeft.setPower(1.0 * -power);
+        backLeft.setPower(0.725 * power);
     }
-    public void strafeRight (double power) {
+
+    public void strafeRight(double power) {
 
 //        frontRight.setPower(0.65*(-power));
 //        backRight.setPower(0.8*power);
 //        frontLeft.setPower(1.0*power);
 //        backLeft.setPower(0.75*(-power));
-        frontRight.setPower(0.65*(-power));
-        backRight.setPower(1.0*power);
-        frontLeft.setPower(1.0*power);
-        backLeft.setPower(0.8*(-power));
+        frontRight.setPower(0.65 * (-power));
+        backRight.setPower(1.0 * power);
+        frontLeft.setPower(1.0 * power);
+        backLeft.setPower(0.8 * (-power));
     }
+
     public void strafeLeftSlow() {
         //double pow = .65;
         double pow = .9;
 
-        frontRight.setPower(0.475*pow);
-        backRight.setPower(-0.5*pow);
-        frontLeft.setPower(-0.45*pow);
-        backLeft.setPower(0.45*pow);
+        frontRight.setPower(0.475 * pow);
+        backRight.setPower(-0.5 * pow);
+        frontLeft.setPower(-0.45 * pow);
+        backLeft.setPower(0.45 * pow);
     }
+
     public void strafeRightSlow() {
         //double pow = .65;
         double pow = .9;
 
-        frontRight.setPower(-0.425*pow);
-        backRight.setPower(0.5*pow);
-        frontLeft.setPower(0.5*pow);
-        backLeft.setPower(-0.5*pow);
+        frontRight.setPower(-0.425 * pow);
+        backRight.setPower(0.5 * pow);
+        frontLeft.setPower(0.5 * pow);
+        backLeft.setPower(-0.5 * pow);
     }
 
-    public void stopMoving(){
+    public void stopMoving() {
         frontLeft.setPower(0.0d);
         frontRight.setPower(0.0d);
         backLeft.setPower(0.0d);
