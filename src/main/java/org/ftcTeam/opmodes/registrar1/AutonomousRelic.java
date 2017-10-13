@@ -1,8 +1,10 @@
 package org.ftcTeam.opmodes.registrar1;
 
+import android.hardware.camera2.CameraDevice;
 import android.util.Base64;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.vuforia.Image;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -66,13 +68,17 @@ public class AutonomousRelic extends ActiveOpMode {
         relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark"); //load the sample image to figure out
         relicTrackables.activate(); //activate it
         relicTemplate = relicTrackables.get(0); //fetch the first image
+        vuforia.setFrameQueueCapacity(1);
+        hardwareMap.appContext.getResources();
     }
 
     @Override
     protected void activeLoop() throws InterruptedException {
         long millis1 = System.currentTimeMillis();
         RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+        getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
         if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+            Image img =  vuforia.getFrameQueue().take().getImage(0); //format 8888
             getTelemetryUtil().addData("Target", vuMark.name());
             getTelemetryUtil().addData("Elapsed time", System.currentTimeMillis()-millis1 + "ms");
         }
