@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.ftcbootstrap.ActiveOpMode;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 
 @Autonomous
@@ -46,7 +47,11 @@ public class AutonomousRelic extends ActiveOpMode {
     private VuforiaLocalizer.Parameters parameters;
     private VuforiaLocalizer vuforia;
     private VuforiaTrackables ftc2017Trackables;
-
+    private ByteBuffer imgBuffer;
+    private int byte1;
+    private int byte2;
+    private int byte3;
+    private int byte0;
     private static String convert(byte[] thing) {
         try {
             return new String(thing, "US-ASCII");
@@ -69,19 +74,43 @@ public class AutonomousRelic extends ActiveOpMode {
         relicTrackables.activate(); //activate it
         relicTemplate = relicTrackables.get(0); //fetch the first image
         vuforia.setFrameQueueCapacity(1);
-        hardwareMap.appContext.getResources();
     }
 
     @Override
     protected void activeLoop() throws InterruptedException {
-        long millis1 = System.currentTimeMillis();
-        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-        getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
-        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-            Image img =  vuforia.getFrameQueue().take().getImage(0); //format 8888
-            getTelemetryUtil().addData("Target", vuMark.name());
-            getTelemetryUtil().addData("Elapsed time", System.currentTimeMillis()-millis1 + "ms");
+        try {
+            long millis1 = System.currentTimeMillis();
+            RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+            //getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
+            if (imgBuffer == null) {
+                imgBuffer = vuforia.getFrameQueue().take().getImage(0).getPixels().duplicate();
+                vuforia.setFrameQueueCapacity(0);
+            }
+            while (imgBuffer.position() < imgBuffer.limit()) {
+                byte0 = imgBuffer.get() & 0xFF;
+                byte1 = imgBuffer.get() & 0xFF;
+                byte2 = imgBuffer.get() & 0xFF;
+                byte3 = imgBuffer.get() & 0xFF;
+                getTelemetryUtil().addData("Size", "" + imgBuffer.limit()); //bitmask
+                getTelemetryUtil().addData("Position", "" + imgBuffer.position());
+                getTelemetryUtil().addData("[0]", "" + byte0);
+                getTelemetryUtil().addData("[1]", "" + byte1);
+                getTelemetryUtil().addData("[2]", "" + byte2);
+                getTelemetryUtil().addData("[3]", "" + byte3);
+                getTelemetryUtil().sendTelemetry();
+            }
+            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+                // Image img =  vuforia.getFrameQueue().take().getImage(0); //format 8888
+                getTelemetryUtil().addData("Target", vuMark.name());
+                getTelemetryUtil().addData("Elapsed time", System.currentTimeMillis() - millis1 + "ms");
+                //getTelemetryUtil().addData("Dimensions", img.getHeight() + "h " + img.getWidth() + "w");
+            }
         }
-        getTelemetryUtil().sendTelemetry();
+        catch (Throwable t) {
+            getTelemetryUtil().addData("Throwable: ", t.getMessage());
+        }
+        finally {
+            getTelemetryUtil().sendTelemetry();
+        }
     }
 }
