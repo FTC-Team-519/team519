@@ -17,6 +17,7 @@ import org.ftcbootstrap.ActiveOpMode;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 
 @Autonomous
@@ -75,7 +76,99 @@ public class AutonomousRelic extends ActiveOpMode {
         relicTemplate = relicTrackables.get(0); //fetch the first image
         vuforia.setFrameQueueCapacity(1);
     }
+    /*
+    private ArrayList<Double> RGBtoHSV(int r, int g, int b) {
+        ArrayList<Double> vals = new ArrayList<Double>();
+        double red = r / 255.0;
+        double green = g / 255.0;
+        double blue = b / 255.0;
+        double cmax= Math.max(Math.max(red, green), blue);
+        double cmin= Math.min(Math.min(red, green), blue);
+        double luminance = (cmax+cmin)/2;
+        double hue;
+        double saturation;
 
+        if (cmax == cmin) {
+            hue = 0;
+            saturation = 0;
+        } else {
+            double delta = cmax-cmin;
+            if (luminance < 0.5) {
+                saturation = delta / (cmax + cmin);
+            } else {
+                saturation = delta / (2 - cmax - cmin);
+            }
+            if (red == cmax) {
+                hue = (green - blue) / delta;
+            } else if (green == cmax) {
+                hue = 2 + (blue - red) / delta;
+            } else {
+                hue = 4 + (red - green) / delta;
+            }
+            hue /= 6;
+            if (hue < 0) {
+                hue += 1;
+            } else if (hue > 1) {
+                hue -= 1;
+            }
+        }
+        vals.add(hue);
+        vals.add(luminance);
+        vals.add(saturation);
+        return vals;
+    }*/
+
+    public void RGBToHSL(int r, int g, int b, float[] hsl) {
+        final float rf = r / 255f;
+        final float gf = g / 255f;
+        final float bf = b / 255f;
+
+        final float max = Math.max(rf, Math.max(gf, bf));
+        final float min = Math.min(rf, Math.min(gf, bf));
+        final float deltaMaxMin = max - min;
+
+        float h, s;
+        float l = (max + min) / 2f;
+
+        if (max == min) {
+            // Monochromatic
+            h = s = 0f;
+        } else {
+            if (max == rf) {
+                h = ((gf - bf) / deltaMaxMin) % 6f;
+            } else if (max == gf) {
+                h = ((bf - rf) / deltaMaxMin) + 2f;
+            } else {
+                h = ((rf - gf) / deltaMaxMin) + 4f;
+            }
+
+            s = deltaMaxMin / (1f - Math.abs(2f * l - 1f));
+        }
+
+        hsl[0] = (h * 60f) % 360f;
+        hsl[1] = s;
+        hsl[2] = l;
+    }
+
+    private String getColor(double hue, double lum, double sat) {
+        String ret = "Unknown";
+        if (hue >= 320 || hue <= 10) {
+            if (lum >= 20 && lum <= 70) {
+                if (sat >= 40) {
+                    ret = "Red";
+                }
+            }
+        }
+        if (hue >= 220 && hue <= 245) {
+            if (lum >= 20 && lum <= 70) {
+                if (sat >= 40) {
+                    ret = "Blue";
+                }
+            }
+        }
+        return ret;
+    }
+    boolean done = false;
     @Override
     protected void activeLoop() throws InterruptedException {
         try {
@@ -91,12 +184,30 @@ public class AutonomousRelic extends ActiveOpMode {
                 byte1 = imgBuffer.get() & 0xFF;
                 byte2 = imgBuffer.get() & 0xFF;
                 byte3 = imgBuffer.get() & 0xFF;
-                getTelemetryUtil().addData("Size", "" + imgBuffer.limit()); //bitmask
-                getTelemetryUtil().addData("Position", "" + imgBuffer.position());
-                getTelemetryUtil().addData("[0]", "" + byte0);
-                getTelemetryUtil().addData("[1]", "" + byte1);
-                getTelemetryUtil().addData("[2]", "" + byte2);
-                getTelemetryUtil().addData("[3]", "" + byte3);
+
+              //  getTelemetryUtil().addData("Size", "" + imgBuffer.limit()); //bitmask
+                //getTelemetryUtil().addData("Position", "" + imgBuffer.position());
+                /*getTelemetryUtil().addData("[0] Alpha", "" + byte0);
+                getTelemetryUtil().addData("[1] Red", "" + byte1);
+                getTelemetryUtil().addData("[2] Green", "" + byte2);
+                getTelemetryUtil().addData("[3] Blue", "" + byte3);*/
+                float[] hsl = new float[3];
+                RGBToHSL(byte1, byte2, byte3, hsl);
+                /*if (done == false) {
+                    done = true;
+                    getTelemetryUtil().addData("Data", "H" + HSV.get(0) + " L" + HSV.get(1) + " S" + HSV.get(2));
+                }*/
+                if (hsl[0] < 0) {
+                    getTelemetryUtil().addData("ALERT < 0", "Hue val was " + hsl[0] + " from the vanilla byte " + byte1);
+                }
+                getTelemetryUtil().addData("Data", "Hue " + hsl[0] + " Saturation " + hsl[1]*100 + " Luminance " + hsl[2]*100);
+                String ye = getColor(hsl[0], hsl[1]*100, hsl[2]*100);
+                if (ye.equalsIgnoreCase("red")) {
+                    getTelemetryUtil().addData("Found1", ye);
+                }
+                if (ye.equalsIgnoreCase("blue")) {
+                    getTelemetryUtil().addData("Found2", ye);
+                }
                 getTelemetryUtil().sendTelemetry();
             }
             if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
