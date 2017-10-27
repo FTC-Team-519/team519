@@ -11,9 +11,9 @@ import org.ftcbootstrap.ActiveOpMode;
 /**
  * Created by NovaLabs Robotics on 10/24/2017.
  */
+@TeleOp
+public class FRRTeleop extends ActiveOpMode {
 
-public class FRRTeleop {
-    @TeleOp
         private DcMotor shooter;
         private DcMotor frontLeft;
         private DcMotor frontRight;
@@ -22,13 +22,12 @@ public class FRRTeleop {
         private DcMotor midCollector;
         private DcMotor frontCollector;
         private DcMotor topCollector;
+        private DcMotor lift;
         private ColorSensor color;
         private OpticalDistanceSensor ods;
         private float x;
         private float y;
         private float z;
-
-        private int sillyCounter = 0;
 
         private double[] motorPowers = new double[4];
         private static final int FRONT_LEFT  = 0;
@@ -36,16 +35,27 @@ public class FRRTeleop {
         private static final int BACK_LEFT   = 2;
         private static final int BACK_RIGHT  = 3;
 
+    @Override
+    protected void onInit() {
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setPower(0.0);
+    }
+
     protected void activeLoop() throws InterruptedException {
+
         Gamepad driver = gamepad1;
         Gamepad gunner = gamepad2;
 
-        updateJoyStickValues();
+        //updateJoyStickValues();
 
-        if (driver.y) {
+
+        boolean flipped = false;
+
+        if (driver.y) {//drive foward; front is lift
             flipped = false;
         }
-        else if (driver.a) {
+        else if (driver.a) {//drive backward; back is lift, front is relic grabber
             flipped = true;
         }
 
@@ -76,11 +86,40 @@ public class FRRTeleop {
         motorPowers[FRONT_LEFT] = 1.25*(pwr + x + z);
         motorPowers[BACK_RIGHT] = 1.25*(pwr + x - z);
         motorPowers[BACK_LEFT] = pwr - x + z;
-        normalizeCombinedPowers(motorPowers);
+        //normalizeCombinedPowers(motorPowers);
 
-        frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
-        frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
-        backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
-        backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+        //frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+        //frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+        //backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+        //backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+        int position = 0;//position 0 means lowest point, before block is picked up
+                         //position 1 is height to put the bottom block on top of the first block, etc.
+        if (gunner.a) //lowest height/ground height; press a to put lift at position 0
+                      //target positions need to be tested!!!
+        {
+            lift.setPower(.15);
+            lift.setTargetPosition(10);
+        }
+
+        if (gunner.b) //second lowest height
+        {
+
+            lift.setPower(.15);
+            lift.setTargetPosition(20);
+        }
+        if (gunner.y) //third lowest height
+        {
+
+            lift.setPower(.15);
+            lift.setTargetPosition(30);
+        }
+        if (gunner.x) //highest height
+        {
+
+            lift.setPower(.15);
+            lift.setTargetPosition(40);}
+    }
+
+
 
     }
