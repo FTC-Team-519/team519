@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.ftcbootstrap.ActiveOpMode;
 
@@ -23,6 +24,9 @@ public class FRRTeleop extends ActiveOpMode {
         private DcMotor frontCollector;
         private DcMotor topCollector;
         private DcMotor lift;
+        private Servo servoLeft;
+        private Servo servoRight;
+        private boolean grabberClosed;
         private ColorSensor color;
         private OpticalDistanceSensor ods;
         private float x;
@@ -117,7 +121,29 @@ public class FRRTeleop extends ActiveOpMode {
         {
 
             lift.setPower(.15);
-            lift.setTargetPosition(40);}
+            lift.setTargetPosition(40);
+        }
+        if (gunner.right_bumper)
+        {
+            if (!grabberClosed) {
+                //servoLeft.setPower(.15);
+                servoLeft.setPosition(.5);
+                //servoRight.setPower(.15);
+                servoRight.setPosition(.5);
+                grabberClosed = true;
+            } else {
+                //servoLeft.setPower(.15);
+                servoLeft.setPosition(0.25);
+                //servoRight.setPower(.15);
+                servoRight.setPosition(0.75);
+                grabberClosed = false;
+            }
+        }
+
+
+
+
+
     }
 
 
