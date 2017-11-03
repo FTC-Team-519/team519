@@ -15,20 +15,21 @@ import org.ftcbootstrap.ActiveOpMode;
 @TeleOp
 public class FRRTeleop extends ActiveOpMode {
 
-        private DcMotor shooter;
         private DcMotor frontLeft;
         private DcMotor frontRight;
         private DcMotor backLeft;
         private DcMotor backRight;
-        private DcMotor midCollector;
-        private DcMotor frontCollector;
-        private DcMotor topCollector;
         private DcMotor lift;
         private Servo servoLeft;
-        private Servo servoRight;
-        private boolean grabberClosed;
+        private Servo servoRight; //clampLeft, clampRight, shoulder, elbow
+        private Servo clampLeft;
+        private Servo clampRight;
+        private Servo shoulder;
+        private Servo elbow;
+        private boolean grabberClosed = true;
         private ColorSensor color;
         private OpticalDistanceSensor ods;
+
         private float x;
         private float y;
         private float z;
@@ -41,6 +42,18 @@ public class FRRTeleop extends ActiveOpMode {
 
     @Override
     protected void onInit() {
+        frontLeft = hardwareMap.dcMotor.get("frontLeft");
+        frontRight = hardwareMap.dcMotor.get("frontRight");
+        backLeft = hardwareMap.dcMotor.get("backLeft");
+        backRight = hardwareMap.dcMotor.get("backRight");
+      //  servoLeft = hardwareMap.servo.get("servoLeft");
+       // servoRight = hardwareMap.servo.get("servoRight");
+        clampLeft = hardwareMap.servo.get("clampLeft");
+        clampRight = hardwareMap.servo.get("clampRight");
+        shoulder = hardwareMap.servo.get("shoulder");
+        elbow = hardwareMap.servo.get("elbow");
+
+        lift = hardwareMap.dcMotor.get("lift");
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.setPower(0.0);
@@ -101,15 +114,15 @@ public class FRRTeleop extends ActiveOpMode {
         if (gunner.a) //lowest height/ground height; press a to put lift at position 0
                       //target positions need to be tested!!!
         {
-            lift.setPower(.15);
-            lift.setTargetPosition(10);
+            lift.setPower(.35);
+            lift.setTargetPosition(0);
         }
 
         if (gunner.b) //second lowest height
         {
 
-            lift.setPower(.15);
-            lift.setTargetPosition(20);
+            lift.setPower(.35);
+            lift.setTargetPosition(60);
         }
         if (gunner.y) //third lowest height
         {
@@ -127,15 +140,15 @@ public class FRRTeleop extends ActiveOpMode {
         {
             if (!grabberClosed) {
                 //servoLeft.setPower(.15);
-                servoLeft.setPosition(.5);
+                clampLeft.setPosition(.5);
                 //servoRight.setPower(.15);
-                servoRight.setPosition(.5);
+                clampRight.setPosition(.5);
                 grabberClosed = true;
             } else {
                 //servoLeft.setPower(.15);
-                servoLeft.setPosition(0.25);
+                clampLeft.setPosition(0.25);
                 //servoRight.setPower(.15);
-                servoRight.setPosition(0.75);
+                clampRight.setPosition(0.75);
                 grabberClosed = false;
             }
         }
