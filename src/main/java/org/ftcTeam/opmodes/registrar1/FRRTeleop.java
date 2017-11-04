@@ -3,6 +3,7 @@ package org.ftcTeam.opmodes.registrar1;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -34,6 +35,11 @@ public class FRRTeleop extends ActiveOpMode {
         private float y;
         private float z;
 
+        private static float gY;
+
+        private static final float DEAD_ZONE = 0.2f;
+        private static final double MAX_SPEED = 1.0d;
+
         private double[] motorPowers = new double[4];
         private static final int FRONT_LEFT  = 0;
         private static final int FRONT_RIGHT = 1;
@@ -46,16 +52,19 @@ public class FRRTeleop extends ActiveOpMode {
         frontRight = hardwareMap.dcMotor.get("frontRight");
         backLeft = hardwareMap.dcMotor.get("backLeft");
         backRight = hardwareMap.dcMotor.get("backRight");
-      //  servoLeft = hardwareMap.servo.get("servoLeft");
-       // servoRight = hardwareMap.servo.get("servoRight");
+
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
         clampLeft = hardwareMap.servo.get("clampLeft");
         clampRight = hardwareMap.servo.get("clampRight");
         shoulder = hardwareMap.servo.get("shoulder");
         elbow = hardwareMap.servo.get("elbow");
 
         lift = hardwareMap.dcMotor.get("lift");
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setPower(0.0);
     }
 
@@ -63,9 +72,7 @@ public class FRRTeleop extends ActiveOpMode {
 
         Gamepad driver = gamepad1;
         Gamepad gunner = gamepad2;
-
-        //updateJoyStickValues();
-
+        updateJoyStickValues();
 
         boolean flipped = false;
 
@@ -103,26 +110,39 @@ public class FRRTeleop extends ActiveOpMode {
         motorPowers[FRONT_LEFT] = 1.25*(pwr + x + z);
         motorPowers[BACK_RIGHT] = 1.25*(pwr + x - z);
         motorPowers[BACK_LEFT] = pwr - x + z;
-        //normalizeCombinedPowers(motorPowers);
+        normalizeCombinedPowers(motorPowers);
 
-        //frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
-        //frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
-        //backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
-        //backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+        frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+        frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+        backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+        backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+
         int position = 0;//position 0 means lowest point, before block is picked up
                          //position 1 is height to put the bottom block on top of the first block, etc.
-        if (gunner.a) //lowest height/ground height; press a to put lift at position 0
+        lift.setPower(alterLiftPower());
+
+        /*if (gunner.a) //lowest height/ground height; press a to put lift at position 0
                       //target positions need to be tested!!!
+
         {
-            lift.setPower(.35);
+            lift.setPower(.2);
             lift.setTargetPosition(0);
+            position = 0;
         }
 
         if (gunner.b) //second lowest height
         {
+            if (position > 1) {
 
-            lift.setPower(.35);
-            lift.setTargetPosition(60);
+                lift.setPower(.20);
+                lift.setTargetPosition(60);
+            }
+            else {
+
+                lift.setPower(.8);
+                lift.setTargetPosition(60);
+            }
+            position = 1;
         }
         if (gunner.y) //third lowest height
         {
@@ -135,7 +155,7 @@ public class FRRTeleop extends ActiveOpMode {
 
             lift.setPower(.15);
             lift.setTargetPosition(40);
-        }
+        }*/
         if (gunner.right_bumper)
         {
             if (!grabberClosed) {
@@ -159,6 +179,99 @@ public class FRRTeleop extends ActiveOpMode {
 
     }
 
+    private static double reducePower(double input) {
+        // return input;   // If no reduction desired
+        return input * MAX_SPEED;
+    }
 
+    /**
+     * Re-reads joystick values and assigns the state variables used for other computations.
+     */
+    private void updateJoyStickValues() {
+        y = gamepad1.left_stick_y;
+        x = gamepad1.left_stick_x;
+        z = gamepad1.right_stick_x;
+
+        gY = gamepad2.left_stick_y;
+       // gY = adjustForDeadZone(gY);
+       // gY = shapeInput(gY);
+        // NOTE: Check for deadzone before any shaping
+        y = adjustForDeadZone(y);
+        x = adjustForDeadZone(x);
+        z = adjustForDeadZone(z);
+
+        y = shapeInput(y);
+        x = shapeInput(x);
+        z = shapeInput(z);
+    }
+
+    /**
+     * Returns 0.0 if within the deadzone range, otherwise the original value.
+     *
+     * @param input value to check.
+     * @return 0.0 if within the deadzone range, otherwise the original value.
+     */
+    private static float adjustForDeadZone(float input) {
+        float adjustedValue = input;
+
+        if (Math.abs(input) < DEAD_ZONE) {
+            adjustedValue = 0.0f;
+        }
+
+        return adjustedValue;
+    }
+
+    /**
+     * Returns the input value shaped by squaring and preserving sign.
+     *
+     * REVISIT: This is where using a more custom curve could be done instead.
+     *
+     * @param input value to shape.
+     * @return the input value shaped by squaring and preserving sign.
+     */
+    private static float shapeInput(float input) {
+        float shapedValue = 0.0f;
+        if (input != 0.0f) {
+            if (input < 0.0f) {
+                shapedValue = input * -input;
+            }
+            else {
+                shapedValue = input * input;
+            }
+        }
+
+        return shapedValue;
+
+        // return input * (input < 0.0f ? -input : input);
+    }
+
+
+    private static void normalizeCombinedPowers(double[] motorPowers) {
+        double maxAbsPower = 0.0d;
+
+        for (double motorPower : motorPowers) {
+            double tmpAbsPower = Math.abs(motorPower);
+            if (tmpAbsPower > maxAbsPower) {
+                maxAbsPower = tmpAbsPower;
+            }
+        }
+
+        if (maxAbsPower > 1.0d) {
+            for (int i = 0; i < motorPowers.length; ++i) {
+                motorPowers[i] = motorPowers[i] / maxAbsPower;
+            }
+        }
+    }
+
+    private static float alterLiftPower() {
+        float ogY = -gY;
+
+        if (ogY<0) {
+            return ogY*.15f;
+        } else {
+            return ogY*.85f;
+        }
+
+    }
 
     }
