@@ -5,6 +5,9 @@ import android.hardware.camera2.CameraDevice;
 import android.util.Base64;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -15,12 +18,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-
 import org.ftcbootstrap.ActiveOpMode;
 
+import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 
 @Autonomous
@@ -45,17 +46,36 @@ public class AutonomousRelic extends ActiveOpMode {
     private static final byte[] MY_VALUE = Base64.decode(VALUE, Base64.NO_WRAP);
     private static final String KEY = convert(MY_VALUE);
 
+    // Assets
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
+    private DcMotor lift;
+    private Servo servoLeft;
+    private Servo servoRight; //clampLeft, clampRight, shoulder, elbow
+    private Servo clampLeft;
+    private Servo clampRight;
+    private Servo shoulder;
+    private Servo elbow;
+
+    private float desiredShoulder = 0.96f;
+    private float desiredElbow = 0.91f;
+    private static final float shoulderInc = .005f;
+    private static final float elbowInc = .002f;
     // Vuforia init
     private VuforiaTrackables relicTrackables;
     private VuforiaTrackable relicTemplate;
     private VuforiaLocalizer.Parameters parameters;
     private VuforiaLocalizer vuforia;
     private VuforiaTrackables ftc2017Trackables;
-    private ByteBuffer imgBuffer;
+  //  private ByteBuffer imgBuffer;
     private int byte1;
     private int byte2;
     private int byte3;
     private int byte0;
+
+    private int step = 0; // 0 = defualt
     private static String convert(byte[] thing) {
         try {
             return new String(thing, "US-ASCII");
@@ -81,6 +101,35 @@ public class AutonomousRelic extends ActiveOpMode {
     protected void onInit() {
         getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit."); //Show the init status
         getTelemetryUtil().sendTelemetry(); //Push update
+
+        frontLeft = hardwareMap.dcMotor.get("frontLeft");
+        frontRight = hardwareMap.dcMotor.get("frontRight");
+        backLeft = hardwareMap.dcMotor.get("backLeft");
+        backRight = hardwareMap.dcMotor.get("backRight");
+
+        SetDriveDirection(DriveDirection.Forwards);
+        /*frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);*/
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        clampLeft = hardwareMap.servo.get("clampLeft");
+        clampRight = hardwareMap.servo.get("clampRight");
+        shoulder = hardwareMap.servo.get("shoulder");
+        elbow = hardwareMap.servo.get("elbow");
+
+        lift = hardwareMap.dcMotor.get("lift");
+        //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lift.setPower(0.0);
+        shoulder.setPosition(desiredShoulder);
+        elbow.setPosition(desiredElbow);
+
+        SetGrabber(GrabberState.Open);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()); //camera id
         parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId); //init parameters
         parameters.vuforiaLicenseKey = KEY; //set license key
@@ -92,7 +141,16 @@ public class AutonomousRelic extends ActiveOpMode {
         vuforia.setFrameQueueCapacity(1);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
 
+        try {
+          //  Thread.sleep(3000);
+
+            //CheckImage(vuforia.getFrameQueue().take().getImage(0));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
     /*
     private ArrayList<Double> RGBtoHSV(int r, int g, int b) {
         ArrayList<Double> vals = new ArrayList<Double>();
@@ -241,40 +299,50 @@ public class AutonomousRelic extends ActiveOpMode {
         return ret;
     }
 
-    private void CheckImage(Image img) {
-        Bitmap bm = Bitmap.createBitmap(img.getWidth(),img.getHeight(),Bitmap.Config.RGB_565);
-        bm.copyPixelsFromBuffer(img.getPixels());
+    private void CheckImage(Image image) {
+        getTelemetryUtil().addData("TEst", "yeah"); // sendin 500 times...
+        getTelemetryUtil().sendTelemetry();
+        Bitmap bm = Bitmap.createBitmap(image.getWidth(),image.getHeight(),Bitmap.Config.RGB_565);
+        bm.copyPixelsFromBuffer(image.getPixels());
+
+       int[] pix = new int[image.getWidth() * image.getHeight()];
+        bm.getPixels(pix, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
+
         for (int y = 0; y < bm.getHeight(); y++){
             for (int x = 0; x < bm.getWidth(); x++){
-                int pix = bm.getPixel(x,y);
+               // int index = y * image.getWidth() + x;
+               // int red = (pix[index] >> 16) & 0xff;     //bitwise shifting
+                //int green = (pix[index] >> 8) & 0xff;
+                //int blue = pix[index] & 0xff;
+               /* int pix = bm.getPixel(x,y);
                 int red = Color.red(pix);
                 int green = Color.green(pix);
                 int blue = Color.blue(pix);
-
-                float[] hsv = new float[3];
-                Color.RGBToHSV(red,green,blue,hsv);
+                float[] hsv = new float[3];*/
+                //Color.RGBToHSV(red,green,blue,hsv);
                 //Color.colorToHSV(Color.rgb(red,green,blue), hsv);
               //  getTelemetryUtil().addData("Stats", hsv[0] + " | " + hsv[1] + " | " + hsv[2]);
-                if ((hsv[0] >= 0 && hsv[0] <= 10) || (hsv[0] >= 350)) {// h
+               /* if ((hsv[0] >= 0 && hsv[0] <= 10) || (hsv[0] >= 350)) {// h
                     if (hsv[1] >= .50) {//s
                         if (hsv[2] >= .70) {
                             getTelemetryUtil().addData("Red", "Yes. ");
                         }
                     }
-                }
+                }*/
                // double[] hsl = new double[3];
 
                 //RGBtoHSLEclipse(Color.red(pix),Color.green(pix),Color.blue(pix),hsl);
 
                 //getTelemetryUtil().addData("Sat Lum", hsl[1] + " | " + hsl[2]);
-               /* if (getColor(hsl[0], hsl[1], hsl[2]) != "Unknown") {
+                /*if (getColor(hsl[0], hsl[1], hsl[2]) != "Unknown") {
                    // getTelemetryUtil().addData("Color" + getColor(hsl[0], hsl[1], hsl[2]), "Found");
                 }*/
               //  getTelemetryUtil().addData("PixelDat", "Red " + red + " Green " + green + " Blue " + blue);
                 getTelemetryUtil().sendTelemetry();
             }
         } // gets the array of pixels.
-
+        getTelemetryUtil().addData("Done", "Finished search");
+        getTelemetryUtil().sendTelemetry();
         // convert to rgb888
 
 
@@ -283,12 +351,58 @@ public class AutonomousRelic extends ActiveOpMode {
     private boolean doThing = true;
     @Override
     protected void activeLoop() throws InterruptedException {
-        try {
+
+        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+
+
+        //if (vuMark == RelicRecoveryVuMark.UNKNOWN) { throw new InterruptedException("Couldn't find vumark"); }
+
+
+        switch(step) {
+            case 0: // right red routine, (right of cryptobox)
+                // knock off jewel
+                SetGrabber(GrabberState.Closed);
+                //if (getTimer().targetReached(.25d)) {
+                  //  getTelemetryUtil().addData("Finished the first target", "Yes");
+                    lift.setPower(.45);
+                //}
+                shoulder.setPosition(0.51);
+                elbow.setPosition(0.16);
+                if (getTimer().targetReached(2.0d)) {
+                    getTelemetryUtil().addData("Finished the target", "Yes");
+                    elbow.setPosition(desiredElbow);
+                    shoulder.setPosition(desiredShoulder);
+                    step++;
+                }
+                break;
+            case 1:
+                step++;
+                break;
+            case 2:
+                //SetDriveDirection(DriveDirection.Backwards);
+                forward(.15d);
+                if (getTimer().targetReached(3.0d)) {
+                    step++;
+                    stopMoving();
+                }
+
+                break;
+            case 3:
+                step++;
+                turnLeft(.8, true);
+                if (getTimer().targetReached(2.0d)) {
+                    stopMoving();
+                }
+                break;
+
+        }
+        /*try {
             long millis1 = System.currentTimeMillis();
             RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-            if (doThing) {
-                doThing = false;
-                CheckImage(getImageFromFrame(vuforia.getFrameQueue().take(), PIXEL_FORMAT.RGB565));
+            if (doThing == true) {
+                doThing = false;*/
+               // Thread.sleep(5000);
+
             }
             //getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
          /*   if (imgBuffer == null) {
@@ -329,7 +443,7 @@ public class AutonomousRelic extends ActiveOpMode {
                     getTelemetryUtil().addData("Found2", ye);
                 }
                 getTelemetryUtil().sendTelemetry();
-            }*/
+            }*//*
             if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
                 // Image img =  vuforia.getFrameQueue().take().getImage(0); //format 8888
                 getTelemetryUtil().addData("Target", vuMark.name());
@@ -337,11 +451,122 @@ public class AutonomousRelic extends ActiveOpMode {
                 //getTelemetryUtil().addData("Dimensions", img.getHeight() + "h " + img.getWidth() + "w");
             }
         }
+/*
+        getTelemetryUtil().addData("Step ", "" + step);
+
+        switch(step) {
+        case 1: {
+
+
+        }
         catch (Throwable t) {
             getTelemetryUtil().addData("Throwable: ", t.getMessage());
         }
         finally {
             getTelemetryUtil().sendTelemetry();
+        }*/
+
+    public enum DriveDirection {
+        Forwards, Backwards
+    }
+
+    public enum GrabberState {
+        Closed, Open
+    }
+    public void SetGrabber(GrabberState state) {
+        if (state == GrabberState.Open) {
+            clampLeft.setPosition(0.70);
+            clampRight.setPosition(0.30);
+        } else {
+            clampLeft.setPosition(0.4);
+            clampRight.setPosition(0.6);
         }
     }
-}
+    public void SetDriveDirection(DriveDirection direction) {
+        if (direction == DriveDirection.Forwards) {
+            // default
+            frontRight.setDirection(DcMotor.Direction.REVERSE);
+            backRight.setDirection(DcMotor.Direction.REVERSE);
+            frontLeft.setDirection(DcMotor.Direction.FORWARD);
+            backLeft.setDirection(DcMotor.Direction.FORWARD);
+        } else if (direction == DriveDirection.Backwards) {
+            frontRight.setDirection(DcMotor.Direction.FORWARD);
+            backRight.setDirection(DcMotor.Direction.FORWARD);
+            frontLeft.setDirection(DcMotor.Direction.REVERSE);
+            backLeft.setDirection(DcMotor.Direction.REVERSE);
+        }
+
+    }
+    public void forward(double power) {
+        frontRight.setPower(power);
+        frontLeft.setPower(power);
+        backRight.setPower(power);
+        backLeft.setPower(power);
+    }
+
+    public void turnLeft(double power, boolean turnOnSpot) {
+        frontRight.setPower(power);
+        backRight.setPower(power);
+        if (turnOnSpot) {
+            backLeft.setPower(-power);
+            frontLeft.setPower(-power);
+        }
+    }
+
+    public void turnRight(double power, boolean turnOnSpot) {
+        frontLeft.setPower(power);
+        backLeft.setPower(power);
+        if (turnOnSpot) {
+            backRight.setPower(-power);
+            frontRight.setPower(-power);
+        }
+    }
+
+    public void strafeLeft(double power) {
+
+        frontRight.setPower(0.8 * power);
+        backRight.setPower(0.9 * -power);
+        frontLeft.setPower(1.0 * -power);
+        backLeft.setPower(0.725 * power);
+    }
+
+    public void strafeRight(double power) {
+
+//        frontRight.setPower(0.65*(-power));
+//        backRight.setPower(0.8*power);
+//        frontLeft.setPower(1.0*power);
+//        backLeft.setPower(0.75*(-power));
+        frontRight.setPower(0.65 * (-power));
+        backRight.setPower(1.0 * power);
+        frontLeft.setPower(1.0 * power);
+        backLeft.setPower(0.8 * (-power));
+    }
+
+    public void strafeLeftSlow() {
+        //double pow = .65;
+        double pow = .9;
+
+        frontRight.setPower(0.475 * pow);
+        backRight.setPower(-0.5 * pow);
+        frontLeft.setPower(-0.45 * pow);
+        backLeft.setPower(0.45 * pow);
+    }
+
+    public void strafeRightSlow() {
+        //double pow = .65;
+        double pow = .9;
+
+        frontRight.setPower(-0.425 * pow);
+        backRight.setPower(0.5 * pow);
+        frontLeft.setPower(0.5 * pow);
+        backLeft.setPower(-0.5 * pow);
+    }
+
+    public void stopMoving() {
+        frontLeft.setPower(0.0d);
+        frontRight.setPower(0.0d);
+        backLeft.setPower(0.0d);
+        backRight.setPower(0.0d);
+    }
+    }
+

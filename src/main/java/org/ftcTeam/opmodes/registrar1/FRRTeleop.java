@@ -37,14 +37,30 @@ public class FRRTeleop extends ActiveOpMode {
 
         private static float gY;
 
+        public int position = 0;
+
         private static final float DEAD_ZONE = 0.2f;
-        private static final double MAX_SPEED = 1.0d;
+        private static final double MAX_SPEED = 0.8d;
 
         private double[] motorPowers = new double[4];
         private static final int FRONT_LEFT  = 0;
         private static final int FRONT_RIGHT = 1;
         private static final int BACK_LEFT   = 2;
         private static final int BACK_RIGHT  = 3;
+
+    // Lift Constants
+        private static float UP_POWER = 0.8f;
+        private static float DOWN_POWER = 0.2f;
+        private static int GROUND_HEIGHT = 0;
+        private static int ROW1_HEIGHT = 30;
+        private static int ROW2_HEIGHT = 60;
+        private static int ROW3_HEIGHT = 90;
+        private static int MAX_HEIGHT = 120;
+
+        private float desiredShoulder = 0.96f;
+        private float desiredElbow = 0.91f;
+        private static final float shoulderInc = .005f;
+        private static final float elbowInc = .002f;
 
     @Override
     protected void onInit() {
@@ -56,6 +72,11 @@ public class FRRTeleop extends ActiveOpMode {
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         clampLeft = hardwareMap.servo.get("clampLeft");
         clampRight = hardwareMap.servo.get("clampRight");
         shoulder = hardwareMap.servo.get("shoulder");
@@ -64,8 +85,12 @@ public class FRRTeleop extends ActiveOpMode {
         lift = hardwareMap.dcMotor.get("lift");
         //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setPower(0.0);
+
+        shoulder.setPosition(desiredShoulder);
+        elbow.setPosition(desiredElbow);
     }
 
     protected void activeLoop() throws InterruptedException {
@@ -103,6 +128,29 @@ public class FRRTeleop extends ActiveOpMode {
             y = 0;
         }
 
+        if (driver.right_bumper) {
+            desiredShoulder += shoulderInc;
+            shoulder.setPosition(desiredShoulder);
+        }
+
+        if (driver.left_bumper) {
+            desiredShoulder -= shoulderInc;
+            shoulder.setPosition(desiredShoulder);
+        }
+
+        if (driver.right_trigger > 0.05) {
+            desiredElbow += elbowInc;
+            elbow.setPosition(desiredElbow);
+        }
+
+        if (driver.left_trigger > 0.05) {
+            desiredElbow -= elbowInc;
+            elbow.setPosition(desiredElbow);
+        }
+
+        getTelemetryUtil().addData("Shoulder angle: ", desiredShoulder);
+        getTelemetryUtil().addData("Elbow angle: ", desiredElbow);
+
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
         double pwr = -y;
 
@@ -117,66 +165,69 @@ public class FRRTeleop extends ActiveOpMode {
         backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
         backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
 
-        int position = 0;//position 0 means lowest point, before block is picked up
+
+
+                         //position 0 means lowest point, before block is picked up
                          //position 1 is height to put the bottom block on top of the first block, etc.
         lift.setPower(alterLiftPower());
 
-        /*if (gunner.a) //lowest height/ground height; press a to put lift at position 0
-                      //target positions need to be tested!!!
 
+        if (gunner.a) //lowest height/ground height; press 'A' to put lift at position 0
+                      //target positions need to be tested!!!
         {
-            lift.setPower(.2);
+            lift.setPower(DOWN_POWER);
             lift.setTargetPosition(0);
             position = 0;
         }
 
-        if (gunner.b) //second lowest height
+        if (gunner.b) //second to lowest height, Row 1
         {
-            if (position > 1) {
+            if (position > 1) { // Above target height, move down
 
-                lift.setPower(.20);
-                lift.setTargetPosition(60);
+                lift.setPower(DOWN_POWER);
+                lift.setTargetPosition(ROW1_HEIGHT);
             }
-            else {
+            else { // Below target height, move up
 
-                lift.setPower(.8);
-                lift.setTargetPosition(60);
+                lift.setPower(UP_POWER);
+                lift.setTargetPosition(ROW1_HEIGHT);
             }
             position = 1;
         }
-        if (gunner.y) //third lowest height
+        if (gunner.y) //Row 2 height
         {
 
-            lift.setPower(.15);
-            lift.setTargetPosition(30);
+            lift.setPower(UP_POWER);
+            lift.setTargetPosition(ROW2_HEIGHT);
         }
         if (gunner.x) //highest height
         {
 
-            lift.setPower(.15);
-            lift.setTargetPosition(40);
-        }*/
+            lift.setPower(UP_POWER);
+            lift.setTargetPosition(ROW3_HEIGHT);
+        }
         if (gunner.right_bumper)
         {
             if (!grabberClosed) {
                 //servoLeft.setPower(.15);
-                clampLeft.setPosition(.5);
+                clampLeft.setPosition(.4);
                 //servoRight.setPower(.15);
-                clampRight.setPosition(.5);
-                grabberClosed = true;
+                clampRight.setPosition(.6);
+                if(getTimer().targetReached(.25))
+                    grabberClosed = true;
             } else {
                 //servoLeft.setPower(.15);
-                clampLeft.setPosition(0.25);
+                clampLeft.setPosition(0.70);
+                //clampLeft.setPosition(0.75);
                 //servoRight.setPower(.15);
-                clampRight.setPosition(0.75);
-                grabberClosed = false;
+                clampRight.setPosition(0.30);
+                //clampRight.setPosition(0.25);
+                if(getTimer().targetReached(.25))
+                    grabberClosed = false;
             }
         }
 
-
-
-
-
+        getTelemetryUtil().sendTelemetry();
     }
 
     private static double reducePower(double input) {
@@ -233,10 +284,12 @@ public class FRRTeleop extends ActiveOpMode {
         float shapedValue = 0.0f;
         if (input != 0.0f) {
             if (input < 0.0f) {
-                shapedValue = input * -input;
+                shapedValue = input * input * input;
+                //shapedValue = input * -input;
             }
             else {
-                shapedValue = input * input;
+                shapedValue = input * input * input;
+                //shapedValue = input * input;
             }
         }
 
