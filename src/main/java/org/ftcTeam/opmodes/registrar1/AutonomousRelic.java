@@ -300,7 +300,7 @@ public class AutonomousRelic extends ActiveOpMode {
     }
 
     private void CheckImage(Image image) {
-        getTelemetryUtil().addData("TEst", "yeah"); // sendin 500 times...
+        getTelemetryUtil().addData("TEst", "yeah"); // sending 500 times...
         getTelemetryUtil().sendTelemetry();
         Bitmap bm = Bitmap.createBitmap(image.getWidth(),image.getHeight(),Bitmap.Config.RGB_565);
         bm.copyPixelsFromBuffer(image.getPixels());
@@ -369,10 +369,13 @@ public class AutonomousRelic extends ActiveOpMode {
                 shoulder.setPosition(0.51);
                 elbow.setPosition(0.16);
                 if (getTimer().targetReached(2.0d)) {
-                    getTelemetryUtil().addData("Finished the target", "Yes");
+                    //getTelemetryUtil().addData("Finished the target", "Yes");
                     elbow.setPosition(desiredElbow);
                     shoulder.setPosition(desiredShoulder);
-                    step++;
+                    //if (getTimer().targetReached(1.5d)) {
+                        step++;
+                      //  getTelemetryUtil().addData("ok");
+                   // }
                 }
                 break;
             case 1:
@@ -381,16 +384,23 @@ public class AutonomousRelic extends ActiveOpMode {
             case 2:
                 //SetDriveDirection(DriveDirection.Backwards);
                 forward(.15d);
-                if (getTimer().targetReached(3.0d)) {
+                if (getTimer().targetReached(3.25d)) {
                     step++;
                     stopMoving();
                 }
 
                 break;
             case 3:
+                strafeRightSlow();
+                if (getTimer().targetReached(0.5d)) {
+                    stopMoving();
+                    step++;
+                }
+                break;
+            case 4:
                 step++;
-                turnLeft(.8, true);
-                if (getTimer().targetReached(2.0d)) {
+                turnLeft(.4, true);
+                if (getTimer().targetReached(1.0d)) {
                     stopMoving();
                 }
                 break;
