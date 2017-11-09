@@ -59,8 +59,8 @@ public class FRRTeleop extends ActiveOpMode {
 
         private float desiredShoulder = 0.96f;
         private float desiredElbow = 0.91f;
-        private static final float shoulderInc = .005f;
-        private static final float elbowInc = .002f;
+        private static final float shoulderInc = .0025f;
+        private static final float elbowInc = .001f;
 
     @Override
     protected void onInit() {

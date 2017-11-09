@@ -1,26 +1,21 @@
 package org.ftcTeam.opmodes.registrar1;
 
 import android.graphics.Bitmap;
-import android.hardware.camera2.CameraDevice;
 import android.util.Base64;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.vuforia.Image;
-import com.vuforia.PIXEL_FORMAT;
-import com.vuforia.Vuforia;
-import android.graphics.Color;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.ftcbootstrap.ActiveOpMode;
 
-import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
 
 
@@ -46,6 +41,10 @@ public class AutonomousRelic extends ActiveOpMode {
     private static final byte[] MY_VALUE = Base64.decode(VALUE, Base64.NO_WRAP);
     private static final String KEY = convert(MY_VALUE);
 
+    private static final double JEWEL_BASE_SHOULDER_POSITION = 0.51;
+    private static final double JEWEL_FIRST_ELBOW_POSITION = 0.16;
+    private static final double JEWEL_SECOND_ELBOW_POSITION = 0.23;
+
     // Assets
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -58,6 +57,8 @@ public class AutonomousRelic extends ActiveOpMode {
     private Servo clampRight;
     private Servo shoulder;
     private Servo elbow;
+
+    private ColorSensor color;
 
     private float desiredShoulder = 0.96f;
     private float desiredElbow = 0.91f;
@@ -75,7 +76,9 @@ public class AutonomousRelic extends ActiveOpMode {
     private int byte3;
     private int byte0;
 
-    private int step = 0; // 0 = defualt
+    private double desiredJewelElbowPosition;
+
+    private int step = 99; // 0 = defualt
     private static String convert(byte[] thing) {
         try {
             return new String(thing, "US-ASCII");
@@ -101,6 +104,8 @@ public class AutonomousRelic extends ActiveOpMode {
     protected void onInit() {
         getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit."); //Show the init status
         getTelemetryUtil().sendTelemetry(); //Push update
+
+        color = hardwareMap.colorSensor.get("color");
 
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareMap.dcMotor.get("frontRight");
@@ -129,7 +134,10 @@ public class AutonomousRelic extends ActiveOpMode {
         shoulder.setPosition(desiredShoulder);
         elbow.setPosition(desiredElbow);
 
-        SetGrabber(GrabberState.Open);
+        // NOTE: Will be eventually by the time start is executed
+        desiredJewelElbowPosition = desiredElbow;
+
+        //SetGrabber(GrabberState.Open);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()); //camera id
         parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId); //init parameters
         parameters.vuforiaLicenseKey = KEY; //set license key
@@ -138,8 +146,8 @@ public class AutonomousRelic extends ActiveOpMode {
         relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark"); //load the sample image to figure out
         relicTrackables.activate(); //activate it
         relicTemplate = relicTrackables.get(0); //fetch the first image
-        vuforia.setFrameQueueCapacity(1);
-        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+        //vuforia.setFrameQueueCapacity(1);
+        //Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
 
         try {
           //  Thread.sleep(3000);
@@ -404,8 +412,59 @@ public class AutonomousRelic extends ActiveOpMode {
                     stopMoving();
                 }
                 break;
+            case 99:
+                if (vuMark == RelicRecoveryVuMark.LEFT) {
+                    getTelemetryUtil().addData("Target", "LEFT");
+                } else if (vuMark == RelicRecoveryVuMark.CENTER) {
+                    getTelemetryUtil().addData("Target", "LEFT");
+                } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
+                    getTelemetryUtil().addData("Target", "RIGHT");
+                } else {
+                    getTelemetryUtil().addData("Target", "UNSEEN :-(");
+                }
 
+                ++step;
+                break;
+            case 100:
+                shoulder.setPosition(JEWEL_BASE_SHOULDER_POSITION);
+                ++step;
+                break;
+            case 101:
+                double shoulderPosition = shoulder.getPosition();
+                getTelemetryUtil().addData("Shoulder", shoulderPosition);
+                if (shoulderPosition >= JEWEL_BASE_SHOULDER_POSITION) {
+                    getTelemetryUtil().addData("Shoulder Found", "TRUE");
+                    ++step;
+                }
+                break;
+            case 102:
+                desiredJewelElbowPosition = elbow.getPosition();
+                //elbow.setPosition(JEWEL_FIRST_ELBOW_POSITION);
+                ++step;
+                break;
+            case 103:
+                desiredJewelElbowPosition -= 0.003;
+                elbow.setPosition(desiredJewelElbowPosition);
+                double firstElbowPosition = elbow.getPosition();
+                getTelemetryUtil().addData("Elbow", firstElbowPosition);
+                if (firstElbowPosition <= JEWEL_FIRST_ELBOW_POSITION) {
+                    getTelemetryUtil().addData("Elbow Found", "FIRST");
+                    ++step;
+                }
+                break;
+            case 104:
+                int red = color.red();
+                int green = color.green();
+                int blue = color.blue();
+
+                getTelemetryUtil().addData("red: ", red);
+                getTelemetryUtil().addData("green: ", green);
+                getTelemetryUtil().addData("blue: ", blue);
+                break;
         }
+
+        getTelemetryUtil().sendTelemetry();
+
         /*try {
             long millis1 = System.currentTimeMillis();
             RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
