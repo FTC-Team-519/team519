@@ -44,6 +44,12 @@ public class AutonomousRelic extends ActiveOpMode {
     private static final double JEWEL_BASE_SHOULDER_POSITION = 0.51;
     private static final double JEWEL_FIRST_ELBOW_POSITION = 0.16;
     private static final double JEWEL_SECOND_ELBOW_POSITION = 0.23;
+    private static final double SHOULDER_KNOCK_LEFT = 0.4;
+    private static final double SHOULDER_KNOCK_RIGHT = 0.6;
+    public static final float STARTING_SHOULDER_POSITION = 0.96f;
+    public static final float STARTING_ELBOW_POSITION = 0.91f;
+    public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
+
 
     // Assets
     private DcMotor frontLeft;
@@ -60,8 +66,6 @@ public class AutonomousRelic extends ActiveOpMode {
 
     private ColorSensor color;
 
-    private float desiredShoulder = 0.96f;
-    private float desiredElbow = 0.91f;
     private static final float shoulderInc = .005f;
     private static final float elbowInc = .002f;
     // Vuforia init
@@ -75,10 +79,14 @@ public class AutonomousRelic extends ActiveOpMode {
     private int byte2;
     private int byte3;
     private int byte0;
-
+/*
+    private int red = color.red();
+    private int green = color.green();
+    private int blue = color.blue();
+*/
     private double desiredJewelElbowPosition;
 
-    private int step = 99; // 0 = defualt
+    private int step = 6; //0
     private static String convert(byte[] thing) {
         try {
             return new String(thing, "US-ASCII");
@@ -131,11 +139,11 @@ public class AutonomousRelic extends ActiveOpMode {
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setPower(0.0);
-        shoulder.setPosition(desiredShoulder);
-        elbow.setPosition(desiredElbow);
+        shoulder.setPosition(STARTING_SHOULDER_POSITION);
+        elbow.setPosition(STARTING_ELBOW_POSITION);
 
         // NOTE: Will be eventually by the time start is executed
-        desiredJewelElbowPosition = desiredElbow;
+        desiredJewelElbowPosition = STARTING_ELBOW_POSITION;
 
         //SetGrabber(GrabberState.Open);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()); //camera id
@@ -367,52 +375,8 @@ public class AutonomousRelic extends ActiveOpMode {
 
 
         switch(step) {
-            case 0: // right red routine, (right of cryptobox)
-                // knock off jewel
-                SetGrabber(GrabberState.Closed);
-                //if (getTimer().targetReached(.25d)) {
-                  //  getTelemetryUtil().addData("Finished the first target", "Yes");
-                    lift.setPower(.45);
-                //}
-                shoulder.setPosition(0.51);
-                elbow.setPosition(0.16);
-                if (getTimer().targetReached(2.0d)) {
-                    //getTelemetryUtil().addData("Finished the target", "Yes");
-                    elbow.setPosition(desiredElbow);
-                    shoulder.setPosition(desiredShoulder);
-                    //if (getTimer().targetReached(1.5d)) {
-                        step++;
-                      //  getTelemetryUtil().addData("ok");
-                   // }
-                }
-                break;
-            case 1:
-                step++;
-                break;
-            case 2:
-                //SetDriveDirection(DriveDirection.Backwards);
-                forward(.15d);
-                if (getTimer().targetReached(3.25d)) {
-                    step++;
-                    stopMoving();
-                }
 
-                break;
-            case 3:
-                strafeRightSlow();
-                if (getTimer().targetReached(0.5d)) {
-                    stopMoving();
-                    step++;
-                }
-                break;
-            case 4:
-                step++;
-                turnLeft(.4, true);
-                if (getTimer().targetReached(1.0d)) {
-                    stopMoving();
-                }
-                break;
-            case 99:
+            case 0://start
                 if (vuMark == RelicRecoveryVuMark.LEFT) {
                     getTelemetryUtil().addData("Target", "LEFT");
                 } else if (vuMark == RelicRecoveryVuMark.CENTER) {
@@ -425,11 +389,11 @@ public class AutonomousRelic extends ActiveOpMode {
 
                 ++step;
                 break;
-            case 100:
+            case 1:
                 shoulder.setPosition(JEWEL_BASE_SHOULDER_POSITION);
                 ++step;
                 break;
-            case 101:
+            case 2:
                 double shoulderPosition = shoulder.getPosition();
                 getTelemetryUtil().addData("Shoulder", shoulderPosition);
                 if (shoulderPosition >= JEWEL_BASE_SHOULDER_POSITION) {
@@ -437,13 +401,12 @@ public class AutonomousRelic extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 102:
+            case 3:
                 desiredJewelElbowPosition = elbow.getPosition();
-                //elbow.setPosition(JEWEL_FIRST_ELBOW_POSITION);
                 ++step;
                 break;
-            case 103:
-                desiredJewelElbowPosition -= 0.003;
+            case 4:
+                desiredJewelElbowPosition -= ELBOW_MOVEMENT_INCREMENT;
                 elbow.setPosition(desiredJewelElbowPosition);
                 double firstElbowPosition = elbow.getPosition();
                 getTelemetryUtil().addData("Elbow", firstElbowPosition);
@@ -452,7 +415,7 @@ public class AutonomousRelic extends ActiveOpMode {
                     ++step;
                 }
                 break;
-            case 104:
+            case 5: //look at color
                 int red = color.red();
                 int green = color.green();
                 int blue = color.blue();
@@ -460,9 +423,100 @@ public class AutonomousRelic extends ActiveOpMode {
                 getTelemetryUtil().addData("red: ", red);
                 getTelemetryUtil().addData("green: ", green);
                 getTelemetryUtil().addData("blue: ", blue);
+
+                if (red > 0){ //knock jewel
+                    shoulder.setPosition(SHOULDER_KNOCK_RIGHT);
+                }
+                else {
+                    shoulder.setPosition(SHOULDER_KNOCK_LEFT);
+                }
+                step++;
                 break;
+            case 6:
+                //desiredJewelElbowPosition = elbow.getPosition();
+                ++step;
+                break;
+            case 7:
+                /*desiredJewelElbowPosition += ELBOW_MOVEMENT_INCREMENT;
+                elbow.setPosition(desiredJewelElbowPosition);
+                double currentElbowPosition = elbow.getPosition();
+                getTelemetryUtil().addData("Elbow", currentElbowPosition);
+                if (currentElbowPosition >= STARTING_ELBOW_POSITION) {
+                    getTelemetryUtil().addData("Elbow Found", "FIRST");
+                    ++step;
+                }*/
+                step++; //L
+                break;
+            case 8:
+                //shoulder.setPosition(STARTING_SHOULDER_POSITION);
+                step++;
+                break;
+            case 9: // right red routine, (right of cryptobox)
+                // L SetGrabber(GrabberState.Closed);
+                //if (getTimer().targetReached(.25d)) {
+                //  getTelemetryUtil().addData("Finished the first target", "Yes");
+                lift.setPower(.52);
+                if (getTimer().targetReached(1.3)){
+                    ++step;
+                    lift.setPower(0.0);
+                }
+                //}
+                /* shoulder.setPosition(0.51);
+                elbow.setPosition(0.16);
+                if (getTimer().targetReached(2.0d)) {
+                    //getTelemetryUtil().addData("Finished the target", "Yes");
+                    elbow.setPosition(STARTING_ELBOW_POSITION);
+                    shoulder.setPosition(STARTING_SHOULDER_POSITION);
+                    //if (getTimer().targetReached(1.5d)) {
+                    step++;
+                    //  getTelemetryUtil().addData("ok");
+                    // }
+                }*/
+                break;
+            case 10:
+                setGrabber(GrabberState.Open);
+                if (getTimer().targetReached(1.5)){
+                    step++;}
+                break;
+            case 11:
+                //SetDriveDirection(DriveDirection.Backwards);
+                //forward(.15d);
+                lift.setPower(-0.2);
+                if (getTimer().targetReached(.8)){
+                    ++step;
+                    lift.setPower(0.0);
+                }
+
+                    //stopMoving();                }
+
+                break;
+            case 12:
+                //strafeRightSlow();
+                if (getTimer().targetReached(1.0)){
+                    setGrabber(GrabberState.Closed);
+                    ++step;
+                }
+                /*if (getTimer().targetReached(0.5d)) {
+                    stopMoving();
+                    step++;
+                }*/
+                break;
+            case 13:
+
+                //turnLeft(.4, true);
+                if (getTimer().targetReached(1.0d)) {
+                    ++step;
+                }
+                break;
+            case 14:
+
+                lift.setPower(.4);
+                if(getTimer().targetReached(.4)){
+                    lift.setPower(0.0);
+                }
         }
 
+        getTelemetryUtil().addData("Step: ", "" + step);
         getTelemetryUtil().sendTelemetry();
 
         /*try {
@@ -542,7 +596,7 @@ public class AutonomousRelic extends ActiveOpMode {
     public enum GrabberState {
         Closed, Open
     }
-    public void SetGrabber(GrabberState state) {
+    public void setGrabber(GrabberState state) {
         if (state == GrabberState.Open) {
             clampLeft.setPosition(0.70);
             clampRight.setPosition(0.30);

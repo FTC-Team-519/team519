@@ -108,6 +108,7 @@ public class FRRTeleop extends ActiveOpMode {
             flipped = true;
         }
 
+
         if (flipped) {
             x = -x;
             y = -y;
@@ -210,9 +211,9 @@ public class FRRTeleop extends ActiveOpMode {
         {
             if (!grabberClosed) {
                 //servoLeft.setPower(.15);
-                clampLeft.setPosition(.4);
+                clampLeft.setPosition(.3);
                 //servoRight.setPower(.15);
-                clampRight.setPosition(.6);
+                clampRight.setPosition(.7);
                 if(getTimer().targetReached(.25))
                     grabberClosed = true;
             } else {
