@@ -207,6 +207,17 @@ public class FRRTeleop extends ActiveOpMode {
             lift.setPower(UP_POWER);
             lift.setTargetPosition(ROW3_HEIGHT);
         }
+
+        if (gunner.right_bumper) {
+            clampLeft.setPosition(.3);
+            clampRight.setPosition(.7);
+        }
+        else if (gunner.left_bumper) {
+            clampLeft.setPosition(.7);
+            clampRight.setPosition(.3);
+        }
+
+        /*
         if (gunner.right_bumper)
         {
             if (!grabberClosed) {
@@ -227,6 +238,7 @@ public class FRRTeleop extends ActiveOpMode {
                     grabberClosed = false;
             }
         }
+        */
 
         getTelemetryUtil().sendTelemetry();
     }

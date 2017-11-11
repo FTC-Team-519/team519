@@ -4,11 +4,12 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.sun.tools.javac.util.ForwardingDiagnosticFormatter;
 import com.vuforia.Image;
+import com.vuforia.VuMarkTargetResult;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
@@ -19,9 +20,9 @@ import org.ftcbootstrap.ActiveOpMode;
 
 import java.io.UnsupportedEncodingException;
 
-@Disabled
+
 @Autonomous
-public class AutonomousRelic extends ActiveOpMode {
+public class AutonomousRelicRedEasy extends ActiveOpMode {
 
     //License key
     private static final String A = "QWJaajY5di8vLy8vQUFBQUdTWHZyMEc2TDBrTXJ3TUQwT";
@@ -50,6 +51,8 @@ public class AutonomousRelic extends ActiveOpMode {
     public static final float STARTING_SHOULDER_POSITION = 0.96f;
     public static final float STARTING_ELBOW_POSITION = 0.91f;
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
+
+    public static final int STARTING_STEP = 0;
 
 
     // Assets
@@ -87,7 +90,7 @@ public class AutonomousRelic extends ActiveOpMode {
 */
     private double desiredJewelElbowPosition;
 
-    private int step = 6; //0
+    private int step = STARTING_STEP; //0
     private static String convert(byte[] thing) {
         try {
             return new String(thing, "US-ASCII");
@@ -452,27 +455,12 @@ public class AutonomousRelic extends ActiveOpMode {
                 shoulder.setPosition(STARTING_SHOULDER_POSITION);
                 step++;
                 break;
-            case 9: // right red routine, (right of cryptobox)
-                // L SetGrabber(GrabberState.Closed);
-                //if (getTimer().targetReached(.25d)) {
-                //  getTelemetryUtil().addData("Finished the first target", "Yes");
+            case 9:
                 lift.setPower(.52);
                 if (getTimer().targetReached(1.3)){
                     ++step;
                     lift.setPower(0.0);
                 }
-                //}
-                /* shoulder.setPosition(0.51);
-                elbow.setPosition(0.16);
-                if (getTimer().targetReached(2.0d)) {
-                    //getTelemetryUtil().addData("Finished the target", "Yes");
-                    elbow.setPosition(STARTING_ELBOW_POSITION);
-                    shoulder.setPosition(STARTING_SHOULDER_POSITION);
-                    //if (getTimer().targetReached(1.5d)) {
-                    step++;
-                    //  getTelemetryUtil().addData("ok");
-                    // }
-                }*/
                 break;
             case 10:
                 setGrabber(GrabberState.Open);
@@ -481,7 +469,7 @@ public class AutonomousRelic extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.2);
-                if (getTimer().targetReached(.8)){
+                if (getTimer().targetReached(.6)){
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -499,10 +487,65 @@ public class AutonomousRelic extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if(getTimer().targetReached(.4)){
+                if(getTimer().targetReached(.5)){
+                    ++step;
                     lift.setPower(0.0);
                 }
                 break;
+            case 15:
+                SetDriveDirection(DriveDirection.Forwards);
+                forward(0.15);
+                ++step;
+                break;
+            case 16:
+                if (getTimer().targetReached(2.0)) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 17:
+                turnRight(0.35, true);
+                ++step;
+                break;
+            case 18:
+                if (getTimer().targetReached(getTurnDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 19:
+                forward(0.15);
+                ++step;
+                break;
+            case 20:
+                if (getTimer().targetReached(getForwardDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 21:
+                setGrabber(GrabberState.Open);
+                ++step;
+                break;
+            case 22:
+                if (getTimer().targetReached(1.5)) {
+                    // Gripper should be opened fully at this point
+                    ++step;
+                }
+                break;
+            case 23:
+                reverse(0.15);
+                ++step;
+                break;
+            case 24:
+                if (getTimer().targetReached(getBackwardDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            default:
+                break;
+
         }
 
         getTelemetryUtil().addData("Step: ", "" + step);
@@ -578,6 +621,37 @@ public class AutonomousRelic extends ActiveOpMode {
             getTelemetryUtil().sendTelemetry();
         }*/
 
+    private double getTurnDuration(RelicRecoveryVuMark bonusColumn) {
+        double turnDuration = 0.30;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            turnDuration = 0.60;
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            turnDuration = 0.80;
+        }
+
+        return turnDuration;
+    }
+
+    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
+        double turnDuration = 1.00;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            turnDuration = 1.50;
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            turnDuration = 2.05;
+        }
+
+        return turnDuration;
+    }
+
+    private double getBackwardDuration(RelicRecoveryVuMark bonusColumn) {
+        //return getForwardDuration(bonusColumn);
+        return 0.20;
+    }
+
     public enum DriveDirection {
         Forwards, Backwards
     }
@@ -609,6 +683,11 @@ public class AutonomousRelic extends ActiveOpMode {
         }
 
     }
+
+    public void reverse(double power) {
+        forward(-power);
+    }
+
     public void forward(double power) {
         frontRight.setPower(power);
         frontLeft.setPower(power);
