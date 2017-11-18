@@ -18,9 +18,12 @@ import org.ftcbootstrap.ActiveOpMode;
 
 import java.io.UnsupportedEncodingException;
 
-
+//actually Red
 @Autonomous
-public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
+
+
+
+public class AutonomousRelicRedJewelOnly1 extends ActiveOpMode {
 
     //License key
     private static final String A = "QWJaajY5di8vLy8vQUFBQUdTWHZyMEc2TDBrTXJ3TUQwT";
@@ -50,7 +53,7 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
     public static final float STARTING_ELBOW_POSITION = 0.91f;
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
 
-    public static final int STARTING_STEP = 0;
+    public static final int STARTING_STEP = 0; // Case 9 is start of lift
 
 
     // Assets
@@ -426,13 +429,19 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
                 getTelemetryUtil().addData("green: ", green);
                 getTelemetryUtil().addData("blue: ", blue);
 
-                if (red > 0){ //knock jewel
+                if (red > 5){ //knock jewel
                     shoulder.setPosition(SHOULDER_KNOCK_RIGHT);
+                    step++;
                 }
-                else {
+                else if (blue > 5) {
                     shoulder.setPosition(SHOULDER_KNOCK_LEFT);
+                    step++;
                 }
-                step++;
+                else if(getTimer().targetReached(1.5)){
+                        step = 97;
+                }
+
+
                 break;
             case 6:
                 desiredJewelElbowPosition = elbow.getPosition();
@@ -454,7 +463,7 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
                 step++;
 
                 // NOTE: This is to skip past everything else!!!
-                step = 99;
+                step = 9000;
                 break;
             case 9:
                 lift.setPower(.52);
@@ -488,14 +497,15 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if(getTimer().targetReached(.5)){
+                if(getTimer().targetReached(.7)){
                     ++step;
                     lift.setPower(0.0);
                 }
+                step = 99;
                 break;
             case 15:
                 SetDriveDirection(DriveDirection.Forwards);
-                forward(0.15);
+                reverse(0.15);
                 ++step;
                 break;
             case 16:
@@ -505,7 +515,7 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
                 }
                 break;
             case 17:
-                turnRight(0.35, true);
+                turnRight(-0.35, false);
                 ++step;
                 break;
             case 18:
@@ -546,6 +556,16 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
                 break;
             default:
                 break;
+            case 99:
+                forward(-.4);
+                ++step;
+                break;
+            case 100:
+                if(getTimer().targetReached(3.0)){
+                    stopMoving();
+
+                ++step;
+                break;
 
         }
 
@@ -559,7 +579,7 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
                 doThing = false;*/
                // Thread.sleep(5000);
 
-            }
+            }}
             //getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
          /*   if (imgBuffer == null) {
                 imgBuffer = vuforia.getFrameQueue().take().getImage(0).getPixels().duplicate();
@@ -623,29 +643,29 @@ public class AutonomousRelicRedJewelOnly extends ActiveOpMode {
         }*/
 
     private double getTurnDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = 0.30;
+        double turnDuration = 2.4;
 
-        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            turnDuration = 0.60;
+        if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            turnDuration = 2.2;
         }
-        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            turnDuration = 0.80;
+        else if (bonusColumn == RelicRecoveryVuMark.LEFT) {
+            turnDuration = 2.9;
         }
 
         return turnDuration;
     }
 
     private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = 1.00;
+        double forwardDuration = 2.05;
 
-        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            turnDuration = 1.50;
+        if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            forwardDuration = 2.30;
         }
-        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            turnDuration = 2.05;
+        else if (bonusColumn == RelicRecoveryVuMark.LEFT) {
+            forwardDuration = 1.7;
         }
 
-        return turnDuration;
+        return forwardDuration;
     }
 
     private double getBackwardDuration(RelicRecoveryVuMark bonusColumn) {
