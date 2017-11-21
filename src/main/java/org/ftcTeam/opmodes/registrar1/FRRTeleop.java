@@ -49,15 +49,19 @@ public class FRRTeleop extends ActiveOpMode {
         private static final int BACK_RIGHT  = 3;
 
     // Lift Constants
-        private static float UP_POWER = 0.8f;
-        private static float DOWN_POWER = 0.2f;
+        private static float UP_POWER = 0.9f;
+        private static float DOWN_POWER = 0.4f;
         private static int GROUND_HEIGHT = 0;
         private static int ROW1_HEIGHT = 30;
         private static int ROW2_HEIGHT = 60;
         private static int ROW3_HEIGHT = 90;
         private static int MAX_HEIGHT = 120;
+        private static double SLOW_DRIVE = 0.0;
 
-        private float desiredShoulder = 0.96f;
+        boolean flipped = false;
+
+
+    private float desiredShoulder = 0.96f;
         private float desiredElbow = 0.91f;
         private static final float shoulderInc = .0025f;
         private static final float elbowInc = .001f;
@@ -99,7 +103,6 @@ public class FRRTeleop extends ActiveOpMode {
         Gamepad gunner = gamepad2;
         updateJoyStickValues();
 
-        boolean flipped = false;
 
         if (driver.y) {//drive foward; front is lift
             flipped = false;
@@ -121,32 +124,60 @@ public class FRRTeleop extends ActiveOpMode {
             x = 0;
         }
         else if (driver.x) {
-            x = -100;
-            y = 0;
+            //x = -100;
+            //y = 0;
+
+            frontLeft.setPower(-.55);
+            frontRight.setPower(.55);
+            backLeft.setPower(.6);
+            backRight.setPower(-.55);
         }
         else if (driver.b) {
-            x = 100;
-            y = 0;
+            //x = 100;
+            //y = 0;
+            frontLeft.setPower(.55);
+            frontRight.setPower(-.55);
+            backLeft.setPower(-.6);
+            backRight.setPower(.55);
+
+
         }
 
         if (driver.right_bumper) {
+            /*
             desiredShoulder += shoulderInc;
+            */
             shoulder.setPosition(desiredShoulder);
+            elbow.setPosition(desiredElbow);
         }
 
         if (driver.left_bumper) {
+            /* //old jewel control
             desiredShoulder -= shoulderInc;
             shoulder.setPosition(desiredShoulder);
+            */
+            //new slow button for driver
+            SLOW_DRIVE = 0.25;
+            }
+            else {
+            SLOW_DRIVE = 1.00;
         }
-
-        if (driver.right_trigger > 0.05) {
+        if (driver.right_trigger > 0.05)
+        {
+            /* //old jewel control
             desiredElbow += elbowInc;
             elbow.setPosition(desiredElbow);
+            */
+
         }
 
-        if (driver.left_trigger > 0.05) {
+        if (driver.left_trigger > 0.05)
+        {
+            /* //old jewel control
             desiredElbow -= elbowInc;
             elbow.setPosition(desiredElbow);
+            */
+
         }
 
         getTelemetryUtil().addData("Shoulder angle: ", desiredShoulder);
@@ -154,23 +185,31 @@ public class FRRTeleop extends ActiveOpMode {
 
         // Forward/backward power is left_stick_y, but forward is -1.0 reading, so invert
         double pwr = -y;
+    if (!driver.x && !driver.b) {
 
-        motorPowers[FRONT_RIGHT] = pwr - x - z;
-        motorPowers[FRONT_LEFT] = 1.25*(pwr + x + z);
-        motorPowers[BACK_RIGHT] = 1.25*(pwr + x - z);
-        motorPowers[BACK_LEFT] = pwr - x + z;
-        normalizeCombinedPowers(motorPowers);
+            motorPowers[FRONT_RIGHT] = SLOW_DRIVE * (pwr - x - z);
+            motorPowers[FRONT_LEFT] = SLOW_DRIVE * 1.25 * (pwr + x + z);
+            motorPowers[BACK_RIGHT] = SLOW_DRIVE * 1.25 * (pwr + x - z);
+            motorPowers[BACK_LEFT] = SLOW_DRIVE * (pwr - x + z);
+            normalizeCombinedPowers(motorPowers);
 
-        frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
-        frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
-        backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
-        backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
+            frontRight.setPower(reducePower(motorPowers[FRONT_RIGHT]));
+            frontLeft.setPower(reducePower(motorPowers[FRONT_LEFT]));
+            backRight.setPower(reducePower(motorPowers[BACK_RIGHT]));
+            backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
 
-
+        }
 
                          //position 0 means lowest point, before block is picked up
                          //position 1 is height to put the bottom block on top of the first block, etc.
-        lift.setPower(alterLiftPower());
+        if(!gunner.b)
+        {
+            lift.setPower(alterLiftPower());
+        }
+        else if(gunner.b)
+        {
+            lift.setPower(slowLiftPower());
+        }
 
 
         if (gunner.a) //lowest height/ground height; press 'A' to put lift at position 0
@@ -181,7 +220,7 @@ public class FRRTeleop extends ActiveOpMode {
             position = 0;
         }
 
-        if (gunner.b) //second to lowest height, Row 1
+        /*if (gunner.b) //second to lowest height, Row 1
         {
             if (position > 1) { // Above target height, move down
 
@@ -194,7 +233,7 @@ public class FRRTeleop extends ActiveOpMode {
                 lift.setTargetPosition(ROW1_HEIGHT);
             }
             position = 1;
-        }
+        }*/
         if (gunner.y) //Row 2 height
         {
 
@@ -328,14 +367,24 @@ public class FRRTeleop extends ActiveOpMode {
             }
         }
     }
+    private static float slowLiftPower()
+    {
 
+        float ogY = -gY;
+
+        if (ogY<0) {
+            return ogY*.35f;
+        } else {
+            return ogY * .55f;
+        }
+    }
     private static float alterLiftPower() {
         float ogY = -gY;
 
         if (ogY<0) {
             return ogY*.15f;
         } else {
-            return ogY*.85f;
+            return ogY*1.0f;
         }
 
     }
