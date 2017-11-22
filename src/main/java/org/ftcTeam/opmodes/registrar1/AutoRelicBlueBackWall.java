@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.sun.tools.javac.util.ForwardingDiagnosticFormatter;
 import com.vuforia.Image;
 import com.vuforia.VuMarkTargetResult;
@@ -52,7 +53,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     public static final float STARTING_ELBOW_POSITION = 0.91f;
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
 
-    public static final int STARTING_STEP = 9;
+    public static final int STARTING_STEP = 0;
 
 
     // Assets
@@ -89,6 +90,8 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     private int blue = color.blue();
 */
     private double desiredJewelElbowPosition;
+
+    RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
 
     private int step = STARTING_STEP; //0
     private static String convert(byte[] thing) {
@@ -372,26 +375,35 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     @Override
     protected void activeLoop() throws InterruptedException {
 
-        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+        if(vuMark == RelicRecoveryVuMark.UNKNOWN) {
+            vuMark = RelicRecoveryVuMark.from(relicTemplate);
 
-
-        //if (vuMark == RelicRecoveryVuMark.UNKNOWN) { throw new InterruptedException("Couldn't find vumark"); }
-
+            if (vuMark == RelicRecoveryVuMark.LEFT) {
+                getTelemetryUtil().addData("Target", "LEFT");
+            } else if (vuMark == RelicRecoveryVuMark.CENTER) {
+                getTelemetryUtil().addData("Target", "LEFT");
+            } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
+                getTelemetryUtil().addData("Target", "RIGHT");
+            } else {
+                getTelemetryUtil().addData("Target", "UNSEEN :-(");
+            }
+        }
 
         switch(step) {
 
             case 0://start
-                if (vuMark == RelicRecoveryVuMark.LEFT) {
-                    getTelemetryUtil().addData("Target", "LEFT");
-                } else if (vuMark == RelicRecoveryVuMark.CENTER) {
-                    getTelemetryUtil().addData("Target", "LEFT");
-                } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
-                    getTelemetryUtil().addData("Target", "RIGHT");
-                } else {
-                    getTelemetryUtil().addData("Target", "UNSEEN :-(");
+                double result = Double.POSITIVE_INFINITY;
+                int i = 0;
+                for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+                    ++i;
+                    double voltage = sensor.getVoltage();
+                    if (voltage > 0) {
+                        result = Math.min(result, voltage);
+                    }
+                    getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
-
-                ++step;
+                //++step;
+                step = 9;
                 break;
             case 1:
                 shoulder.setPosition(JEWEL_BASE_SHOULDER_POSITION);
@@ -469,7 +481,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.025);
-                if (getTimer().targetReached(.95)){
+                if (getTimer().targetReached(.65)){
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -487,64 +499,77 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if(getTimer().targetReached(.5)){
-                    //++step;
-                    step = 9999999;
-                    lift.setPower(0.0);
+                if(getTimer().targetReached(.3)){
+                    ++step; //normal
+                    //step = 9999999; //testing purposes, only lift
+                    //lift.setPower(0.0);
+                    lift.setPower(0.10); // stall motor to keep glyph from coming down
                 }
                 break;
             case 15:
-                SetDriveDirection(DriveDirection.Backwards);
+                SetDriveDirection(DriveDirection.Forwards);
                 forward(0.15);
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(2.0)) {
+                if (getTimer().targetReached(1.8)) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 17:
-                //turnLeft(0.35, true);
-                turnRight(0.38, true);
+                strafeRightSlow();
                 ++step;
                 break;
             case 18:
-                if (getTimer().targetReached(getTurnDuration(vuMark))) {
+                if (getTimer().targetReached(getStrafeDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 19:
-                forward(-0.15);
+                //turnLeft(0.35, true);
+                turnRight(0.38, true);
                 ++step;
                 break;
             case 20:
+                if (getTimer().targetReached(getTurnDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 21://drive toward box
+                forward(0.15);
+                ++step;
+                break;
+            case 22:
                 if (getTimer().targetReached(getForwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 21:
+            case 23:
                 setGrabber(GrabberState.Open);
                 ++step;
                 break;
-            case 22:
+            case 24:
                 if (getTimer().targetReached(1.5)) {
                     // Gripper should be opened fully at this point
                     ++step;
                 }
                 break;
-            case 23:
-                forward(0.15);
+            case 25://back away
+                forward(-0.15);
                 ++step;
                 break;
-            case 24:
+            case 26:
                 if (getTimer().targetReached(getBackwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
+            case 27:
+                lift.setPower(0.0);
             default:
                 break;
 
@@ -690,31 +715,59 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         double turnDuration = 0.30;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            turnDuration = 2.0;
+            turnDuration = .45;
+            getTelemetryUtil().addData("Turn: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            turnDuration = 0.30;
+            getTelemetryUtil().addData("Turn: ", "RIGHT");
+            turnDuration = .635;
+        }
+        else {
+            getTelemetryUtil().addData("Turn: ", "LEFT");
         }
 
         return turnDuration;
     }
 
     private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = 1.00;
+        double forwardDuration = 1.00;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            turnDuration = 1.50;
+            forwardDuration = 1.50;
+            getTelemetryUtil().addData("Forward: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            turnDuration = 2.05;
+            forwardDuration = 1.80;
+            getTelemetryUtil().addData("Forward: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Forward: ", "LEFT");
         }
 
-        return turnDuration;
+        return forwardDuration;
+    }
+
+    private double getStrafeDuration(RelicRecoveryVuMark bonusColumn) {
+        double strafeDuration = 0.00;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            strafeDuration = 0.25;
+            getTelemetryUtil().addData("Strafe: ", "CENTER");
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            strafeDuration = 0.75;
+            getTelemetryUtil().addData("Strafe: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Strafe: ", "LEFT");
+        }
+
+        return strafeDuration;
     }
 
     private double getBackwardDuration(RelicRecoveryVuMark bonusColumn) {
         //return getForwardDuration(bonusColumn);
-        return 0.20;
+        return 0.40;
     }
 
     public enum DriveDirection {
@@ -729,8 +782,8 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
             clampLeft.setPosition(0.70);
             clampRight.setPosition(0.30);
         } else {
-            clampLeft.setPosition(0.4);
-            clampRight.setPosition(0.6);
+            clampLeft.setPosition(0.5);
+            clampRight.setPosition(0.5);
         }
     }
     public void SetDriveDirection(DriveDirection direction) {
@@ -792,10 +845,10 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
 //        backRight.setPower(0.8*power);
 //        frontLeft.setPower(1.0*power);
 //        backLeft.setPower(0.75*(-power));
-        frontRight.setPower(0.65 * (-power));
+        frontRight.setPower(1.0 * (-power));
         backRight.setPower(1.0 * power);
         frontLeft.setPower(1.0 * power);
-        backLeft.setPower(0.8 * (-power));
+        backLeft.setPower(1.0 * (-power));
     }
 
     public void strafeLeftSlow() {
@@ -809,10 +862,10 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     public void strafeRightSlow() {
-        //double pow = .65;
-        double pow = .9;
+        double pow = .55;
+        //double pow = .9;
 
-        frontRight.setPower(-0.425 * pow);
+        frontRight.setPower(-0.5 * pow);
         backRight.setPower(0.5 * pow);
         frontLeft.setPower(0.5 * pow);
         backLeft.setPower(-0.5 * pow);
