@@ -66,6 +66,10 @@ public class FRRTeleop extends ActiveOpMode {
         private static final float shoulderInc = .0025f;
         private static final float elbowInc = .001f;
 
+    private final static float CLOSED_GRIPPER = .55f;
+    private final static float OPEN_GRIPPER = .3f;
+
+
     @Override
     protected void onInit() {
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
@@ -246,14 +250,15 @@ public class FRRTeleop extends ActiveOpMode {
             lift.setPower(UP_POWER);
             lift.setTargetPosition(ROW3_HEIGHT);
         }
-
-        if (gunner.right_bumper) {
-            clampLeft.setPosition(.3);
-            clampRight.setPosition(.7);
+        if (gunner.right_bumper)//CLOSE GRIPPER
+        {
+            clampLeft.setPosition(1-CLOSED_GRIPPER);
+            clampRight.setPosition(CLOSED_GRIPPER);
         }
-        else if (gunner.left_bumper) {
-            clampLeft.setPosition(.7);
-            clampRight.setPosition(.3);
+        else if (gunner.left_bumper)//OPEN
+        {
+            clampLeft.setPosition(1 - OPEN_GRIPPER);
+            clampRight.setPosition(OPEN_GRIPPER);
         }
 
         /*

@@ -84,6 +84,14 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     private int byte2;
     private int byte3;
     private int byte0;
+
+
+    private final static float CLOSED_GRIPPER = .7f;
+    private final static float GRABBED_GRIPPER = .55f;
+    private final static float OPEN_GRIPPER = .35f;
+
+    private final static float HIGH_BATTERY = .0f;
+    private final static float LOW_BATTERY = .0f;
 /*
     private int red = color.red();
     private int green = color.green();
@@ -403,7 +411,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                     getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
                 //++step;
-                step = 9;
+                step = 9;//testing purposes, skips jewel
                 break;
             case 1:
                 shoulder.setPosition(JEWEL_BASE_SHOULDER_POSITION);
@@ -440,10 +448,9 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 getTelemetryUtil().addData("green: ", green);
                 getTelemetryUtil().addData("blue: ", blue);
 
-                if (red > 0){ //knock jewel
+                if (red > 0) { //knock jewel
                     shoulder.setPosition(SHOULDER_KNOCK_RIGHT);
-                }
-                else {
+                } else {
                     shoulder.setPosition(SHOULDER_KNOCK_LEFT);
                 }
                 step++;
@@ -469,26 +476,27 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 9: // raise
                 lift.setPower(.52);
-                if (getTimer().targetReached(0.7)){
+                if (getTimer().targetReached(0.7)) {
                     ++step;
                     lift.setPower(0.0);
                 }
                 break;
             case 10:
                 setGrabber(GrabberState.Open);
-                if (getTimer().targetReached(1.5)){
-                    step++;}
+                if (getTimer().targetReached(1.5)) {
+                    step++;
+                }
                 break;
             case 11:
-                lift.setPower(-0.025);
-                if (getTimer().targetReached(.65)){
+                lift.setPower(-0.1);
+                if (getTimer().targetReached(.65)) {
                     ++step;
                     lift.setPower(0.0);
                 }
                 break;
             case 12:
-                if (getTimer().targetReached(1.0)){
-                    setGrabber(GrabberState.Closed);
+                if (getTimer().targetReached(1.0)) {
+                    setGrabber(GrabberState.Grabbed);
                     ++step;
                 }
                 break;
@@ -499,7 +507,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if(getTimer().targetReached(.3)){
+                if (getTimer().targetReached(.3)) {
                     ++step; //normal
                     //step = 9999999; //testing purposes, only lift
                     //lift.setPower(0.0);
@@ -519,7 +527,8 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 17:
                 strafeRightSlow();
-                ++step;
+                step = 100; //alternate glyph placeing method
+                //++step;
                 break;
             case 18:
                 if (getTimer().targetReached(getStrafeDuration(vuMark))) {
@@ -529,7 +538,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 19:
                 //turnLeft(0.35, true);
-                turnRight(0.38, true);
+                turnRight(0.38, false);//newL
                 ++step;
                 break;
             case 20:
@@ -553,7 +562,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 ++step;
                 break;
             case 24:
-                if (getTimer().targetReached(1.5)) {
+                if (getTimer().targetReached(0.75)) {
                     // Gripper should be opened fully at this point
                     ++step;
                 }
@@ -570,9 +579,26 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 27:
                 lift.setPower(0.0);
-            default:
+                default://what is this? --Luke
                 break;
 
+
+            case 100:
+                if (getTimer().targetReached(getSecondStrafeDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 101:
+                turnRight(0.38, false);
+                ++step;
+                break;
+            case 102:
+                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
+                    stopMoving();
+                    step = 23;
+                }
+                break;
         }
         /* case 14:
                 lift.setPower(.4);
@@ -730,20 +756,20 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
-        double forwardDuration = 1.00;
-
+        double forwardDuration = 0.60;
+/*
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            forwardDuration = 1.50;
+            forwardDuration = 1.2;
             getTelemetryUtil().addData("Forward: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            forwardDuration = 1.80;
+            forwardDuration = 1.2;
             getTelemetryUtil().addData("Forward: ", "RIGHT");
         }
         else {
             getTelemetryUtil().addData("Forward: ", "LEFT");
         }
-
+*/
         return forwardDuration;
     }
 
@@ -755,7 +781,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 0.75;
+            strafeDuration = 0.7;
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
@@ -764,10 +790,48 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
 
         return strafeDuration;
     }
+    private double getSecondStrafeDuration(RelicRecoveryVuMark bonusColumn) {
+        double strafeDuration = 0.00;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            strafeDuration = 2.0;
+            getTelemetryUtil().addData("Strafe: ", "CENTER");
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            strafeDuration = 3.1;
+            getTelemetryUtil().addData("Strafe: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Strafe: ", "LEFT");
+            strafeDuration = 0.5;
+        }
+
+        return strafeDuration;
+    }
+    private double getSecondTurnDuration(RelicRecoveryVuMark bonusColumn) {
+        double strafeDuration = 0.3;
+/*
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            strafeDuration = 1.0;
+            getTelemetryUtil().addData("Strafe: ", "CENTER");
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            strafeDuration = 1.0;
+            getTelemetryUtil().addData("Strafe: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Strafe: ", "LEFT");
+            strafeDuration = 1.0;
+        }
+*/
+        return strafeDuration;
+    }
 
     private double getBackwardDuration(RelicRecoveryVuMark bonusColumn) {
         //return getForwardDuration(bonusColumn);
-        return 0.40;
+        return 0.75;
+        //return 0.40;
+
     }
 
     public enum DriveDirection {
@@ -775,15 +839,23 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     public enum GrabberState {
-        Closed, Open
+        Grabbed, Open, Closed
     }
     public void setGrabber(GrabberState state) {
-        if (state == GrabberState.Open) {
-            clampLeft.setPosition(0.70);
-            clampRight.setPosition(0.30);
-        } else {
-            clampLeft.setPosition(0.5);
-            clampRight.setPosition(0.5);
+        if (state == GrabberState.Open)
+        {
+            clampLeft.setPosition(1 - OPEN_GRIPPER);
+            clampRight.setPosition(OPEN_GRIPPER);
+        }
+        else if (state == GrabberState.Grabbed)
+        {
+            clampLeft.setPosition(1 - GRABBED_GRIPPER);
+            clampRight.setPosition(GRABBED_GRIPPER);
+        }
+        else
+        {
+            clampLeft.setPosition(1 - CLOSED_GRIPPER);
+            clampRight.setPosition(CLOSED_GRIPPER);
         }
     }
     public void SetDriveDirection(DriveDirection direction) {
@@ -862,7 +934,8 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     public void strafeRightSlow() {
-        double pow = .55;
+        double pow = .625;
+        //double pow = .55;
         //double pow = .9;
 
         frontRight.setPower(-0.5 * pow);
