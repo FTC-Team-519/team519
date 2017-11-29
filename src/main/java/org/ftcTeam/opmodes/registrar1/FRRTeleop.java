@@ -47,7 +47,7 @@ public class FRRTeleop extends ActiveOpMode {
         private static final int FRONT_RIGHT = 1;
         private static final int BACK_LEFT   = 2;
         private static final int BACK_RIGHT  = 3;
-
+        private static boolean nextFrameOpenFully = false;
     // Lift Constants
         private static float UP_POWER = 0.9f;
         private static float DOWN_POWER = 0.4f;
@@ -67,7 +67,12 @@ public class FRRTeleop extends ActiveOpMode {
         private static final float elbowInc = .001f;
 
     private final static float CLOSED_GRIPPER = .55f;
+    private final static float CLOSED_GRIPPER_LEFT = .3f;
+    private final static float CLOSED_GRIPPER_RIGHT = .7f;
     private final static float OPEN_GRIPPER = .3f;
+    private final static float OPEN_GRIPPER_SMALL = .15f;
+    private final static float OPEN_GRIPPER_SMALL_LEFT = .58f; //.7
+    private final static float OPEN_GRIPPER_SMALL_RIGHT = .42f;//.3
 
 
     @Override
@@ -147,6 +152,7 @@ public class FRRTeleop extends ActiveOpMode {
 
         }
 
+
         if (driver.right_bumper) {
             /*
             desiredShoulder += shoulderInc;
@@ -205,24 +211,27 @@ public class FRRTeleop extends ActiveOpMode {
         }
 
                          //position 0 means lowest point, before block is picked up
-                         //position 1 is height to put the bottom block on top of the first block, etc.
-        if(!gunner.b)
-        {
-            lift.setPower(alterLiftPower());
-        }
-        else if(gunner.b)
-        {
-            lift.setPower(slowLiftPower());
+                        //position 1 is height to put the bottom block on top of the first block, etc.
+        if (gunner.a) {
+            lift.setPower(0.20); // stall lift if holding a, otherwise do the normal routine
+        } else {
+            if (!gunner.b) {
+                lift.setPower(alterLiftPower());
+            } else if (gunner.b)
+
+            {
+                lift.setPower(slowLiftPower());
+            }
         }
 
-
-        if (gunner.a) //lowest height/ground height; press 'A' to put lift at position 0
+       /* if (gunner.a) //lowest height/ground height; press 'A' to put lift at position 0
                       //target positions need to be tested!!!
         {
             lift.setPower(DOWN_POWER);
             lift.setTargetPosition(0);
             position = 0;
-        }
+        } */
+
 
         /*if (gunner.b) //second to lowest height, Row 1
         {
@@ -252,14 +261,25 @@ public class FRRTeleop extends ActiveOpMode {
         }
         if (gunner.right_bumper)//CLOSE GRIPPER
         {
-            clampLeft.setPosition(1-CLOSED_GRIPPER);
-            clampRight.setPosition(CLOSED_GRIPPER);
+            clampLeft.setPosition(CLOSED_GRIPPER_LEFT);//1-CLOSED_GRIPPER);
+            clampRight.setPosition(CLOSED_GRIPPER_RIGHT);//CLOSED_GRIPPER);
         }
         else if (gunner.left_bumper)//OPEN
         {
             clampLeft.setPosition(1 - OPEN_GRIPPER);
             clampRight.setPosition(OPEN_GRIPPER);
         }
+
+        if (gunner.left_trigger > 0.05) { // slow lift
+            clampLeft.setPosition(OPEN_GRIPPER_SMALL_LEFT);
+            clampRight.setPosition(OPEN_GRIPPER_SMALL_RIGHT);
+            nextFrameOpenFully = true;
+        }  else if (nextFrameOpenFully) {
+            nextFrameOpenFully = false;
+            clampLeft.setPosition(1 - OPEN_GRIPPER);
+            clampRight.setPosition(OPEN_GRIPPER);
+        }
+
 
         /*
         if (gunner.right_bumper)
@@ -380,7 +400,7 @@ public class FRRTeleop extends ActiveOpMode {
         if (ogY<0) {
             return ogY*.35f;
         } else {
-            return ogY * .55f;
+            return ogY * .4f; // going up
         }
     }
     private static float alterLiftPower() {

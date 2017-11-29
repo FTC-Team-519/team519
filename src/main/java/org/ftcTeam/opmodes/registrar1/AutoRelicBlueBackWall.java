@@ -558,12 +558,15 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 }
                 break;
             case 23:
-                setGrabber(GrabberState.Open);
+                //setGrabber(GrabberState.Open);
+                clampRight.setPosition(OPEN_GRIPPER);
+                clampLeft.setPosition(1 - CLOSED_GRIPPER); //supposed to turn block into crypto-box
                 ++step;
                 break;
             case 24:
                 if (getTimer().targetReached(0.75)) {
                     // Gripper should be opened fully at this point
+                    setGrabber(GrabberState.Open);
                     ++step;
                 }
                 break;
@@ -756,7 +759,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
-        double forwardDuration = 0.60;
+        double forwardDuration = 0.50;
 /*
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             forwardDuration = 1.2;
@@ -794,11 +797,11 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         double strafeDuration = 0.00;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            strafeDuration = 2.0;
+            strafeDuration = 1.6;
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 3.1;
+            strafeDuration = 2.7;
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
@@ -809,7 +812,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         return strafeDuration;
     }
     private double getSecondTurnDuration(RelicRecoveryVuMark bonusColumn) {
-        double strafeDuration = 0.3;
+        double turnDuration = 0.6;
 /*
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             strafeDuration = 1.0;
@@ -824,7 +827,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
             strafeDuration = 1.0;
         }
 */
-        return strafeDuration;
+        return turnDuration;
     }
 
     private double getBackwardDuration(RelicRecoveryVuMark bonusColumn) {

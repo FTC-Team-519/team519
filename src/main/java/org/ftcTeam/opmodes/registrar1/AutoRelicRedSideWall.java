@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.vuforia.Image;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -18,7 +19,9 @@ import org.ftcbootstrap.ActiveOpMode;
 
 import java.io.UnsupportedEncodingException;
 
-//Actually blue
+
+
+//Actually red
 @Autonomous
 public class AutoRelicRedSideWall extends ActiveOpMode {
 
@@ -51,7 +54,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
     public static final double JEWEL_MAXIMUM_POSITION = 0.54;
 
-    public static final int STARTING_STEP = 0; // Case 9 is start of lift
+    public static final int STARTING_STEP = 9; // Case 9 is start of lift
 
 
     // Assets
@@ -77,17 +80,27 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     private VuforiaLocalizer.Parameters parameters;
     private VuforiaLocalizer vuforia;
     private VuforiaTrackables ftc2017Trackables;
-  //  private ByteBuffer imgBuffer;
+    //  private ByteBuffer imgBuffer;
     private int byte1;
     private int byte2;
     private int byte3;
     private int byte0;
-/*
-    private int red = color.red();
-    private int green = color.green();
-    private int blue = color.blue();
-*/
+
+
+    private final static float CLOSED_GRIPPER = .7f;
+    private final static float GRABBED_GRIPPER = .55f;
+    private final static float OPEN_GRIPPER = .35f;
+
+    private final static float HIGH_BATTERY = .0f;
+    private final static float LOW_BATTERY = .0f;
+    /*
+        private int red = color.red();
+        private int green = color.green();
+        private int blue = color.blue();
+    */
     private double desiredJewelElbowPosition;
+
+    RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
 
     private int step = STARTING_STEP; //0
     private static String convert(byte[] thing) {
@@ -161,7 +174,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         //Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
 
         try {
-          //  Thread.sleep(3000);
+            //  Thread.sleep(3000);
 
             //CheckImage(vuforia.getFrameQueue().take().getImage(0));
 
@@ -371,7 +384,20 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     @Override
     protected void activeLoop() throws InterruptedException {
 
-        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+        if(vuMark == RelicRecoveryVuMark.UNKNOWN) {
+            vuMark = RelicRecoveryVuMark.from(relicTemplate);
+
+            if (vuMark == RelicRecoveryVuMark.LEFT) {
+                getTelemetryUtil().addData("Target", "LEFT");
+            } else if (vuMark == RelicRecoveryVuMark.CENTER) {
+                getTelemetryUtil().addData("Target", "LEFT");
+            } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
+                getTelemetryUtil().addData("Target", "RIGHT");
+            } else {
+                getTelemetryUtil().addData("Target", "UNSEEN :-(");
+            }
+        }
+
 
 
         //if (vuMark == RelicRecoveryVuMark.UNKNOWN) { throw new InterruptedException("Couldn't find vumark"); }
@@ -380,16 +406,16 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         switch(step) {
 
             case 0://start
-                if (vuMark == RelicRecoveryVuMark.LEFT) {
-                    getTelemetryUtil().addData("Target", "LEFT");
-                } else if (vuMark == RelicRecoveryVuMark.CENTER) {
-                    getTelemetryUtil().addData("Target", "LEFT");
-                } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
-                    getTelemetryUtil().addData("Target", "RIGHT");
-                } else {
-                    getTelemetryUtil().addData("Target", "UNSEEN :-(");
+                double result = Double.POSITIVE_INFINITY;
+                int i = 0;
+                for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+                    ++i;
+                    double voltage = sensor.getVoltage();
+                    if (voltage > 0) {
+                        result = Math.min(result, voltage);
+                    }
+                    getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
-
                 ++step;
                 break;
             case 1:
@@ -464,27 +490,28 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 shoulder.setPosition(STARTING_SHOULDER_POSITION);
                 step++;
                 break;
-            case 9:
+            case 9: // raise
                 lift.setPower(.52);
-                if (getTimer().targetReached(1.3)){
+                if (getTimer().targetReached(0.7)) {
                     ++step;
                     lift.setPower(0.0);
                 }
                 break;
             case 10:
                 setGrabber(GrabberState.Open);
-                if (getTimer().targetReached(1.5)){
-                    step++;}
+                if (getTimer().targetReached(1.5)) {
+                    step++;
+                }
                 break;
             case 11:
-                lift.setPower(-0.2);
-                if (getTimer().targetReached(.6)){
+                lift.setPower(-0.1);
+                if (getTimer().targetReached(.65)) {
                     ++step;
                     lift.setPower(0.0);
                 }
                 break;
             case 12:
-                if (getTimer().targetReached(1.0)){
+                if (getTimer().targetReached(1.0)) {
                     setGrabber(GrabberState.Closed);
                     ++step;
                 }
@@ -496,9 +523,11 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if(getTimer().targetReached(.5)){
-                    ++step;
-                    lift.setPower(0.0);
+                if (getTimer().targetReached(.3)) {
+                    ++step; //normal
+                    //step = 9999999; //testing purposes, only lift
+                    //lift.setPower(0.0);
+                    lift.setPower(0.20); // stall motor to keep glyph from coming down
                 }
                 break;
             case 15: // first move off
@@ -507,9 +536,9 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(1.5)) {
+                if (getTimer().targetReached(getDriveOffPlatformDuration(vuMark))) {
                     stopMoving();
-                    ++step;
+                    ++step; //++step; random step
                 }
                 break;
             case 17:
@@ -539,8 +568,9 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 ++step;
                 break;
             case 22:
-                if (getTimer().targetReached(1.5)) {
+                if (getTimer().targetReached(1.5)) { // moving
                     // Gripper should be opened fully at this point
+                    lift.setPower(0.0);
                     ++step;
                 }
                 break;
@@ -632,11 +662,23 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
             getTelemetryUtil().sendTelemetry();
         }*/
 
+    private double getDriveOffPlatformDuration(RelicRecoveryVuMark mark) {
+        double duration = 2;
+
+        if (mark == RelicRecoveryVuMark.RIGHT) {
+            duration = 3;
+        } else if (mark == RelicRecoveryVuMark.LEFT) {
+            duration = 2.4;
+        }
+
+        return duration;
+    }
+
     private double getTurnDuration(RelicRecoveryVuMark bonusColumn) {
         double turnDuration = 2.4;
 
         if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            turnDuration = 2.2;
+            turnDuration = .525;
         }
         else if (bonusColumn == RelicRecoveryVuMark.LEFT) {
             turnDuration = 2.9;
@@ -650,7 +692,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
 
         if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
             //forwardDuration = 2.30;
-            forwardDuration = 1.2;
+            forwardDuration = 1.1;
 
         }
         else if (bonusColumn == RelicRecoveryVuMark.LEFT) {
@@ -672,7 +714,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     }
 
     public enum GrabberState {
-        Closed, Open
+        Closed, Open;
     }
     public void setGrabber(GrabberState state) {
         if (state == GrabberState.Open) {
