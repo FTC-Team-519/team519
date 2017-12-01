@@ -50,6 +50,8 @@ public class AutoRelicBlueJewelOnly extends ActiveOpMode {
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
     public static final double JEWEL_MAXIMUM_POSITION = 0.54;
 
+    public static final int STARTING_STEP = 0;
+
     // Assets
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -88,7 +90,9 @@ public class AutoRelicBlueJewelOnly extends ActiveOpMode {
 */
     private double desiredJewelElbowPosition;
 
-    private int step = 0;
+    RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
+
+    private int step = STARTING_STEP;
     private static String convert(byte[] thing) {
         try {
             return new String(thing, "US-ASCII");
@@ -372,25 +376,23 @@ public class AutoRelicBlueJewelOnly extends ActiveOpMode {
     @Override
     protected void activeLoop() throws InterruptedException {
 
-        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+        if(vuMark == RelicRecoveryVuMark.UNKNOWN) {
+            vuMark = RelicRecoveryVuMark.from(relicTemplate);
 
-
-        //if (vuMark == RelicRecoveryVuMark.UNKNOWN) { throw new InterruptedException("Couldn't find vumark"); }
-
+            if (vuMark == RelicRecoveryVuMark.LEFT) {
+                getTelemetryUtil().addData("Target", "LEFT");
+            } else if (vuMark == RelicRecoveryVuMark.CENTER) {
+                getTelemetryUtil().addData("Target", "LEFT");
+            } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
+                getTelemetryUtil().addData("Target", "RIGHT");
+            } else {
+                getTelemetryUtil().addData("Target", "UNSEEN :-(");
+            }
+        }
 
         switch(step) {
 
             case 0://start
-                if (vuMark == RelicRecoveryVuMark.LEFT) {
-                    getTelemetryUtil().addData("Target", "LEFT");
-                } else if (vuMark == RelicRecoveryVuMark.CENTER) {
-                    getTelemetryUtil().addData("Target", "LEFT");
-                } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
-                    getTelemetryUtil().addData("Target", "RIGHT");
-                } else {
-                    getTelemetryUtil().addData("Target", "UNSEEN :-(");
-                }
-
                 ++step;
                 break;
             case 1:

@@ -45,13 +45,14 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     private static final String KEY = convert(MY_VALUE);
 
     private static final double JEWEL_BASE_SHOULDER_POSITION = 0.51;
-    private static final double JEWEL_FIRST_ELBOW_POSITION = 0.16;
+    private static final double JEWEL_FIRST_ELBOW_POSITION = 0.15;
     private static final double JEWEL_SECOND_ELBOW_POSITION = 0.23;
     private static final double SHOULDER_KNOCK_LEFT = 0.4;
     private static final double SHOULDER_KNOCK_RIGHT = 0.6;
     public static final float STARTING_SHOULDER_POSITION = 0.96f;
     public static final float STARTING_ELBOW_POSITION = 0.91f;
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
+    public static final double JEWEL_MAXIMUM_POSITION = 0.54;
 
     public static final int STARTING_STEP = 0;
 
@@ -389,7 +390,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
             if (vuMark == RelicRecoveryVuMark.LEFT) {
                 getTelemetryUtil().addData("Target", "LEFT");
             } else if (vuMark == RelicRecoveryVuMark.CENTER) {
-                getTelemetryUtil().addData("Target", "LEFT");
+                getTelemetryUtil().addData("Target", "CENTER");
             } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
                 getTelemetryUtil().addData("Target", "RIGHT");
             } else {
@@ -410,8 +411,10 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                     }
                     getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
-                //++step;
-                step = 9;//testing purposes, skips jewel
+
+                setGrabber(GrabberState.Closed);
+                ++step;
+                //step = 9;//testing purposes, skips jewel
                 break;
             case 1:
                 shoulder.setPosition(JEWEL_BASE_SHOULDER_POSITION);
@@ -448,12 +451,23 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 getTelemetryUtil().addData("green: ", green);
                 getTelemetryUtil().addData("blue: ", blue);
 
-                if (red > 0) { //knock jewel
-                    shoulder.setPosition(SHOULDER_KNOCK_RIGHT);
-                } else {
+                if ((blue > 5) || (blue > red)){ //knock blue jewel (red jewel stays)
                     shoulder.setPosition(SHOULDER_KNOCK_LEFT);
+                    step++;
                 }
-                step++;
+                else if ((red > 5) || (red > blue)){
+                    shoulder.setPosition(SHOULDER_KNOCK_RIGHT);
+                    step++;
+                }
+                else if(getTimer().targetReached(0.01)){
+                    shoulderPosition = shoulder.getPosition();
+                    if (shoulderPosition >= JEWEL_MAXIMUM_POSITION) {
+                        ++step;
+                    } else {
+                        shoulder.setPosition(shoulderPosition + 0.005);
+                    }
+
+                }
                 break;
             case 6:
                 desiredJewelElbowPosition = elbow.getPosition();
@@ -472,7 +486,9 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 8:
                 shoulder.setPosition(STARTING_SHOULDER_POSITION);
-                step++;
+                if (getTimer().targetReached(0.5)) {
+                    step++;
+                }
                 break;
             case 9: // raise
                 lift.setPower(.52);
@@ -489,7 +505,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.65)) {
+                if (getTimer().targetReached(.40)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -812,7 +828,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         return strafeDuration;
     }
     private double getSecondTurnDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = 0.6;
+        double turnDuration = 0.7;
 /*
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             strafeDuration = 1.0;

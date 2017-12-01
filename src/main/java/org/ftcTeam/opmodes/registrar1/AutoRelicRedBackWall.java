@@ -19,11 +19,12 @@ import org.ftcbootstrap.ActiveOpMode;
 
 import java.io.UnsupportedEncodingException;
 
+/**
+ * Created by NovaLabs Robotics on 11/30/2017.
+ */
 
-
-//Actually red
 @Autonomous
-public class AutoRelicRedSideWall extends ActiveOpMode {
+public class AutoRelicRedBackWall extends ActiveOpMode {
 
     //License key
     private static final String A = "QWJaajY5di8vLy8vQUFBQUdTWHZyMEc2TDBrTXJ3TUQwT";
@@ -53,10 +54,8 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     public static final float STARTING_ELBOW_POSITION = 0.91f;
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
     public static final double JEWEL_MAXIMUM_POSITION = 0.54;
-    private final static float OPEN_GRIPPER_SMALL_LEFT = .58f; //.7
-    private final static float OPEN_GRIPPER_SMALL_RIGHT = .42f;//.3
 
-    public static final int STARTING_STEP = 0; // Case 9 is start of lift
+    public static final int STARTING_STEP = 0;
 
 
     // Assets
@@ -93,6 +92,10 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     private final static float GRABBED_GRIPPER = .55f;
     private final static float OPEN_GRIPPER = .35f;
 
+
+    private final static float OPEN_GRIPPER_SMALL_LEFT = .58f; //.7
+    private final static float OPEN_GRIPPER_SMALL_RIGHT = .42f;//.3
+
     private final static float HIGH_BATTERY = .0f;
     private final static float LOW_BATTERY = .0f;
     /*
@@ -125,8 +128,6 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
 
         return null;
     }
-
-    @Override
     protected void onInit() {
         getTelemetryUtil().addData("Init", getClass().getSimpleName() + " onInit."); //Show the init status
         getTelemetryUtil().sendTelemetry(); //Push update
@@ -185,48 +186,6 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         }
     }
 
-    /*
-    private ArrayList<Double> RGBtoHSV(int r, int g, int b) {
-        ArrayList<Double> vals = new ArrayList<Double>();
-        double red = r / 255.0;
-        double green = g / 255.0;
-        double blue = b / 255.0;
-        double cmax= Math.max(Math.max(red, green), blue);
-        double cmin= Math.min(Math.min(red, green), blue);
-        double luminance = (cmax+cmin)/2;
-        double hue;
-        double saturation;
-
-        if (cmax == cmin) {
-            hue = 0;
-            saturation = 0;
-        } else {
-            double delta = cmax-cmin;
-            if (luminance < 0.5) {
-                saturation = delta / (cmax + cmin);
-            } else {
-                saturation = delta / (2 - cmax - cmin);
-            }
-            if (red == cmax) {
-                hue = (green - blue) / delta;
-            } else if (green == cmax) {
-                hue = 2 + (blue - red) / delta;
-            } else {
-                hue = 4 + (red - green) / delta;
-            }
-            hue /= 6;
-            if (hue < 0) {
-                hue += 1;
-            } else if (hue > 1) {
-                hue -= 1;
-            }
-        }
-        vals.add(hue);
-        vals.add(luminance);
-        vals.add(saturation);
-        return vals;
-    }*/
-
     public void RGBtoHSLEclipse(int r,int g,int b, double[] hsl) {
         double red = r / 255.0;
         double green = g / 255.0;
@@ -241,11 +200,6 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
             saturation = 0;
         } else {
             double delta = cmax-cmin;
-           /* if (luminance < 0.5) {
-                saturation = delta / (cmax + cmin);
-            } else {
-                saturation = delta / (2 - cmax - cmin);
-            }*/
             saturation = delta / (1f - Math.abs(2f * luminance - 1f));
             if (red == cmax) {
                 hue = (green - blue) / delta;
@@ -309,24 +263,10 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 }
             }
         }
-       /* if (hue <= 5 || hue >= 360) {
-            if (lum >= .40) {
-                if (sat <= 40) {
-                    ret = "Red";
-                }
-            }
-        }
-       /* if (hue >= 320 || hue <= 10) {
-            if (lum >= 20 && lum <= 70) {
-              //  if (sat >= 40) {
-                    ret = "Red";
-              //  }
-            }
-        }*/
         if (hue >= 220 && hue <= 245) {
             if (lum >= 20 && lum <= 70) {
-               // if (sat >= 40) {
-                    ret = "Blue";
+                // if (sat >= 40) {
+                ret = "Blue";
                 //}
             }
         }
@@ -339,39 +279,11 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         Bitmap bm = Bitmap.createBitmap(image.getWidth(),image.getHeight(),Bitmap.Config.RGB_565);
         bm.copyPixelsFromBuffer(image.getPixels());
 
-       int[] pix = new int[image.getWidth() * image.getHeight()];
+        int[] pix = new int[image.getWidth() * image.getHeight()];
         bm.getPixels(pix, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
 
         for (int y = 0; y < bm.getHeight(); y++){
             for (int x = 0; x < bm.getWidth(); x++){
-               // int index = y * image.getWidth() + x;
-               // int red = (pix[index] >> 16) & 0xff;     //bitwise shifting
-                //int green = (pix[index] >> 8) & 0xff;
-                //int blue = pix[index] & 0xff;
-               /* int pix = bm.getPixel(x,y);
-                int red = Color.red(pix);
-                int green = Color.green(pix);
-                int blue = Color.blue(pix);
-                float[] hsv = new float[3];*/
-                //Color.RGBToHSV(red,green,blue,hsv);
-                //Color.colorToHSV(Color.rgb(red,green,blue), hsv);
-              //  getTelemetryUtil().addData("Stats", hsv[0] + " | " + hsv[1] + " | " + hsv[2]);
-               /* if ((hsv[0] >= 0 && hsv[0] <= 10) || (hsv[0] >= 350)) {// h
-                    if (hsv[1] >= .50) {//s
-                        if (hsv[2] >= .70) {
-                            getTelemetryUtil().addData("Red", "Yes. ");
-                        }
-                    }
-                }*/
-               // double[] hsl = new double[3];
-
-                //RGBtoHSLEclipse(Color.red(pix),Color.green(pix),Color.blue(pix),hsl);
-
-                //getTelemetryUtil().addData("Sat Lum", hsl[1] + " | " + hsl[2]);
-                /*if (getColor(hsl[0], hsl[1], hsl[2]) != "Unknown") {
-                   // getTelemetryUtil().addData("Color" + getColor(hsl[0], hsl[1], hsl[2]), "Found");
-                }*/
-              //  getTelemetryUtil().addData("PixelDat", "Red " + red + " Green " + green + " Blue " + blue);
                 getTelemetryUtil().sendTelemetry();
             }
         } // gets the array of pixels.
@@ -400,11 +312,6 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
             }
         }
 
-
-
-        //if (vuMark == RelicRecoveryVuMark.UNKNOWN) { throw new InterruptedException("Couldn't find vumark"); }
-
-
         switch(step) {
 
             case 0://start
@@ -418,8 +325,10 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                     }
                     getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
+
                 setGrabber(GrabberState.Closed);
                 ++step;
+                //step = 9;//testing purposes, skips jewel
                 break;
             case 1:
                 shoulder.setPosition(JEWEL_BASE_SHOULDER_POSITION);
@@ -456,15 +365,13 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 getTelemetryUtil().addData("green: ", green);
                 getTelemetryUtil().addData("blue: ", blue);
 
-                if ((red > 5) || (red > blue)){ //knock blue jewel (red jewel stays)
-                    shoulder.setPosition(SHOULDER_KNOCK_LEFT);
-                    step++;
-                }
-                else if ((blue > 5) || (blue > red)){
+                if ((blue > 5) || (blue > red)) { //knock blue jewel (red jewel stays)
                     shoulder.setPosition(SHOULDER_KNOCK_RIGHT);
                     step++;
-                }
-                else if(getTimer().targetReached(0.01)){
+                } else if ((red > 5) || (red > blue)) {
+                    shoulder.setPosition(SHOULDER_KNOCK_LEFT);
+                    step++;
+                } else if (getTimer().targetReached(0.01)) {
                     shoulderPosition = shoulder.getPosition();
                     if (shoulderPosition >= JEWEL_MAXIMUM_POSITION) {
                         ++step;
@@ -491,11 +398,11 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 break;
             case 8:
                 shoulder.setPosition(STARTING_SHOULDER_POSITION);
-                if (getTimer().targetReached(0.5)) {
-                    ++step;
+                if (getTimer().targetReached(0.7)) {
+                    step++;
                 }
                 break;
-            case 9: // raise lift
+            case 9: // raise
                 lift.setPower(.52);
                 if (getTimer().targetReached(0.7)) {
                     ++step;
@@ -508,16 +415,16 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                     step++;
                 }
                 break;
-            case 11: //lower lift
+            case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.4)) {
+                if (getTimer().targetReached(.40)) {
                     ++step;
                     lift.setPower(0.0);
                 }
                 break;
             case 12:
                 if (getTimer().targetReached(1.0)) {
-                    setGrabber(GrabberState.Closed);
+                    setGrabber(GrabberState.Grabbed);
                     ++step;
                 }
                 break;
@@ -528,216 +435,264 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if (getTimer().targetReached(.45)) {
+                if (getTimer().targetReached(.3)) {
                     ++step; //normal
                     //step = 9999999; //testing purposes, only lift
                     //lift.setPower(0.0);
-                    lift.setPower(0.20); // stall motor to keep glyph from coming down
+                    lift.setPower(0.10); // stall motor to keep glyph from coming down
                 }
                 break;
-            case 15: // first move off
+            case 15:
                 SetDriveDirection(DriveDirection.Forwards);
                 reverse(0.15);
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(getDriveOffPlatformDuration(vuMark))) {
+                if (getTimer().targetReached(1.6)) {
                     stopMoving();
-                    ++step; //++step; random step
+                    //++step;
+                    step = 200;
                 }
                 break;
-            case 17:
-                //turnRight(-0.35, true);
-                turnRight(-0.35, true);
+            case 200:
+                turnRight(.27, true);
                 ++step;
                 break;
-            case 18:
+            case 201:
                 if (getTimer().targetReached(getTurnDuration(vuMark))) {
-                    getTelemetryUtil().addData("Turn", "End turn duration");
                     stopMoving();
                     ++step;
-
                 }
                 break;
-            case 19:
+            case 202:
+                if (getTimer().targetReached(1.0)) {
+                    forward(-0.15);
+                    ++step;
+                }
+                break;
+            case 203:
+                if (getTimer().targetReached(getForwardDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 204:
+                turnRight(0.25, false);
+
+                ++step;
+                break;
+            case 205:
+                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 206:
                 forward(0.15);
                 ++step;
                 break;
-            case 20:
-                if (getTimer().targetReached(getForwardDuration(vuMark))) {
+            case 207:
+                if (getTimer().targetReached(getSecondForwardDuration(vuMark))) {
                     stopMoving();
                     //++step;
-                    step = 100;
+                    step = 23;
                 }
                 break;
-            case 100:
-                turnLeft(0.35, false);
-                step++;
+            case 17:
+                strafeRightSlow();
+                step = 100; //alternate glyph placeing method
+                //++step;
                 break;
-            case 101:
-                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
+            case 18:
+                if (getTimer().targetReached(getStrafeDuration(vuMark))) {
                     stopMoving();
-                    step = 21;
+                    ++step;
                 }
-                //step++;
                 break;
-            case 21:
-                setGrabber(GrabberState.CloseOpen);
+            case 19:
+                //turnLeft(0.35, true);
+                turnRight(0.38, false);//newL
+                ++step;
+                break;
+            case 20:
+                if (getTimer().targetReached(getTurnDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 21://drive toward box
+                forward(0.15);
                 ++step;
                 break;
             case 22:
-                if (getTimer().targetReached(1.5)) { // moving
-                    // Gripper should be opened fully at this point
-                    lift.setPower(0.0);
+                if (getTimer().targetReached(getForwardDuration(vuMark))) {
+                    stopMoving();
                     ++step;
                 }
                 break;
             case 23:
-                reverse(0.15);
+                //setGrabber(GrabberState.Open);
+                //clampRight.setPosition(OPEN_GRIPPER);
+                //clampLeft.setPosition(1 - CLOSED_GRIPPER); //supposed to turn block into crypto-box
                 ++step;
                 break;
             case 24:
+                if (getTimer().targetReached(0.75)) {
+                    // Gripper should be opened fully at this point
+                    setGrabber(GrabberState.CloseOpen);
+                    ++step;
+                }
+                break;
+            case 25://back away
+                forward(-0.15);
+                ++step;
+                break;
+            case 26:
                 if (getTimer().targetReached(getBackwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            default:
+            case 27:
+                lift.setPower(0.0);
+            default://what is this? --Luke
                 break;
 
-        }
 
+            case 100:
+                if (getTimer().targetReached(getSecondStrafeDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 101:
+                turnRight(0.38, false);
+                ++step;
+                break;
+            case 102:
+                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
+                    stopMoving();
+                    step = 23;
+                }
+                break;
+        }
         getTelemetryUtil().addData("Step: ", "" + step);
         getTelemetryUtil().sendTelemetry();
-
-        /*try {
-            long millis1 = System.currentTimeMillis();
-            RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-            if (doThing == true) {
-                doThing = false;*/
-               // Thread.sleep(5000);
-
-            }
-            //getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
-         /*   if (imgBuffer == null) {
-                imgBuffer = vuforia.getFrameQueue().take().getImage(0).getPixels().duplicate();
-                vuforia.setFrameQueueCapacity(0);
-            }
-            /*
-            while (imgBuffer.position() < imgBuffer.limit()) {
-                byte0 = imgBuffer.get() & 0xFF;
-                byte1 = imgBuffer.get() & 0xFF;
-                byte2 = imgBuffer.get() & 0xFF;
-                byte3 = imgBuffer.get() & 0xFF;
-
-                //  getTelemetryUtil().addData("Size", "" + imgBuffer.limit()); //bitmask
-                //getTelemetryUtil().addData("Position", "" + imgBuffer.position());
-                /*getTelemetryUtil().addData("[0] Alpha", "" + byte0);
-                getTelemetryUtil().addData("[1] Red", "" + byte1);
-                getTelemetryUtil().addData("[2] Green", "" + byte2);
-                getTelemetryUtil().addData("[3] Blue", "" + byte3);
-                double[] hsl = new double[3];
-//               ./ float[] hsl = new float[3];
-               //RGBtoHSL(byte1, byte2, byte3, hsl);
-                RGBtoHSLEclipse(byte1, byte2, byte3, hsl);
-                /*if (done == false) {
-                    done = true;
-                    getTelemetryUtil().addData("Data", "H" + HSV.get(0) + " L" + HSV.get(1) + " S" + HSV.get(2));
-                }
-                if (hsl[0] < 0) {
-                    getTelemetryUtil().addData("ALERT < 0", "Hue val was " + hsl[0] + " from the vanilla byte " + byte1);
-                }
-              //  getTelemetryUtil().addData("Data", "Hue " + hsl[0] * 360 + " Saturation " + hsl[1] * 100 + " Luminance " + hsl[2] * 100);
-                getTelemetryUtil().addData("RGB", "R" + byte1 + " G" + byte2 + " B" + byte3);
-                //String ye = getColor(hsl[0] * 360, hsl[1] * 100, hsl[2] * 100);
-                if (ye.equalsIgnoreCase("red")) {
-                    getTelemetryUtil().addData("Found1", ye);
-                }
-                if (ye.equalsIgnoreCase("blue")) {
-                    getTelemetryUtil().addData("Found2", ye);
-                }
-                getTelemetryUtil().sendTelemetry();
-            }*//*
-            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-                // Image img =  vuforia.getFrameQueue().take().getImage(0); //format 8888
-                getTelemetryUtil().addData("Target", vuMark.name());
-                getTelemetryUtil().addData("Elapsed time", System.currentTimeMillis() - millis1 + "ms");
-                //getTelemetryUtil().addData("Dimensions", img.getHeight() + "h " + img.getWidth() + "w");
-            }
-        }
-/*
-        getTelemetryUtil().addData("Step ", "" + step);
-
-        switch(step) {
-        case 1: {
-
-
-        }
-        catch (Throwable t) {
-            getTelemetryUtil().addData("Throwable: ", t.getMessage());
-        }
-        finally {
-            getTelemetryUtil().sendTelemetry();
-        }*/
-
-    private double getDriveOffPlatformDuration(RelicRecoveryVuMark mark) {
-        double duration = 3.35;
-
-        if (mark == RelicRecoveryVuMark.RIGHT) {
-            duration = 3;
-        } else if (mark == RelicRecoveryVuMark.LEFT) {
-            duration = 2.3;
-        }
-
-        return duration;
     }
 
     private double getTurnDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = .65;
+        double turnDuration = 2.0;
 
-        if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            turnDuration = .525;
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            turnDuration = 2.0;
+            getTelemetryUtil().addData("Turn: ", "CENTER");
         }
-        else if (bonusColumn == RelicRecoveryVuMark.LEFT) {
-            turnDuration = 1.6;
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            getTelemetryUtil().addData("Turn: ", "RIGHT");
+            turnDuration = 2.0;
         }
-
-        return turnDuration;
-    }
-    private double getSecondTurnDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = .8;
-
-        if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            turnDuration = .8;
-        }
-        else if (bonusColumn == RelicRecoveryVuMark.LEFT) {
-            turnDuration = 0;
+        else {
+            getTelemetryUtil().addData("Turn: ", "LEFT");
         }
 
         return turnDuration;
-    }
 
+
+    }
     private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
-        double forwardDuration = .65;
+        double forwardDuration = 0.0;
 
-        if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            //forwardDuration = 2.30;
-            //forwardDuration = 1.1;
-            forwardDuration = 0.9;
-
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            forwardDuration = .5;
+            getTelemetryUtil().addData("Forward: ", "CENTER");
         }
-        else if (bonusColumn == RelicRecoveryVuMark.LEFT) {
-            //forwardDuration = 1.7;
-            forwardDuration = .9;
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            forwardDuration = 0.0;
+            getTelemetryUtil().addData("Forward: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Forward: ", "LEFT");
+        }
 
+        return forwardDuration;
+    }
+    private double getSecondForwardDuration(RelicRecoveryVuMark bonusColumn) {
+        double forwardDuration = 1.0;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            forwardDuration = .5;
+            getTelemetryUtil().addData("Forward: ", "CENTER");
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            forwardDuration = 0.0;
+            getTelemetryUtil().addData("Forward: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Forward: ", "LEFT");
         }
 
         return forwardDuration;
     }
 
+    private double getStrafeDuration(RelicRecoveryVuMark bonusColumn) {
+        double strafeDuration = 0.00;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            strafeDuration = 0.25;
+            getTelemetryUtil().addData("Strafe: ", "CENTER");
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            strafeDuration = 0.7;
+            getTelemetryUtil().addData("Strafe: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Strafe: ", "LEFT");
+        }
+
+        return strafeDuration;
+    }
+    private double getSecondStrafeDuration(RelicRecoveryVuMark bonusColumn) {
+        double strafeDuration = 0.00;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            strafeDuration = 1.6;
+            getTelemetryUtil().addData("Strafe: ", "CENTER");
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            strafeDuration = 2.7;
+            getTelemetryUtil().addData("Strafe: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Strafe: ", "LEFT");
+            strafeDuration = 0.5;
+        }
+
+        return strafeDuration;
+    }
+    private double getSecondTurnDuration(RelicRecoveryVuMark bonusColumn) {
+        double turnDuration = 2.1;
+/*
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            strafeDuration = 1.0;
+            getTelemetryUtil().addData("Strafe: ", "CENTER");
+        }
+        else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            strafeDuration = 1.0;
+            getTelemetryUtil().addData("Strafe: ", "RIGHT");
+        }
+        else {
+            getTelemetryUtil().addData("Strafe: ", "LEFT");
+            strafeDuration = 1.0;
+        }
+*/
+        return turnDuration;
+    }
+
     private double getBackwardDuration(RelicRecoveryVuMark bonusColumn) {
         //return getForwardDuration(bonusColumn);
-        return 0.50;
+        return 0.75;
+        //return 0.40;
+
     }
 
     public enum DriveDirection {
@@ -745,20 +700,21 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     }
 
     public enum GrabberState {
-        Closed, Open, CloseOpen;
+        Grabbed, Open, Closed, CloseOpen
     }
     public void setGrabber(GrabberState state) {
         if (state == GrabberState.Open) {
-            clampLeft.setPosition(0.70);
-            clampRight.setPosition(0.30);
-        }
-        else if (state == GrabberState.CloseOpen) {
+            clampLeft.setPosition(1 - OPEN_GRIPPER);
+            clampRight.setPosition(OPEN_GRIPPER);
+        } else if (state == GrabberState.Grabbed) {
+            clampLeft.setPosition(1 - GRABBED_GRIPPER);
+            clampRight.setPosition(GRABBED_GRIPPER);
+        } else if (state == GrabberState.CloseOpen) {
             clampLeft.setPosition(OPEN_GRIPPER_SMALL_LEFT);
             clampRight.setPosition(OPEN_GRIPPER_SMALL_RIGHT);
-        }
-        else {
-            clampLeft.setPosition(0.4);
-            clampRight.setPosition(0.6);
+        } else {
+            clampLeft.setPosition(1 - CLOSED_GRIPPER);
+            clampRight.setPosition(CLOSED_GRIPPER);
         }
     }
     public void SetDriveDirection(DriveDirection direction) {
@@ -820,10 +776,10 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
 //        backRight.setPower(0.8*power);
 //        frontLeft.setPower(1.0*power);
 //        backLeft.setPower(0.75*(-power));
-        frontRight.setPower(0.65 * (-power));
+        frontRight.setPower(1.0 * (-power));
         backRight.setPower(1.0 * power);
         frontLeft.setPower(1.0 * power);
-        backLeft.setPower(0.8 * (-power));
+        backLeft.setPower(1.0 * (-power));
     }
 
     public void strafeLeftSlow() {
@@ -837,10 +793,11 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     }
 
     public void strafeRightSlow() {
-        //double pow = .65;
-        double pow = .9;
+        double pow = .625;
+        //double pow = .55;
+        //double pow = .9;
 
-        frontRight.setPower(-0.425 * pow);
+        frontRight.setPower(-0.5 * pow);
         backRight.setPower(0.5 * pow);
         frontLeft.setPower(0.5 * pow);
         backLeft.setPower(-0.5 * pow);
@@ -852,5 +809,5 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         backLeft.setPower(0.0d);
         backRight.setPower(0.0d);
     }
-    }
+}
 

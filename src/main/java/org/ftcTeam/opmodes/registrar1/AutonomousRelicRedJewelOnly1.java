@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,6 +20,7 @@ import org.ftcbootstrap.ActiveOpMode;
 import java.io.UnsupportedEncodingException;
 
 //actually Red
+@Disabled
 @Autonomous
 
 
