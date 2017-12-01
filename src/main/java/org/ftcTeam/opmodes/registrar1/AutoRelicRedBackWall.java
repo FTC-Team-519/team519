@@ -326,7 +326,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                     getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
 
-                setGrabber(GrabberState.Closed);
+                //setGrabber(GrabberState.Closed);
                 ++step;
                 //step = 9;//testing purposes, skips jewel
                 break;
@@ -439,7 +439,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                     ++step; //normal
                     //step = 9999999; //testing purposes, only lift
                     //lift.setPower(0.0);
-                    lift.setPower(0.10); // stall motor to keep glyph from coming down
+                    lift.setPower(0.25); // stall motor to keep glyph from coming down
                 }
                 break;
             case 15:
@@ -448,7 +448,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(1.6)) {
+                if (getTimer().targetReached(1.4)) {
                     stopMoving();
                     //++step;
                     step = 200;
@@ -458,7 +458,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 turnRight(.27, true);
                 ++step;
                 break;
-            case 201:
+            case 201: // in use
                 if (getTimer().targetReached(getTurnDuration(vuMark))) {
                     stopMoving();
                     ++step;
@@ -584,12 +584,12 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
         double turnDuration = 2.0;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            turnDuration = 2.0;
+            turnDuration = 2.5;
             getTelemetryUtil().addData("Turn: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
             getTelemetryUtil().addData("Turn: ", "RIGHT");
-            turnDuration = 2.0;
+            turnDuration = 3.0;
         }
         else {
             getTelemetryUtil().addData("Turn: ", "LEFT");
@@ -599,15 +599,27 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
 
 
     }
-    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
+
+    private double getSecondBackwardsDuration(RelicRecoveryVuMark bonusColumn) {
+        double backwardsDuration = 1.6;
+
+        if (bonusColumn == RelicRecoveryVuMark.CENTER) {
+            backwardsDuration = 1.9;
+        } else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
+            backwardsDuration = 2.2;
+        }
+
+        return backwardsDuration;
+    }
+    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) { // actually backwards
         double forwardDuration = 0.0;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            forwardDuration = .5;
+            forwardDuration = .525;
             getTelemetryUtil().addData("Forward: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            forwardDuration = 0.0;
+            forwardDuration = .46;
             getTelemetryUtil().addData("Forward: ", "RIGHT");
         }
         else {
@@ -671,20 +683,19 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
     }
     private double getSecondTurnDuration(RelicRecoveryVuMark bonusColumn) {
         double turnDuration = 2.1;
-/*
+
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            strafeDuration = 1.0;
+            turnDuration = 1.5;
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 1.0;
+            turnDuration = 1.5;
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
             getTelemetryUtil().addData("Strafe: ", "LEFT");
-            strafeDuration = 1.0;
         }
-*/
+
         return turnDuration;
     }
 

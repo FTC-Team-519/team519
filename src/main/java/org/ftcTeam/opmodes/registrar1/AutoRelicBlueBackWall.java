@@ -412,7 +412,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                     getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
 
-                setGrabber(GrabberState.Closed);
+               // setGrabber(GrabberState.Closed);
                 ++step;
                 //step = 9;//testing purposes, skips jewel
                 break;
@@ -486,7 +486,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 8:
                 shoulder.setPosition(STARTING_SHOULDER_POSITION);
-                if (getTimer().targetReached(0.5)) {
+                if (getTimer().targetReached(0.7)) {
                     step++;
                 }
                 break;
@@ -813,16 +813,16 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         double strafeDuration = 0.00;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            strafeDuration = 1.6;
+            strafeDuration = 1.4; // was previously 1.6
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 2.7;
+            strafeDuration = 2.5; // was previously 2.7
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
             getTelemetryUtil().addData("Strafe: ", "LEFT");
-            strafeDuration = 0.5;
+            strafeDuration = 0.5; // was previously 0.5
         }
 
         return strafeDuration;

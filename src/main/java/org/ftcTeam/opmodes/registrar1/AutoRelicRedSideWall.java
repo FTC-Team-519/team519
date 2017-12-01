@@ -418,7 +418,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                     }
                     getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
-                setGrabber(GrabberState.Closed);
+                //setGrabber(GrabberState.Closed);
                 ++step;
                 break;
             case 1:
@@ -582,7 +582,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 //step++;
                 break;
             case 21:
-                setGrabber(GrabberState.CloseOpen);
+                setGrabber(GrabberState.Open);
                 ++step;
                 break;
             case 22:
@@ -745,20 +745,23 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
     }
 
     public enum GrabberState {
-        Closed, Open, CloseOpen;
+        Closed, Open, Grabbed;
     }
     public void setGrabber(GrabberState state) {
-        if (state == GrabberState.Open) {
-            clampLeft.setPosition(0.70);
-            clampRight.setPosition(0.30);
+        if (state == GrabberState.Open)
+        {
+            clampLeft.setPosition(1 - OPEN_GRIPPER);
+            clampRight.setPosition(OPEN_GRIPPER);
         }
-        else if (state == GrabberState.CloseOpen) {
-            clampLeft.setPosition(OPEN_GRIPPER_SMALL_LEFT);
-            clampRight.setPosition(OPEN_GRIPPER_SMALL_RIGHT);
+        else if (state == GrabberState.Grabbed)
+        {
+            clampLeft.setPosition(1 - GRABBED_GRIPPER);
+            clampRight.setPosition(GRABBED_GRIPPER);
         }
-        else {
-            clampLeft.setPosition(0.4);
-            clampRight.setPosition(0.6);
+        else
+        {
+            clampLeft.setPosition(1 - CLOSED_GRIPPER);
+            clampRight.setPosition(CLOSED_GRIPPER);
         }
     }
     public void SetDriveDirection(DriveDirection direction) {
