@@ -95,11 +95,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
 
     private final static float HIGH_BATTERY = .0f;
     private final static float LOW_BATTERY = .0f;
-    /*
-        private int red = color.red();
-        private int green = color.green();
-        private int blue = color.blue();
-    */
+
     private double desiredJewelElbowPosition;
 
     RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
@@ -139,8 +135,6 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         backRight = hardwareMap.dcMotor.get("backRight");
 
         SetDriveDirection(DriveDirection.Forwards);
-        /*frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);*/
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -152,8 +146,6 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         elbow = hardwareMap.servo.get("elbow");
 
         lift = hardwareMap.dcMotor.get("lift");
-        //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setPower(0.0);
@@ -185,47 +177,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         }
     }
 
-    /*
-    private ArrayList<Double> RGBtoHSV(int r, int g, int b) {
-        ArrayList<Double> vals = new ArrayList<Double>();
-        double red = r / 255.0;
-        double green = g / 255.0;
-        double blue = b / 255.0;
-        double cmax= Math.max(Math.max(red, green), blue);
-        double cmin= Math.min(Math.min(red, green), blue);
-        double luminance = (cmax+cmin)/2;
-        double hue;
-        double saturation;
 
-        if (cmax == cmin) {
-            hue = 0;
-            saturation = 0;
-        } else {
-            double delta = cmax-cmin;
-            if (luminance < 0.5) {
-                saturation = delta / (cmax + cmin);
-            } else {
-                saturation = delta / (2 - cmax - cmin);
-            }
-            if (red == cmax) {
-                hue = (green - blue) / delta;
-            } else if (green == cmax) {
-                hue = 2 + (blue - red) / delta;
-            } else {
-                hue = 4 + (red - green) / delta;
-            }
-            hue /= 6;
-            if (hue < 0) {
-                hue += 1;
-            } else if (hue > 1) {
-                hue -= 1;
-            }
-        }
-        vals.add(hue);
-        vals.add(luminance);
-        vals.add(saturation);
-        return vals;
-    }*/
 
     public void RGBtoHSLEclipse(int r,int g,int b, double[] hsl) {
         double red = r / 255.0;
@@ -241,12 +193,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
             saturation = 0;
         } else {
             double delta = cmax-cmin;
-           /* if (luminance < 0.5) {
-                saturation = delta / (cmax + cmin);
-            } else {
-                saturation = delta / (2 - cmax - cmin);
-            }*/
-            saturation = delta / (1f - Math.abs(2f * luminance - 1f));
+                    saturation = delta / (1f - Math.abs(2f * luminance - 1f));
             if (red == cmax) {
                 hue = (green - blue) / delta;
             } else if (green == cmax) {
@@ -309,20 +256,6 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 }
             }
         }
-       /* if (hue <= 5 || hue >= 360) {
-            if (lum >= .40) {
-                if (sat <= 40) {
-                    ret = "Red";
-                }
-            }
-        }
-       /* if (hue >= 320 || hue <= 10) {
-            if (lum >= 20 && lum <= 70) {
-              //  if (sat >= 40) {
-                    ret = "Red";
-              //  }
-            }
-        }*/
         if (hue >= 220 && hue <= 245) {
             if (lum >= 20 && lum <= 70) {
                // if (sat >= 40) {
@@ -344,35 +277,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
 
         for (int y = 0; y < bm.getHeight(); y++){
             for (int x = 0; x < bm.getWidth(); x++){
-               // int index = y * image.getWidth() + x;
-               // int red = (pix[index] >> 16) & 0xff;     //bitwise shifting
-                //int green = (pix[index] >> 8) & 0xff;
-                //int blue = pix[index] & 0xff;
-               /* int pix = bm.getPixel(x,y);
-                int red = Color.red(pix);
-                int green = Color.green(pix);
-                int blue = Color.blue(pix);
-                float[] hsv = new float[3];*/
-                //Color.RGBToHSV(red,green,blue,hsv);
-                //Color.colorToHSV(Color.rgb(red,green,blue), hsv);
-              //  getTelemetryUtil().addData("Stats", hsv[0] + " | " + hsv[1] + " | " + hsv[2]);
-               /* if ((hsv[0] >= 0 && hsv[0] <= 10) || (hsv[0] >= 350)) {// h
-                    if (hsv[1] >= .50) {//s
-                        if (hsv[2] >= .70) {
-                            getTelemetryUtil().addData("Red", "Yes. ");
-                        }
-                    }
-                }*/
-               // double[] hsl = new double[3];
-
-                //RGBtoHSLEclipse(Color.red(pix),Color.green(pix),Color.blue(pix),hsl);
-
-                //getTelemetryUtil().addData("Sat Lum", hsl[1] + " | " + hsl[2]);
-                /*if (getColor(hsl[0], hsl[1], hsl[2]) != "Unknown") {
-                   // getTelemetryUtil().addData("Color" + getColor(hsl[0], hsl[1], hsl[2]), "Found");
-                }*/
-              //  getTelemetryUtil().addData("PixelDat", "Red " + red + " Green " + green + " Blue " + blue);
-                getTelemetryUtil().sendTelemetry();
+                              getTelemetryUtil().sendTelemetry();
             }
         } // gets the array of pixels.
         getTelemetryUtil().addData("Done", "Finished search");
@@ -400,10 +305,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
             }
         }
 
-
-
         //if (vuMark == RelicRecoveryVuMark.UNKNOWN) { throw new InterruptedException("Couldn't find vumark"); }
-
 
         switch(step) {
 
@@ -510,7 +412,7 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 break;
             case 11: //lower lift
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.4)) {
+                if (getTimer().targetReached(.3)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -570,33 +472,33 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                     step = 100;
                 }
                 break;
-            case 100:
+            case 21:
                 turnLeft(0.35, false);
                 step++;
                 break;
-            case 101:
+            case 22:
                 if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
                     stopMoving();
-                    step = 21;
+                    ++step;
                 }
                 //step++;
                 break;
-            case 21:
+            case 23:
                 setGrabber(GrabberState.Open);
                 ++step;
                 break;
-            case 22:
+            case 24:
                 if (getTimer().targetReached(1.5)) { // moving
                     // Gripper should be opened fully at this point
                     lift.setPower(0.0);
                     ++step;
                 }
                 break;
-            case 23:
+            case 25:
                 reverse(0.15);
                 ++step;
                 break;
-            case 24:
+            case 26:
                 if (getTimer().targetReached(getBackwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
@@ -610,83 +512,17 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
         getTelemetryUtil().addData("Step: ", "" + step);
         getTelemetryUtil().sendTelemetry();
 
-        /*try {
-            long millis1 = System.currentTimeMillis();
-            RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-            if (doThing == true) {
-                doThing = false;*/
-               // Thread.sleep(5000);
 
             }
-            //getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
-         /*   if (imgBuffer == null) {
-                imgBuffer = vuforia.getFrameQueue().take().getImage(0).getPixels().duplicate();
-                vuforia.setFrameQueueCapacity(0);
-            }
-            /*
-            while (imgBuffer.position() < imgBuffer.limit()) {
-                byte0 = imgBuffer.get() & 0xFF;
-                byte1 = imgBuffer.get() & 0xFF;
-                byte2 = imgBuffer.get() & 0xFF;
-                byte3 = imgBuffer.get() & 0xFF;
 
-                //  getTelemetryUtil().addData("Size", "" + imgBuffer.limit()); //bitmask
-                //getTelemetryUtil().addData("Position", "" + imgBuffer.position());
-                /*getTelemetryUtil().addData("[0] Alpha", "" + byte0);
-                getTelemetryUtil().addData("[1] Red", "" + byte1);
-                getTelemetryUtil().addData("[2] Green", "" + byte2);
-                getTelemetryUtil().addData("[3] Blue", "" + byte3);
-                double[] hsl = new double[3];
-//               ./ float[] hsl = new float[3];
-               //RGBtoHSL(byte1, byte2, byte3, hsl);
-                RGBtoHSLEclipse(byte1, byte2, byte3, hsl);
-                /*if (done == false) {
-                    done = true;
-                    getTelemetryUtil().addData("Data", "H" + HSV.get(0) + " L" + HSV.get(1) + " S" + HSV.get(2));
-                }
-                if (hsl[0] < 0) {
-                    getTelemetryUtil().addData("ALERT < 0", "Hue val was " + hsl[0] + " from the vanilla byte " + byte1);
-                }
-              //  getTelemetryUtil().addData("Data", "Hue " + hsl[0] * 360 + " Saturation " + hsl[1] * 100 + " Luminance " + hsl[2] * 100);
-                getTelemetryUtil().addData("RGB", "R" + byte1 + " G" + byte2 + " B" + byte3);
-                //String ye = getColor(hsl[0] * 360, hsl[1] * 100, hsl[2] * 100);
-                if (ye.equalsIgnoreCase("red")) {
-                    getTelemetryUtil().addData("Found1", ye);
-                }
-                if (ye.equalsIgnoreCase("blue")) {
-                    getTelemetryUtil().addData("Found2", ye);
-                }
-                getTelemetryUtil().sendTelemetry();
-            }*//*
-            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-                // Image img =  vuforia.getFrameQueue().take().getImage(0); //format 8888
-                getTelemetryUtil().addData("Target", vuMark.name());
-                getTelemetryUtil().addData("Elapsed time", System.currentTimeMillis() - millis1 + "ms");
-                //getTelemetryUtil().addData("Dimensions", img.getHeight() + "h " + img.getWidth() + "w");
-            }
-        }
-/*
-        getTelemetryUtil().addData("Step ", "" + step);
-
-        switch(step) {
-        case 1: {
-
-
-        }
-        catch (Throwable t) {
-            getTelemetryUtil().addData("Throwable: ", t.getMessage());
-        }
-        finally {
-            getTelemetryUtil().sendTelemetry();
-        }*/
 
     private double getDriveOffPlatformDuration(RelicRecoveryVuMark mark) {
-        double duration = 3.35;
-
+        //double duration = 3.35;
+        double duration = 3;
         if (mark == RelicRecoveryVuMark.RIGHT) {
-            duration = 3;
+            duration = 2.5;
         } else if (mark == RelicRecoveryVuMark.LEFT) {
-            duration = 2.3;
+            duration = 2;
         }
 
         return duration;

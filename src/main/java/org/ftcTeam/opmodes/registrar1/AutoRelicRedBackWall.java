@@ -448,133 +448,102 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(1.4)) {
+                if (getTimer().targetReached(1.6)) { // changed
                     stopMoving();
                     //++step;
-                    step = 200;
-                }
-                break;
-            case 200:
-                turnRight(.27, true);
-                ++step;
-                break;
-            case 201: // in use
-                if (getTimer().targetReached(getTurnDuration(vuMark))) {
-                    stopMoving();
                     ++step;
-                }
-                break;
-            case 202:
-                if (getTimer().targetReached(1.0)) {
-                    forward(-0.15);
-                    ++step;
-                }
-                break;
-            case 203:
-                if (getTimer().targetReached(getForwardDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 204:
-                turnRight(0.25, false);
-
-                ++step;
-                break;
-            case 205:
-                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 206:
-                forward(0.15);
-                ++step;
-                break;
-            case 207:
-                if (getTimer().targetReached(getSecondForwardDuration(vuMark))) {
-                    stopMoving();
-                    //++step;
-                    step = 23;
                 }
                 break;
             case 17:
-                strafeRightSlow();
-                step = 100; //alternate glyph placeing method
-                //++step;
+                turnRight(.27, true);
+                ++step;
                 break;
-            case 18:
-                if (getTimer().targetReached(getStrafeDuration(vuMark))) {
+            case 18: // in use
+                if (getTimer().targetReached(getTurnDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 19:
-                //turnLeft(0.35, true);
-                turnRight(0.38, false);//newL
-                ++step;
-                break;
-            case 20:
-                if (getTimer().targetReached(getTurnDuration(vuMark))) {
-                    stopMoving();
+                if (getTimer().targetReached(1.0)) {
+                    forward(-0.15);
                     ++step;
                 }
                 break;
-            case 21://drive toward box
-                forward(0.15);
-                ++step;
-                break;
-            case 22:
+            case 20:
                 if (getTimer().targetReached(getForwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
+            case 21:
+                turnRight(0.25, false);
+
+                ++step;
+                break;
+            case 22:
+                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
             case 23:
-                //setGrabber(GrabberState.Open);
-                //clampRight.setPosition(OPEN_GRIPPER);
-                //clampLeft.setPosition(1 - CLOSED_GRIPPER); //supposed to turn block into crypto-box
+                forward(0.15);
                 ++step;
                 break;
             case 24:
+                if (getTimer().targetReached(getSecondForwardDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                    //step = 30;//this
+                    //if something is wrong set step to 30***
+                }
+                break;
+            case 25:
+                strafeRightSlow();
+                step++;
+                //step = 100; //alternate glyph placeing method
+                break;
+            case 26:
+                if (getTimer().targetReached(getSecondStrafeDuration(vuMark))) {
+                    stopMoving();
+                    ++step;
+                }
+                break;
+            case 27:
+                turnRight(0.38, false);
+                ++step;
+                break;
+            case 28:
+                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
+                    stopMoving();
+                    step = 23;
+                }
+                break;
+            case 30:
                 if (getTimer().targetReached(0.75)) {
                     // Gripper should be opened fully at this point
                     setGrabber(GrabberState.CloseOpen);
                     ++step;
                 }
                 break;
-            case 25://back away
+            case 31://back away
                 forward(-0.15);
                 ++step;
                 break;
-            case 26:
+            case 32:
                 if (getTimer().targetReached(getBackwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 27:
+            case 33:
                 lift.setPower(0.0);
-            default://what is this? --Luke
+            default:
                 break;
 
 
-            case 100:
-                if (getTimer().targetReached(getSecondStrafeDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 101:
-                turnRight(0.38, false);
-                ++step;
-                break;
-            case 102:
-                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
-                    stopMoving();
-                    step = 23;
-                }
-                break;
+
         }
         getTelemetryUtil().addData("Step: ", "" + step);
         getTelemetryUtil().sendTelemetry();

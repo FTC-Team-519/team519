@@ -283,28 +283,7 @@ public class FRRTeleopAlt extends ActiveOpMode {
         }
 
 
-        /*
-        if (gunner.right_bumper)
-        {
-            if (!grabberClosed) {
-                //servoLeft.setPower(.15);
-                clampLeft.setPosition(.3);
-                //servoRight.setPower(.15);
-                clampRight.setPosition(.7);
-                if(getTimer().targetReached(.25))
-                    grabberClosed = true;
-            } else {
-                //servoLeft.setPower(.15);
-                clampLeft.setPosition(0.70);
-                //clampLeft.setPosition(0.75);
-                //servoRight.setPower(.15);
-                clampRight.setPosition(0.30);
-                //clampRight.setPosition(0.25);
-                if(getTimer().targetReached(.25))
-                    grabberClosed = false;
-            }
-        }
-        */
+
 
         getTelemetryUtil().sendTelemetry();
     }

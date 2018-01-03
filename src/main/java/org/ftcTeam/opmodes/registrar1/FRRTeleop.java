@@ -162,32 +162,10 @@ public class FRRTeleop extends ActiveOpMode {
         }
 
         if (driver.left_bumper) {
-            /* //old jewel control
-            desiredShoulder -= shoulderInc;
-            shoulder.setPosition(desiredShoulder);
-            */
-            //new slow button for driver
-            SLOW_DRIVE = 0.25;
+            SLOW_DRIVE = 0.4; //updated 1/2/17
             }
             else {
             SLOW_DRIVE = 1.00;
-        }
-        if (driver.right_trigger > 0.05)
-        {
-            /* //old jewel control
-            desiredElbow += elbowInc;
-            elbow.setPosition(desiredElbow);
-            */
-
-        }
-
-        if (driver.left_trigger > 0.05)
-        {
-            /* //old jewel control
-            desiredElbow -= elbowInc;
-            elbow.setPosition(desiredElbow);
-            */
-
         }
 
         getTelemetryUtil().addData("Shoulder angle: ", desiredShoulder);
@@ -224,29 +202,6 @@ public class FRRTeleop extends ActiveOpMode {
             }
         }
 
-       /* if (gunner.a) //lowest height/ground height; press 'A' to put lift at position 0
-                      //target positions need to be tested!!!
-        {
-            lift.setPower(DOWN_POWER);
-            lift.setTargetPosition(0);
-            position = 0;
-        } */
-
-
-        /*if (gunner.b) //second to lowest height, Row 1
-        {
-            if (position > 1) { // Above target height, move down
-
-                lift.setPower(DOWN_POWER);
-                lift.setTargetPosition(ROW1_HEIGHT);
-            }
-            else { // Below target height, move up
-
-                lift.setPower(UP_POWER);
-                lift.setTargetPosition(ROW1_HEIGHT);
-            }
-            position = 1;
-        }*/
         if (gunner.y) //Row 2 height
         {
 
@@ -280,29 +235,6 @@ public class FRRTeleop extends ActiveOpMode {
             clampRight.setPosition(OPEN_GRIPPER);
         }
 
-
-        /*
-        if (gunner.right_bumper)
-        {
-            if (!grabberClosed) {
-                //servoLeft.setPower(.15);
-                clampLeft.setPosition(.3);
-                //servoRight.setPower(.15);
-                clampRight.setPosition(.7);
-                if(getTimer().targetReached(.25))
-                    grabberClosed = true;
-            } else {
-                //servoLeft.setPower(.15);
-                clampLeft.setPosition(0.70);
-                //clampLeft.setPosition(0.75);
-                //servoRight.setPower(.15);
-                clampRight.setPosition(0.30);
-                //clampRight.setPosition(0.25);
-                if(getTimer().targetReached(.25))
-                    grabberClosed = false;
-            }
-        }
-        */
 
         getTelemetryUtil().sendTelemetry();
     }
@@ -398,7 +330,7 @@ public class FRRTeleop extends ActiveOpMode {
         float ogY = -gY;
 
         if (ogY<0) {
-            return ogY*.35f;
+            return ogY*.01f;
         } else {
             return ogY * .4f; // going up
         }

@@ -384,7 +384,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     @Override
     protected void activeLoop() throws InterruptedException {
 
-        if(vuMark == RelicRecoveryVuMark.UNKNOWN) {
+        if (vuMark == RelicRecoveryVuMark.UNKNOWN) {
             vuMark = RelicRecoveryVuMark.from(relicTemplate);
 
             if (vuMark == RelicRecoveryVuMark.LEFT) {
@@ -398,7 +398,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
             }
         }
 
-        switch(step) {
+        switch (step) {
 
             case 0://start
                 double result = Double.POSITIVE_INFINITY;
@@ -412,7 +412,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                     getTelemetryUtil().addData("Voltage[" + i + "]", result);
                 }
 
-               // setGrabber(GrabberState.Closed);
+                // setGrabber(GrabberState.Closed);
                 ++step;
                 //step = 9;//testing purposes, skips jewel
                 break;
@@ -451,15 +451,13 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 getTelemetryUtil().addData("green: ", green);
                 getTelemetryUtil().addData("blue: ", blue);
 
-                if ((blue > 5) || (blue > red)){ //knock blue jewel (red jewel stays)
+                if ((blue > 5) || (blue > red)) { //knock blue jewel (red jewel stays)
                     shoulder.setPosition(SHOULDER_KNOCK_LEFT);
                     step++;
-                }
-                else if ((red > 5) || (red > blue)){
+                } else if ((red > 5) || (red > blue)) {
                     shoulder.setPosition(SHOULDER_KNOCK_RIGHT);
                     step++;
-                }
-                else if(getTimer().targetReached(0.01)){
+                } else if (getTimer().targetReached(0.01)) {
                     shoulderPosition = shoulder.getPosition();
                     if (shoulderPosition >= JEWEL_MAXIMUM_POSITION) {
                         ++step;
@@ -543,133 +541,39 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 17:
                 strafeRightSlow();
-                step = 100; //alternate glyph placeing method
-                //++step;
+                ++step;
                 break;
             case 18:
-                if (getTimer().targetReached(getStrafeDuration(vuMark))) {
+                if (getTimer().targetReached(getSecondStrafeDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
             case 19:
-                //turnLeft(0.35, true);
-                turnRight(0.38, false);//newL
+                turnRight(0.38, false);
                 ++step;
                 break;
             case 20:
-                if (getTimer().targetReached(getTurnDuration(vuMark))) {
+                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
                     stopMoving();
-                    ++step;
+                    step++;
                 }
                 break;
-            case 21://drive toward box
-                forward(0.15);
-                ++step;
-                break;
-            case 22:
-                if (getTimer().targetReached(getForwardDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 23:
+            case 21:
                 //setGrabber(GrabberState.Open);
                 clampRight.setPosition(OPEN_GRIPPER);
                 clampLeft.setPosition(1 - CLOSED_GRIPPER); //supposed to turn block into crypto-box
                 ++step;
                 break;
-            case 24:
+            case 22:
                 if (getTimer().targetReached(0.75)) {
                     // Gripper should be opened fully at this point
                     setGrabber(GrabberState.Open);
                     ++step;
                 }
                 break;
-            case 25://back away
+            case 23://back away
                 forward(-0.15);
-                ++step;
-                break;
-            case 26:
-                if (getTimer().targetReached(getBackwardDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 27:
-                lift.setPower(0.0);
-                default://what is this? --Luke
-                break;
-
-
-            case 100:
-                if (getTimer().targetReached(getSecondStrafeDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 101:
-                turnRight(0.38, false);
-                ++step;
-                break;
-            case 102:
-                if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
-                    stopMoving();
-                    step = 23;
-                }
-                break;
-        }
-        /* case 14:
-                lift.setPower(.4);
-                if(getTimer().targetReached(.5)){
-                    ++step;
-                    lift.setPower(0.0);
-                }
-                break;
-            case 15:
-                SetDriveDirection(DriveDirection.Forwards);
-                forward(0.15);
-                ++step;
-                break;
-            case 16:
-                if (getTimer().targetReached(2.0)) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 17:
-                //turnLeft(0.35, true);
-                turnRight(0.35, true);
-                ++step;
-                break;
-            case 18:
-                if (getTimer().targetReached(getTurnDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 19:
-                forward(0.15);
-                ++step;
-                break;
-            case 20:
-                if (getTimer().targetReached(getForwardDuration(vuMark))) {
-                    stopMoving();
-                    ++step;
-                }
-                break;
-            case 21:
-                setGrabber(GrabberState.Open);
-                ++step;
-                break;
-            case 22:
-                if (getTimer().targetReached(1.5)) {
-                    // Gripper should be opened fully at this point
-                    ++step;
-                }
-                break;
-            case 23:
-                reverse(0.15);
                 ++step;
                 break;
             case 24:
@@ -678,83 +582,14 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                     ++step;
                 }
                 break;
+            case 25:
+                lift.setPower(0.0);
             default:
                 break;
-
-        }*/
-
+        }
         getTelemetryUtil().addData("Step: ", "" + step);
         getTelemetryUtil().sendTelemetry();
-
-        /*try {
-            long millis1 = System.currentTimeMillis();
-            RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-            if (doThing == true) {
-                doThing = false;*/
-               // Thread.sleep(5000);
-
-            }
-            //getTelemetryUtil().addData("Image format before", vuforia.getFrameQueue().take().getImage(0).getFormat());
-         /*   if (imgBuffer == null) {
-                imgBuffer = vuforia.getFrameQueue().take().getImage(0).getPixels().duplicate();
-                vuforia.setFrameQueueCapacity(0);
-            }
-            /*
-            while (imgBuffer.position() < imgBuffer.limit()) {
-                byte0 = imgBuffer.get() & 0xFF;
-                byte1 = imgBuffer.get() & 0xFF;
-                byte2 = imgBuffer.get() & 0xFF;
-                byte3 = imgBuffer.get() & 0xFF;
-
-                //  getTelemetryUtil().addData("Size", "" + imgBuffer.limit()); //bitmask
-                //getTelemetryUtil().addData("Position", "" + imgBuffer.position());
-                /*getTelemetryUtil().addData("[0] Alpha", "" + byte0);
-                getTelemetryUtil().addData("[1] Red", "" + byte1);
-                getTelemetryUtil().addData("[2] Green", "" + byte2);
-                getTelemetryUtil().addData("[3] Blue", "" + byte3);
-                double[] hsl = new double[3];
-//               ./ float[] hsl = new float[3];
-               //RGBtoHSL(byte1, byte2, byte3, hsl);
-                RGBtoHSLEclipse(byte1, byte2, byte3, hsl);
-                /*if (done == false) {
-                    done = true;
-                    getTelemetryUtil().addData("Data", "H" + HSV.get(0) + " L" + HSV.get(1) + " S" + HSV.get(2));
-                }
-                if (hsl[0] < 0) {
-                    getTelemetryUtil().addData("ALERT < 0", "Hue val was " + hsl[0] + " from the vanilla byte " + byte1);
-                }
-              //  getTelemetryUtil().addData("Data", "Hue " + hsl[0] * 360 + " Saturation " + hsl[1] * 100 + " Luminance " + hsl[2] * 100);
-                getTelemetryUtil().addData("RGB", "R" + byte1 + " G" + byte2 + " B" + byte3);
-                //String ye = getColor(hsl[0] * 360, hsl[1] * 100, hsl[2] * 100);
-                if (ye.equalsIgnoreCase("red")) {
-                    getTelemetryUtil().addData("Found1", ye);
-                }
-                if (ye.equalsIgnoreCase("blue")) {
-                    getTelemetryUtil().addData("Found2", ye);
-                }
-                getTelemetryUtil().sendTelemetry();
-            }*//*
-            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-                // Image img =  vuforia.getFrameQueue().take().getImage(0); //format 8888
-                getTelemetryUtil().addData("Target", vuMark.name());
-                getTelemetryUtil().addData("Elapsed time", System.currentTimeMillis() - millis1 + "ms");
-                //getTelemetryUtil().addData("Dimensions", img.getHeight() + "h " + img.getWidth() + "w");
-            }
-        }
-/*
-        getTelemetryUtil().addData("Step ", "" + step);
-
-        switch(step) {
-        case 1: {
-
-
-        }
-        catch (Throwable t) {
-            getTelemetryUtil().addData("Throwable: ", t.getMessage());
-        }
-        finally {
-            getTelemetryUtil().sendTelemetry();
-        }*/
+    }
 
     private double getTurnDuration(RelicRecoveryVuMark bonusColumn) {
         double turnDuration = 0.30;
