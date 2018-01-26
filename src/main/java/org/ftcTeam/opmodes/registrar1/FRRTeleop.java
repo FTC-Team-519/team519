@@ -187,7 +187,6 @@ public class FRRTeleop extends ActiveOpMode {
             backLeft.setPower(reducePower(motorPowers[BACK_LEFT]));
 
         }
-
                          //position 0 means lowest point, before block is picked up
                         //position 1 is height to put the bottom block on top of the first block, etc.
         if (gunner.a) {
@@ -195,9 +194,7 @@ public class FRRTeleop extends ActiveOpMode {
         } else {
             if (!gunner.b) {
                 lift.setPower(alterLiftPower());
-            } else if (gunner.b)
-
-            {
+            } else if (gunner.b) {
                 lift.setPower(slowLiftPower());
             }
         }
@@ -332,14 +329,14 @@ public class FRRTeleop extends ActiveOpMode {
         if (ogY<0) {
             return ogY*.01f;
         } else {
-            return ogY * .4f; // going up
+            return ogY * .52f; // going up
         }
     }
     private static float alterLiftPower() {
         float ogY = -gY;
 
         if (ogY<0) {
-            return ogY*.15f;
+            return ogY*.05f;
         } else {
             return ogY*1.0f;
         }
