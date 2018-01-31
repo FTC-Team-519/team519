@@ -71,8 +71,8 @@ public class FRRTeleop extends ActiveOpMode {
     private final static float CLOSED_GRIPPER_RIGHT = .7f;
     private final static float OPEN_GRIPPER = .3f;
     private final static float OPEN_GRIPPER_SMALL = .15f;
-    private final static float OPEN_GRIPPER_SMALL_LEFT = .58f; //.7
-    private final static float OPEN_GRIPPER_SMALL_RIGHT = .42f;//.3
+    private final static float OPEN_GRIPPER_SMALL_LEFT = .52f; //.7
+    private final static float OPEN_GRIPPER_SMALL_RIGHT = .48f;//.3
 
 
     @Override
@@ -329,7 +329,7 @@ public class FRRTeleop extends ActiveOpMode {
         if (ogY<0) {
             return ogY*.01f;
         } else {
-            return ogY * .52f; // going up
+            return ogY * .55f; // going up
         }
     }
     private static float alterLiftPower() {

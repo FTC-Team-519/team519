@@ -480,7 +480,6 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                     getTelemetryUtil().addData("Elbow Found", "FIRST");
                     ++step;
                 }
-                //step++; //L
                 break;
             case 8:
                 shoulder.setPosition(STARTING_SHOULDER_POSITION);
@@ -488,9 +487,9 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                     step++;
                 }
                 break;
-            case 9: // raise
-                lift.setPower(.52);
-                if (getTimer().targetReached(0.7)) {
+            case 9: // raising lift to go over glyph
+                lift.setPower(.64);
+                if (getTimer().targetReached(1.2)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -503,7 +502,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.40)) {
+                if (getTimer().targetReached(.8)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -521,7 +520,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if (getTimer().targetReached(.3)) {
+                if (getTimer().targetReached(.45)) {
                     ++step; //normal
                     //step = 9999999; //testing purposes, only lift
                     //lift.setPower(0.0);
@@ -530,7 +529,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 15:
                 SetDriveDirection(DriveDirection.Forwards);
-                forward(0.15);
+                forward(0.35);
                 ++step;
                 break;
             case 16:
