@@ -189,14 +189,15 @@ public class FRRTeleop extends ActiveOpMode {
         }
                          //position 0 means lowest point, before block is picked up
                         //position 1 is height to put the bottom block on top of the first block, etc.
-        if (gunner.a) {
-            lift.setPower(0.20); // stall lift if holding a, otherwise do the normal routine
-        } else {
-            if (!gunner.b) {
-                lift.setPower(alterLiftPower());
-            } else if (gunner.b) {
+
+         if(!gunner.b) {
+             lift.setPower(alterLiftPower());
+         }
+            else {
                 lift.setPower(slowLiftPower());
             }
+         if (gunner.a && !gunner.b) {
+            lift.setPower(0.20); // stall lift if holding a, otherwise do the normal routine
         }
 
         if (gunner.y) //Row 2 height

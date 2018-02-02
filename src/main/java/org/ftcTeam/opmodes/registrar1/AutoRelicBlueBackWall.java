@@ -502,7 +502,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.8)) {
+                if (getTimer().targetReached(.5)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -520,7 +520,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if (getTimer().targetReached(.45)) {
+                if (getTimer().targetReached(.275)) {
                     ++step; //normal
                     //step = 9999999; //testing purposes, only lift
                     //lift.setPower(0.0);

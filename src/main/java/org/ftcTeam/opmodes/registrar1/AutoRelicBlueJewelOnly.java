@@ -430,7 +430,7 @@ public class AutoRelicBlueJewelOnly extends ActiveOpMode {
                 getTelemetryUtil().addData("green: ", green);
                 getTelemetryUtil().addData("blue: ", blue);
 
-                if ((blue > 5) || (blue > red)){ //knock blue jewel (red jewel stays)
+                if ((blue > 5) || (blue > red)){ // knock red jewel off (blue stays)
                     shoulder.setPosition(SHOULDER_KNOCK_LEFT);
                     step++;
                 }
