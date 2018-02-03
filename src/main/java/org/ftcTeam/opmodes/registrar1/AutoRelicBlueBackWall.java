@@ -502,7 +502,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.45)) {
+                if (getTimer().targetReached(.47)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -520,7 +520,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if (getTimer().targetReached(.7)) {
+                if (getTimer().targetReached(.85)) {
                     ++step; //normal
                     //step = 9999999; //testing purposes, only lift
                     //lift.setPower(0.0);
@@ -533,7 +533,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(1.6)) {
+                if (getTimer().targetReached(getForwardDuration())) {
                     stopMoving();
                     ++step;
                 }
@@ -608,8 +608,13 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         return turnDuration;
     }
 
-    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
-        double forwardDuration = 0.50;
+    private double getForwardDuration() {
+        double forwardDuration = 1.6;
+        if (testVoltage() > 12.8) {
+            forwardDuration = 1;
+            getTelemetryUtil().addData("Yes", "> than 13");
+            getTelemetryUtil().sendTelemetry();
+        }
 /*
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             forwardDuration = 1.2;
@@ -803,5 +808,20 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         backLeft.setPower(0.0d);
         backRight.setPower(0.0d);
     }
+    public double testVoltage() {
+        double result = Double.POSITIVE_INFINITY;
+        int i = 0;
+        for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+            ++i;
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        getTelemetryUtil().addData("Voltage tested : ", result);
+        getTelemetryUtil().sendTelemetry();
+        return result;
+    }
+
     }
 
