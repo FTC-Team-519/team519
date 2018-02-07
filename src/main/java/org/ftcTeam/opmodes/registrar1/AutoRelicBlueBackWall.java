@@ -54,7 +54,9 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
     public static final double JEWEL_MAXIMUM_POSITION = 0.54;
 
-    public static final int STARTING_STEP = 0;
+    //public static final int STARTING_STEP = 0;
+    public static final int STARTING_STEP = 9;
+
 
 
     // Assets
@@ -488,10 +490,10 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 }
                 break;
             case 9: // raising lift to go over glyph
-                lift.setPower(.64);
-                if (getTimer().targetReached(1.2)) {
+                lift.setPower(.6);
+                if (getTimer().targetReached(.8)) {
                     ++step;
-                    lift.setPower(0.0);
+                    lift.setPower(0.1);
                 }
                 break;
             case 10:
@@ -502,7 +504,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.47)) {
+                if (getTimer().targetReached(.46)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -609,9 +611,9 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     private double getForwardDuration() {
-        double forwardDuration = 1.6;
+        double forwardDuration = 1.4;
         if (testVoltage() > 12.8) {
-            forwardDuration = 1;
+            forwardDuration = 1.35;
             getTelemetryUtil().addData("Yes", "> than 13");
             getTelemetryUtil().sendTelemetry();
         }
@@ -656,7 +658,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 2.5; // was previously 2.7
+            strafeDuration = 2.58; // was previously 2.7
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
