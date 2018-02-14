@@ -55,7 +55,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
     public static final double JEWEL_MAXIMUM_POSITION = 0.54;
 
-    public static final int STARTING_STEP = 0;
+    public static final int STARTING_STEP = 9;
 
 
     // Assets
@@ -442,20 +442,20 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                     lift.setPower(0.25); // stall motor to keep glyph from coming down
                 }
                 break;
-            case 15:
+            case 15: // first move
                 SetDriveDirection(DriveDirection.Forwards);
                 reverse(0.15);
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(1.6)) { // changed
+                if (getTimer().targetReached(1.3)) { // changed
                     stopMoving();
                     //++step;
                     ++step;
                 }
                 break;
             case 17:
-                turnRight(.27, true);
+                turnRight(.25, true);
                 ++step;
                 break;
             case 18: // in use
@@ -466,17 +466,21 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 break;
             case 19:
                 if (getTimer().targetReached(1.0)) {
-                    forward(-0.15);
+                    if (vuMark == RelicRecoveryVuMark.LEFT) {
+                        forward(.25); // we want to move forward for left
+                    } else {
+                        forward(-.15); // move backwards for the other center & right columns
+                    }
                     ++step;
                 }
                 break;
-            case 20:
+            case 20: // move backward if needed before turning into the column
                 if (getTimer().targetReached(getForwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 21:
+            case 21: // turning into the column
                 turnRight(0.25, false);
 
                 ++step;
@@ -484,7 +488,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
             case 22:
                 if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
                     stopMoving();
-                    ++step;
+                    step = 29;
                 }
                 break;
             case 23:
@@ -517,27 +521,27 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
             case 28:
                 if (getTimer().targetReached(getSecondTurnDuration(vuMark))) {
                     stopMoving();
-                    step = 23;
+                    ++step;
                 }
                 break;
-            case 30:
+            case 29:
                 if (getTimer().targetReached(0.75)) {
                     // Gripper should be opened fully at this point
                     setGrabber(GrabberState.CloseOpen);
                     ++step;
                 }
                 break;
-            case 31://back away
+            case 30://back away
                 forward(-0.15);
                 ++step;
                 break;
-            case 32:
+            case 31:
                 if (getTimer().targetReached(getBackwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 33:
+            case 32:
                 lift.setPower(0.0);
             default:
                 break;
@@ -580,8 +584,13 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
 
         return backwardsDuration;
     }
-    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) { // actually backwards
-        double forwardDuration = 0.0;
+    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
+        /*
+        If left -> this is forward duration
+        If right or center -> this is actually duration for moving backwards since we need to back up to reach the column
+         */
+
+        double forwardDuration = .23;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             forwardDuration = .525;

@@ -504,7 +504,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.46)) {
+                if (getTimer().targetReached(.43)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -611,9 +611,9 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     private double getForwardDuration() {
-        double forwardDuration = 1.4;
+        double forwardDuration = 1.2;
         if (testVoltage() > 12.8) {
-            forwardDuration = 1.35;
+            forwardDuration = 1.20;
             getTelemetryUtil().addData("Yes", "> than 13");
             getTelemetryUtil().sendTelemetry();
         }
@@ -654,16 +654,16 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         double strafeDuration = 0.00;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            strafeDuration = 1.4; // was previously 1.6
+            strafeDuration = 1.36;
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 2.58; // was previously 2.7
+            strafeDuration = 2.25;
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
             getTelemetryUtil().addData("Strafe: ", "LEFT");
-            strafeDuration = 0.5; // was previously 0.5
+            strafeDuration = 0.5;
         }
 
         return strafeDuration;
@@ -794,7 +794,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     public void strafeRightSlow() {
-        double pow = .625;
+        double pow = .6;
         //double pow = .55;
         //double pow = .9;
 
