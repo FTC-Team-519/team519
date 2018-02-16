@@ -394,7 +394,6 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                     getTelemetryUtil().addData("Elbow Found", "FIRST");
                     ++step;
                 }
-                //step++; //L
                 break;
             case 8:
                 shoulder.setPosition(STARTING_SHOULDER_POSITION);
@@ -404,7 +403,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 break;
             case 9: // raise
                 lift.setPower(.52);
-                if (getTimer().targetReached(0.7)) {
+                if (getTimer().targetReached(0.75)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -417,7 +416,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.40)) {
+                if (getTimer().targetReached(.25)) {
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -448,9 +447,8 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(1.3)) { // changed
+                if (getTimer().targetReached(1.3)) {
                     stopMoving();
-                    //++step;
                     ++step;
                 }
                 break;
@@ -467,7 +465,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
             case 19:
                 if (getTimer().targetReached(1.0)) {
                     if (vuMark == RelicRecoveryVuMark.LEFT) {
-                        forward(.25); // we want to move forward for left
+                        forward(-.15); // we want to move forward for left
                     } else {
                         forward(-.15); // move backwards for the other center & right columns
                     }
@@ -590,7 +588,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
         If right or center -> this is actually duration for moving backwards since we need to back up to reach the column
          */
 
-        double forwardDuration = .23;
+        double forwardDuration = .2; //this is Left
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             forwardDuration = .525;
@@ -663,7 +661,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
         double turnDuration = 2.1;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            turnDuration = 1.5;
+            turnDuration = 1.8;
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {

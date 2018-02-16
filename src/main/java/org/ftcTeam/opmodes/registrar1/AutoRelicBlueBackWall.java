@@ -541,7 +541,11 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 }
                 break;
             case 17:
-                strafeRightSlow();
+                if (vuMark == RelicRecoveryVuMark.CENTER || vuMark == RelicRecoveryVuMark.RIGHT) {
+                    strafeRightSlow();
+                } else {
+                    strafeLeftSlow();
+                }
                 ++step;
                 break;
             case 18:
@@ -651,19 +655,18 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         return strafeDuration;
     }
     private double getSecondStrafeDuration(RelicRecoveryVuMark bonusColumn) {
-        double strafeDuration = 0.00;
+        double strafeDuration = 0.250;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            strafeDuration = 1.36;
+            strafeDuration = 1.050;
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 2.25;
+            strafeDuration = 2.000;
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
             getTelemetryUtil().addData("Strafe: ", "LEFT");
-            strafeDuration = 0.5;
         }
 
         return strafeDuration;
@@ -784,13 +787,14 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
     }
 
     public void strafeLeftSlow() {
+        double pow = .6;
         //double pow = .65;
-        double pow = .9;
+        //double pow = .9;
 
-        frontRight.setPower(0.475 * pow);
+        frontRight.setPower(0.5 * pow);
         backRight.setPower(-0.5 * pow);
-        frontLeft.setPower(-0.45 * pow);
-        backLeft.setPower(0.45 * pow);
+        frontLeft.setPower(-0.5 * pow);
+        backLeft.setPower(0.5 * pow);
     }
 
     public void strafeRightSlow() {
