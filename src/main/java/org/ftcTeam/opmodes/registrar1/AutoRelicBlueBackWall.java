@@ -490,10 +490,10 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 }
                 break;
             case 9: // raising lift to go over glyph
-                lift.setPower(.6);
-                if (getTimer().targetReached(.8)) {
+                lift.setPower(.52);
+                if (getTimer().targetReached(.75)) {
                     ++step;
-                    lift.setPower(0.1);
+                    lift.setPower(0.0);
                 }
                 break;
             case 10:
@@ -504,7 +504,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 11:
                 lift.setPower(-0.1);
-                if (getTimer().targetReached(.43)) {
+                if (getTimer().targetReached(.25)) { // .43
                     ++step;
                     lift.setPower(0.0);
                 }
@@ -522,25 +522,25 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 break;
             case 14:
                 lift.setPower(.4);
-                if (getTimer().targetReached(.85)) {
+                if (getTimer().targetReached(.3)) {
                     ++step; //normal
                     //step = 9999999; //testing purposes, only lift
                     //lift.setPower(0.0);
-                    lift.setPower(0.10); // stall motor to keep glyph from coming down
+                    lift.setPower(0.15); // stall motor to keep glyph from coming down
                 }
                 break;
-            case 15:
+            case 15: // first move off the plate
                 SetDriveDirection(DriveDirection.Forwards);
                 forward(0.2);
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(getForwardDuration())) {
+                if (getTimer().targetReached(getForwardDuration())) { // how much to move off the plate
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 17:
+            case 17: // move to column
                 if (vuMark == RelicRecoveryVuMark.CENTER || vuMark == RelicRecoveryVuMark.RIGHT) {
                     strafeRightSlow();
                 } else {
@@ -565,29 +565,40 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 }
                 break;
             case 21:
+                // move forward after strafe and turn
+                forward(.15);
+                step = 40;
+                break;
+            case 40:
+                if (getTimer().targetReached(getSecondForwardDuration(vuMark))) {
+                    stopMoving();
+                    step = 22;
+                }
+                break;
+            case 22:
                 //setGrabber(GrabberState.Open);
                 clampRight.setPosition(OPEN_GRIPPER);
                 clampLeft.setPosition(1 - CLOSED_GRIPPER); //supposed to turn block into crypto-box
                 ++step;
                 break;
-            case 22:
-                if (getTimer().targetReached(0.75)) {
+            case 23:
+                if (getTimer().targetReached(1.5)) {
                     // Gripper should be opened fully at this point
                     setGrabber(GrabberState.Open);
                     ++step;
                 }
                 break;
-            case 23://back away
+            case 24://back away
                 forward(-0.15);
                 ++step;
                 break;
-            case 24:
+            case 25:
                 if (getTimer().targetReached(getBackwardDuration(vuMark))) {
                     stopMoving();
                     ++step;
                 }
                 break;
-            case 25:
+            case 26:
                 lift.setPower(0.0);
             default:
                 break;
@@ -614,13 +625,17 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
         return turnDuration;
     }
 
-    private double getForwardDuration() {
+    private double getSecondForwardDuration(RelicRecoveryVuMark bonusColumn) {
+        double forwardDuration = .3;
+        return forwardDuration;
+    }
+    private double getForwardDuration() { // how far we should move off the plate
         double forwardDuration = 1.2;
-        if (testVoltage() > 12.8) {
+       /* if (testVoltage() > 12.8) {
             forwardDuration = 1.20;
             getTelemetryUtil().addData("Yes", "> than 13");
             getTelemetryUtil().sendTelemetry();
-        }
+        }*/
 /*
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             forwardDuration = 1.2;
@@ -654,7 +669,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
 
         return strafeDuration;
     }
-    private double getSecondStrafeDuration(RelicRecoveryVuMark bonusColumn) {
+    private double getSecondStrafeDuration(RelicRecoveryVuMark bonusColumn) { // how much to strafe to reach the column
         double strafeDuration = 0.250;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
@@ -662,7 +677,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
             getTelemetryUtil().addData("Strafe: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            strafeDuration = 2.000;
+            strafeDuration = 2.25;
             getTelemetryUtil().addData("Strafe: ", "RIGHT");
         }
         else {
@@ -692,7 +707,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
 
     private double getBackwardDuration(RelicRecoveryVuMark bonusColumn) {
         //return getForwardDuration(bonusColumn);
-        return 0.75;
+        return 0.5;
         //return 0.40;
 
     }
