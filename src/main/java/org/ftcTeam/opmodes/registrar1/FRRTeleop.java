@@ -40,7 +40,7 @@ public class FRRTeleop extends ActiveOpMode {
         public int position = 0;
 
         private static final float DEAD_ZONE = 0.2f;
-        private static final double MAX_SPEED = 0.8d;
+        private static final double MAX_SPEED = 0.65d;
 
         private double[] motorPowers = new double[4];
         private static final int FRONT_LEFT  = 0;
@@ -69,10 +69,10 @@ public class FRRTeleop extends ActiveOpMode {
     private final static float CLOSED_GRIPPER = .55f;
     private final static float CLOSED_GRIPPER_LEFT = .3f;
     private final static float CLOSED_GRIPPER_RIGHT = .7f;
-    private final static float OPEN_GRIPPER = .3f;
+    private final static float OPEN_GRIPPER = .3f; // .7 because 1-.3
     private final static float OPEN_GRIPPER_SMALL = .15f;
-    private final static float OPEN_GRIPPER_SMALL_LEFT = .52f; //.7
-    private final static float OPEN_GRIPPER_SMALL_RIGHT = .48f;//.3
+    private final static float OPEN_GRIPPER_SMALL_LEFT = .62f; //.52
+    private final static float OPEN_GRIPPER_SMALL_RIGHT = .38f;//.48
 
 
     @Override
@@ -223,7 +223,7 @@ public class FRRTeleop extends ActiveOpMode {
             clampRight.setPosition(OPEN_GRIPPER);
         }
 
-        if (gunner.left_trigger > 0.05) { // slow lift
+        if (gunner.left_trigger > 0.05) {
             clampLeft.setPosition(OPEN_GRIPPER_SMALL_LEFT);
             clampRight.setPosition(OPEN_GRIPPER_SMALL_RIGHT);
             nextFrameOpenFully = true;

@@ -55,7 +55,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
     public static final double ELBOW_MOVEMENT_INCREMENT = 0.003;
     public static final double JEWEL_MAXIMUM_POSITION = 0.54;
 
-    public static final int STARTING_STEP = 9;
+    public static final int STARTING_STEP = 0;
 
 
     // Assets
@@ -615,7 +615,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
             getTelemetryUtil().addData("Forward: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
-            forwardDuration = .46;
+            forwardDuration = .5;
             getTelemetryUtil().addData("Forward: ", "RIGHT");
         }
         else {
