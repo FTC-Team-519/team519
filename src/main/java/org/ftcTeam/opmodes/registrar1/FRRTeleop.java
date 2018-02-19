@@ -71,8 +71,8 @@ public class FRRTeleop extends ActiveOpMode {
     private final static float CLOSED_GRIPPER_RIGHT = .7f;
     private final static float OPEN_GRIPPER = .3f; // .7 because 1-.3
     private final static float OPEN_GRIPPER_SMALL = .15f;
-    private final static float OPEN_GRIPPER_SMALL_LEFT = .62f; //.52
-    private final static float OPEN_GRIPPER_SMALL_RIGHT = .38f;//.48
+    private final static float OPEN_GRIPPER_SMALL_LEFT = .55f; //.52 too less, .62 too much
+    private final static float OPEN_GRIPPER_SMALL_RIGHT = .45f;//.48 too less, .38 too much
 
 
     @Override
