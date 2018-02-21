@@ -447,7 +447,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 ++step;
                 break;
             case 16:
-                if (getTimer().targetReached(1.4)) {
+                if (getTimer().targetReached(1.45)) {
                     stopMoving();
                     ++step;
                 }
@@ -465,9 +465,9 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
             case 19:
                 if (getTimer().targetReached(1.0)) {
                     if (vuMark == RelicRecoveryVuMark.LEFT) {
-                        forward(-.15); // we want to move forward for left
+                        forward(-.25); // we want to move forward for left
                     } else {
-                        forward(-.15); // move backwards for the other center & right columns
+                        forward(-.25); // move backwards for the other center & right columns
                     }
                     ++step;
                 }
@@ -563,7 +563,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
     }
 
     private double getTurnDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = 2.0;
+        double turnDuration = 2.5;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             turnDuration = 2.5;
@@ -602,16 +602,16 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
 
         return backwardsDuration;
     }
-    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) {
+    private double getForwardDuration(RelicRecoveryVuMark bonusColumn) { //2/20 need to change the amount it turns to less than 5 for left. right is gucci
         /*
         If left -> this is forward duration
         If right or center -> this is actually duration for moving backwards since we need to back up to reach the column
          */
 
-        double forwardDuration = .2; //this is Left
+        double forwardDuration = .15; //this is Left
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
-            forwardDuration = .525;
+            forwardDuration = .525; //.5 may be better
             getTelemetryUtil().addData("Forward: ", "CENTER");
         }
         else if (bonusColumn == RelicRecoveryVuMark.RIGHT) {
@@ -619,7 +619,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
             getTelemetryUtil().addData("Forward: ", "RIGHT");
         }
         else {
-            getTelemetryUtil().addData("Forward: ", "LEFT");
+            getTelemetryUtil().addData("Forward: ", "LEFT AND IT WAS ALTERED");
         }
 
         return forwardDuration;
@@ -678,7 +678,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
         return strafeDuration;
     }
     private double getSecondTurnDuration(RelicRecoveryVuMark bonusColumn) {
-        double turnDuration = 2.1;
+        double turnDuration = 2.4;
 
         if (bonusColumn == RelicRecoveryVuMark.CENTER) {
             turnDuration = 1.8;
