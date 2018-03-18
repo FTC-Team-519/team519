@@ -544,7 +544,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 if (vuMark == RelicRecoveryVuMark.CENTER || vuMark == RelicRecoveryVuMark.RIGHT) {
                     strafeRightSlow();
                 } else {
-                    strafeLeftSlow();
+                    //strafeLeftSlow();
                 }
                 ++step;
                 break;
