@@ -402,7 +402,7 @@ public class AutoRelicRedBackWall extends ActiveOpMode {
                 }
                 break;
             case 9: // raise
-                lift.setPower(.52);
+                lift.setPower(.62);
                 if (getTimer().targetReached(0.75)) {
                     ++step;
                     lift.setPower(0.0);

@@ -398,8 +398,8 @@ public class AutoRelicRedSideWall extends ActiveOpMode {
                 }
                 break;
             case 9: // raise lift
-                lift.setPower(.52);
-                if (getTimer().targetReached(0.7)) {
+                lift.setPower(.62);
+                if (getTimer().targetReached(0.75)) {
                     ++step;
                     lift.setPower(0.0);
                 }

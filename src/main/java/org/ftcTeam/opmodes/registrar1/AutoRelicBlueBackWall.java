@@ -490,7 +490,7 @@ public class AutoRelicBlueBackWall extends ActiveOpMode {
                 }
                 break;
             case 9: // raising lift to go over glyph
-                lift.setPower(.52);
+                lift.setPower(.62);
                 if (getTimer().targetReached(.75)) {
                     ++step;
                     lift.setPower(0.0);
